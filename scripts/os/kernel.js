@@ -162,22 +162,22 @@ function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Rout
 //
 function krnTrace(msg)
 {
-   // Check globals to see if trace is set ON.  If so, then (maybe) log the message. 
-   if (_Trace)
-   {
-      if (msg === "Idle")
-      {
-         // We can't log every idle clock pulse because it would lag the browser very quickly.
-         if (_OSclock % 10 == 0)  // Check the CPU_CLOCK_INTERVAL in globals.js for an 
-         {                        // idea of the tick rate and adjust this line accordingly.
-            simLog(msg, "OS");          
-         }         
-      }
-      else
-      {
-       simLog(msg, "OS");
-      }
-   }
+    // Check globals to see if trace is set ON.  If so, then (maybe) log the message. 
+    if (_Trace)
+    {
+        if (msg === "Idle")
+        {
+            // We can't log every idle clock pulse because it would lag the browser very quickly.
+            if (_OSclock % 10 == 0)  // Check the CPU_CLOCK_INTERVAL in globals.js for an 
+            {                        // idea of the tick rate and adjust this line accordingly.
+                simLog(msg, "OS");          
+            }         
+        }
+        else
+        {
+            simLog(msg, "OS");
+        }
+    }
 }
    
 function krnTrapError(msg)
