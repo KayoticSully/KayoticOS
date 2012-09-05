@@ -30,7 +30,7 @@ function simInit()
 	// Clear the log text box.
 	document.getElementById("taLog").value="";
 	// Set focus on the start button.
-   document.getElementById("btnStartOS").focus();     // TODO: This does not seem to work.  Why?
+	document.getElementById("btnStartOS").focus();     // TODO: This does not seem to work.  Why?
 }
 
 function simLog(msg, source)
@@ -48,13 +48,13 @@ function simLog(msg, source)
     var now = new Date().getTime();
 
     // Build the log string.
-    var str = new Log(source, msg, clock, now);
+    var log = new Log(source, msg, clock, now);
     //var str = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n"; 
     // WAS: var str = "[" + clock   + "]," + "[" + now    + "]," + "[" + source + "]," +"[" + msg    + "]"  + "\n";
 
     // Update the log console.
     taLog = document.getElementById("taLog");
-    taLog.value = str + taLog.value;
+    taLog.value = log + taLog.value;
     // Optionally udpate a log database or some streaming service.
 }
 

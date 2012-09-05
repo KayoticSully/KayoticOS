@@ -52,6 +52,7 @@ Log.prototype = {
     // output for this object.
     //
     toString : function(){
+        //return JSON.stringify(this);
         return "({ clock:" + this.clock + ", source:" + this.source + ", msg:" + this.msg + ", now:" + this.now  + " })"  + "\n";
     }
 }
