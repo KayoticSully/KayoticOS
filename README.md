@@ -5,6 +5,6 @@ A JavaScript based operating system.
 
 Topics
 -------
-[Constants](/KayoticSully/KayoticOS/docs/constants.md)
-[System Calls](/KayoticSully/KayoticOS/docs/system_calls.md)
-[Interrupts](/KayoticSully/KayoticOS/docs/interrupts.md)
+*   [Constants](/KayoticSully/KayoticOS/blob/master/docs/constants.md)
+*   [System Calls](/KayoticSully/KayoticOS/blob/master/docs/system_calls.md)
+*   [Interrupts](/KayoticSully/KayoticOS/blob/master/docs/interrupts.md)
