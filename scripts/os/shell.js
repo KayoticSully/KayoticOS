@@ -81,6 +81,13 @@ function shellInit()
     sc.description = "<string> - Sets the prompt.";
     sc.function = shellPrompt;
     this.commandList[this.commandList.length] = sc;
+    
+    // date
+    sc = new ShellCommand();
+    sc.command = "date";
+    sc.description = "- Displays the current date and time";
+    sc.function = shellDate;
+    this.commandList[this.commandList.length] = sc;
 
     // processes - list the running processes and their IDs
     // kill <id> - kills the specified process id.
@@ -255,7 +262,7 @@ function shellApology()
 
 function shellVer(args)
 {
-    _StdIn.putText(APP_NAME + " version " + APP_VERSION);    
+    _StdIn.putText(APP_NAME + " Core Version " + APP_VERSION);    
 }
 
 function shellHelp(args)
@@ -357,4 +364,14 @@ function shellPrompt(args)
     {
         _StdIn.putText("Usage: prompt <string>  Please supply a string.");
     }
+}
+
+function shellDate(args)
+{
+    var dateTime = new SystemDate();
+    var month = dateTime.getMonth();
+    var day = dateTime.getDate();
+    var year = dateTime.getFullYear();
+    
+    _StdIn.putText(monthName(month) + " " + day + ", " + year);
 }

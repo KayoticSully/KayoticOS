@@ -43,9 +43,6 @@
                <td class="label">
                   Control Log
                </td>
-               <td class="label">
-                  Task Manager
-               </td>
             </tr>
             <tr valign="top">
                <td id="tdDisplay">
@@ -58,14 +55,6 @@
                <td id="tdLog">
                   <textarea name="taLog"
                             id = "taLog"
-                            rows="36"
-                            cols="48"
-                            disabled
-                  ></textarea>
-               </td>
-               <td>
-                  <textarea name="taManager"
-                            id = "taManager"
                             rows="36"
                             cols="48"
                             disabled
@@ -97,6 +86,8 @@
    <script type="text/javascript" src="scripts/host/control.js"></script>
    <script type="text/javascript" src="scripts/host/devices.js"></script>
    <script type="text/javascript" src="scripts/host/cpu.js"></script>
+   
+   <script type="text/javascript" src="scripts/os/SystemDate.js"></script>
    
    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
    <script type="text/javascript" src="scripts/os/interrupt.js"></script>
