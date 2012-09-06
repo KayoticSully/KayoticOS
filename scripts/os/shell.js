@@ -31,91 +31,91 @@ function shellInit()
     sc.command = "ver";
     sc.description = "- Displays the current version data."
     sc.function = shellVer;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
     
     // help
     sc = new ShellCommand();
     sc.command = "help";
     sc.description = "- This is the help command. Seek help."
     sc.function = shellHelp;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
     
     // shutdown
     sc = new ShellCommand();
     sc.command = "shutdown";
     sc.description = "- Shuts down the virtual OS but leaves the underlying hardware simulation running."
     sc.function = shellShutdown;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
 
     // cls
     sc = new ShellCommand();
     sc.command = "cls";
     sc.description = "- Clears the screen and resets the cursosr position."
     sc.function = shellCls;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
 
     // man <topic>
     sc = new ShellCommand();
     sc.command = "man";
     sc.description = "<topic> - Displays the MANual page for <topic>.";
     sc.function = shellMan;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
     
     // trace <on | off>
     sc = new ShellCommand();
     sc.command = "trace";
     sc.description = "<on | off> - Turns the OS trace on or off.";
     sc.function = shellTrace;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
 
     // rot13 <string>
     sc = new ShellCommand();
     sc.command = "rot13";
     sc.description = "<string> - Does rot13 obfuscation on <string>.";
     sc.function = shellRot13;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
 
     // prompt <string>
     sc = new ShellCommand();
     sc.command = "prompt";
     sc.description = "<string> - Sets the prompt.";
     sc.function = shellPrompt;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
     
     // date
     sc = new ShellCommand();
     sc.command = "date";
     sc.description = "- Displays the current date and time";
     sc.function = shellDate;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
     
     // whereami
     sc = new ShellCommand();
     sc.command = "whereami";
     sc.description = "- Displays your current location";
     sc.function = shellWhereAmI;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
     
     // euthanize
     sc = new ShellCommand();
     sc.command = "euthanize";
     sc.description = " - Warms up the neurotoxin emitters";
     sc.function = shellEuthanize;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
     
     // blackout
     sc = new ShellCommand();
     sc.command = "blackout";
     sc.description = " - Simulates a power failure";
     sc.function = shellPowerFailure;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
 
     // charw
     sc = new ShellCommand();
     sc.command = "charw";
     sc.description = " - Gets the pixel width of the given character";
     sc.function = shellCharWidth;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList[sc.command] = sc;
     
     // processes - list the running processes and their IDs
     // kill <id> - kills the specified process id.
@@ -145,10 +145,22 @@ function shellHandleInput(buffer)
     // Determine the command and execute it.
     //
     // Javascript may not support associative arrays (one of the few nice features of PHP, actually)
-    // so we have to iterate over the command list in attempt to find a match.  TODO: Is there a better way?
+    // so we have to iterate over the command list in attempt to find a match.
+    // TODO: Is there a better way? Yes, use an associative array... well an object.
     //
     var index = 0;
-    var found = false;
+    var found = true;
+    
+    try
+    {
+        fn = this.commandList[cmd].function;
+    }
+    catch(error)
+    {
+        found = false;
+    }
+    
+    /*
     while (!found && index < this.commandList.length)
     {
         if (this.commandList[index].command === cmd)
@@ -160,7 +172,7 @@ function shellHandleInput(buffer)
         {
             ++index;
         }
-    }
+    }*/
     
     if (found)
     {
