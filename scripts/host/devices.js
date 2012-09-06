@@ -22,12 +22,13 @@ var hardwareClockID = -1;
 //
 function simClockPulse()
 {
-   // Increment the hardware (host) clock.
-   _OSclock++;
-   // Call the kernel clock pulse event handler.
-   krnOnCPUClockPulse();
+   // moved this inside of CPU object
+   // to keep the virtualized hardware
+   // more realistic.  The clock pulse now
+   // "goes through" the CPU.
+   //
+   _CPU.pulse();
 }
-
 
 //
 // Keyboard Interrupt, a HARDWARE Interrupt Request. (See pages 560-561 in text book.)

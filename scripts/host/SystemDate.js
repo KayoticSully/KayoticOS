@@ -59,8 +59,7 @@ function SystemDate() {
         {
             return this.formatDigits(dateTime.getHours()) + ":" +
                    this.formatDigits(dateTime.getMinutes()) + ":" +
-                   this.formatDigits(dateTime.getSeconds()) + ":" +
-                   this.formatDigits(Math.round(dateTime.getMilliseconds()/10));
+                   this.formatDigits(dateTime.getSeconds());
         }
     });
     
@@ -87,7 +86,7 @@ SystemDate.prototype = {
     // output for this object.
     //
     toString : function(){
-        return this.month + " " + this.day + ", " + this.year + " " + this.time;
+        return this.time + " on " + this.month + " " + this.day + ", " + this.year;
     },
     
     monthName : function (number)

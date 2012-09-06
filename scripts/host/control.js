@@ -77,6 +77,9 @@ function simBtnStartOS_click(btn)
     // ... Create and initialize the CPU ...
     _CPU = new cpu();
     _CPU.init();
+    
+    // Initialize System Clock Object
+    _SystemClock = new SystemDate();
 
     // ... then set the clock pulse simulation to call ?????????.
     hardwareClockID = setInterval(simClockPulse, CPU_CLOCK_INTERVAL);

@@ -95,7 +95,28 @@ function shellInit()
     sc.description = "- Displays your current location";
     sc.function = shellWhereAmI;
     this.commandList[this.commandList.length] = sc;
+    
+    // euthanize
+    sc = new ShellCommand();
+    sc.command = "euthanize";
+    sc.description = " - Warms up the neurotoxin emitters";
+    sc.function = shellEuthanize;
+    this.commandList[this.commandList.length] = sc;
+    
+    // blackout
+    sc = new ShellCommand();
+    sc.command = "blackout";
+    sc.description = " - Simulates a power failure";
+    sc.function = shellPowerFailure;
+    this.commandList[this.commandList.length] = sc;
 
+    // charw
+    sc = new ShellCommand();
+    sc.command = "charw";
+    sc.description = " - Gets the pixel width of the given character";
+    sc.function = shellCharWidth;
+    this.commandList[this.commandList.length] = sc;
+    
     // processes - list the running processes and their IDs
     // kill <id> - kills the specified process id.
 
@@ -125,6 +146,7 @@ function shellHandleInput(buffer)
     //
     // Javascript may not support associative arrays (one of the few nice features of PHP, actually)
     // so we have to iterate over the command list in attempt to find a match.  TODO: Is there a better way?
+    //
     var index = 0;
     var found = false;
     while (!found && index < this.commandList.length)
@@ -139,6 +161,7 @@ function shellHandleInput(buffer)
             ++index;
         }
     }
+    
     if (found)
     {
         this.execute(fn, args);
@@ -381,4 +404,20 @@ function shellDate(args)
 function shellWhereAmI(args)
 {
     _StdIn.putText("Your location is not worthy of global positioning.");
+}
+
+function shellEuthanize()
+{
+    _KernelInterruptQueue.enqueue(new Interrput(EUTHANIZE_IRQ, new Array()));
+}
+
+function shellPowerFailure()
+{
+    clearInterval(hardwareClockID);
+}
+
+function shellCharWidth(character)
+{
+    var letter = CanvasTextFunctions.letter(character);
+    _StdIn.putText("Width of " + character + " is " + letter.width);
 }

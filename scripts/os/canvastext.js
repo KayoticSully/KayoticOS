@@ -134,12 +134,12 @@ CanvasTextFunctions.measure = function(font, size, str)
     var len = str.length;
 
     for (var i = 0; i < len; i++) 
+    {
+	var c = CanvasTextFunctions.letter(str.charAt(i));
+	if (c) 
 	{
-		var c = CanvasTextFunctions.letter(str.charAt(i));
-		if (c) 
-		{
-			total += c.width * size / 25.0;
-		}
+	    total += c.width * size / 25.0;
+	}
     }
     return total;
 };
@@ -153,39 +153,40 @@ CanvasTextFunctions.draw = function(ctx,font,size,x,y,str)
     ctx.save();
     ctx.lineCap = "round";
     ctx.lineWidth = 2.0 * mag;
-	ctx.strokeStyle = "black";
+    ctx.strokeStyle = "black";
 
     for (var i = 0; i < len; i++) 
+    {
+	var c = CanvasTextFunctions.letter( str.charAt(i));
+	if (!c)
 	{
-		var c = CanvasTextFunctions.letter( str.charAt(i));
-		if (!c)
+	    continue;	
+	} 
+	ctx.beginPath();
+	var penUp = 1;
+	var needStroke = 0;
+	for (var j = 0; j < c.points.length; j++) 
+	{
+	    var a = c.points[j];
+	    if ( a[0] === -1 && a[1] === -1) 
 		{
-			continue;	
-		} 
-		ctx.beginPath();
-		var penUp = 1;
-		var needStroke = 0;
-		for (var j = 0; j < c.points.length; j++) 
+		    penUp = 1;
+		    continue;
+	    }
+	    if ( penUp) 
 		{
-		    var a = c.points[j];
-		    if ( a[0] === -1 && a[1] === -1) 
-			{
-				penUp = 1;
-				continue;
-		    }
-		    if ( penUp) 
-			{
-				ctx.moveTo( x + a[0]*mag, y - a[1]*mag);
-				penUp = false;
-		    } 
-			else 
-			{
-				ctx.lineTo( x + a[0]*mag, y - a[1]*mag);
-		    }
-		}
-		ctx.stroke();
-		x += c.width*mag;
+		    ctx.moveTo( x + a[0]*mag, y - a[1]*mag);
+		    penUp = false;
+	    } 
+		else 
+		{
+		    ctx.lineTo( x + a[0]*mag, y - a[1]*mag);
+	    }
+	}
+	ctx.stroke();
+	x += c.width*mag;
     }
+    
     ctx.restore();
     return total;
 };

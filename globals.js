@@ -17,7 +17,9 @@ var CPU_CLOCK_INTERVAL = 100;   // in ms, or milliseconds, so 1000 = 1 second.
 
 var TIMER_IRQ    = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority). 
                        // NOTE: The timer is different from hardware clock pulses. Don't confuse these.
-var KEYBOARD_IRQ = 1;  
+var KEYBOARD_IRQ = 1;
+
+var EUTHANIZE_IRQ = 24;
 
 
 //
@@ -25,11 +27,11 @@ var KEYBOARD_IRQ = 1;
 //
 var _CPU = null;
 
+var _SystemClock = null; // Controls System Date Time
+
 var _OSclock = 0;       // Page 23.
 
 var _Mode = 0;   // 0 = Kernel Mode, 1 = User Mode.  See page 21.
-
-var _SystemClock = new SystemDate();
 
 // TODO: Fix the naming convention for these next five global vars.
 var CANVAS = null;              // Initialized in hostInit().

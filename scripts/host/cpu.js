@@ -34,9 +34,14 @@ function cpu()
     
     this.pulse = function()
     {
-        // TODO: Do we need this?  Probably not.
-        alert('test');
+        // Increment the hardware (host) clock.
+        _OSclock++;
+        
+        // Update System Clock
         _SystemClock.update();
+        
+        // Call the kernel clock pulse event handler.
+        krnOnCPUClockPulse();
     }
     
     this.cycle = function()
