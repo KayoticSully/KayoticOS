@@ -88,6 +88,13 @@ function shellInit()
     sc.description = "- Displays the current date and time";
     sc.function = shellDate;
     this.commandList[this.commandList.length] = sc;
+    
+    // whereami
+    sc = new ShellCommand();
+    sc.command = "whereami";
+    sc.description = "- Displays your current location";
+    sc.function = shellWhereAmI;
+    this.commandList[this.commandList.length] = sc;
 
     // processes - list the running processes and their IDs
     // kill <id> - kills the specified process id.
@@ -368,10 +375,10 @@ function shellPrompt(args)
 
 function shellDate(args)
 {
-    var dateTime = new SystemDate();
-    var month = dateTime.getMonth();
-    var day = dateTime.getDate();
-    var year = dateTime.getFullYear();
-    
-    _StdIn.putText(monthName(month) + " " + day + ", " + year);
+    _StdIn.putText(_SystemClock.toString());
+}
+
+function shellWhereAmI(args)
+{
+    _StdIn.putText("Your location is not worthy of global positioning.");
 }

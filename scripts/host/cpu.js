@@ -35,6 +35,8 @@ function cpu()
     this.pulse = function()
     {
         // TODO: Do we need this?  Probably not.
+        alert('test');
+        _SystemClock.update();
     }
     
     this.cycle = function()

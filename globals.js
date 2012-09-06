@@ -7,7 +7,6 @@
    This code references page numbers in the text book: 
    Operating System Concepts 8th editiion by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
    ------------ */
-
 //
 // Global Constants
 //
@@ -29,6 +28,8 @@ var _CPU = null;
 var _OSclock = 0;       // Page 23.
 
 var _Mode = 0;   // 0 = Kernel Mode, 1 = User Mode.  See page 21.
+
+var _SystemClock = new SystemDate();
 
 // TODO: Fix the naming convention for these next five global vars.
 var CANVAS = null;              // Initialized in hostInit().
