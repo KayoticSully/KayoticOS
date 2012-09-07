@@ -10,7 +10,7 @@ function Shell()
 {
     // Properties
     this.promptStr   = ">";
-    this.commandList = [];
+    this.commandList = new Object();
     this.curses      = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
     this.apologies   = "[sorry]";
     // Methods
@@ -23,7 +23,7 @@ function Shell()
 function shellInit()
 {
     var sc = null;
-    //
+    
     // Load the command list.
 
     // ver
@@ -120,7 +120,6 @@ function shellInit()
     // processes - list the running processes and their IDs
     // kill <id> - kills the specified process id.
 
-    //
     // Display the initial prompt.
     this.putPrompt();
 }
@@ -133,50 +132,33 @@ function shellPutPrompt()
 function shellHandleInput(buffer)
 {
     krnTrace("Shell Command~" + buffer);
-    // 
+    
     // Parse the input...
     //
     var userCommand = new UserCommand();
     userCommand = shellParseInput(buffer);
+    
     // ... and assign the command and args to local variables.
     var cmd = userCommand.command;
     var args = userCommand.args;
-    //
+    
     // Determine the command and execute it.
     //
     // Javascript may not support associative arrays (one of the few nice features of PHP, actually)
     // so we have to iterate over the command list in attempt to find a match.
-    // TODO: Is there a better way? Yes, use an associative array... well an object.
+    // TODO: Is there a better way?
+    // Answer: Yes, use an associative array... well an object.
     //
-    var index = 0;
-    var found = true;
+    var commandFunction = null;
     
-    try
+    if(cmd in this.commandList)
     {
-        fn = this.commandList[cmd].function;
-    }
-    catch(error)
-    {
-        found = false;
+        commandFunction = this.commandList[cmd].function;
     }
     
-    /*
-    while (!found && index < this.commandList.length)
+    if (commandFunction != null)
     {
-        if (this.commandList[index].command === cmd)
-        {
-            found = true;
-            fn = this.commandList[index].function;
-        }
-        else
-        {
-            ++index;
-        }
-    }*/
-    
-    if (found)
-    {
-        this.execute(fn, args);
+        this.execute(commandFunction, args);
     }
     else
     {
@@ -189,7 +171,7 @@ function shellHandleInput(buffer)
         {
             this.execute(shellApology);
         }
-        else    // It's just a bad command.
+        else // It's just a bad command.
         {
             this.execute(shellInvalidCommand);
         }
@@ -200,7 +182,7 @@ function shellHandleInput(buffer)
 function shellParseInput(buffer)
 {
     var retVal = new UserCommand();
-    //
+    
     // 1. Remove leading and trailing spaces.
     buffer = trim(buffer);
     // 2. Lower-case it.
@@ -213,7 +195,7 @@ function shellParseInput(buffer)
     cmd = trim(cmd);
     // 4.2 Record it in the return value.
     retVal.command = cmd;
-    //
+    
     // 5. Now create the args array from what's left.
     for (var i in tempList)
     {
