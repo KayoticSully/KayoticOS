@@ -42,7 +42,15 @@ var Shell = (function()
         this.commandList = {};
         this.curses      = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         this.apologies   = "[sorry]";
-        this.status      = "Status";
+        this.status      = "status <string> to change this text";
+        
+        Object.defineProperty(this, 'taskbar', {
+            writeable       : false,
+            enumerable      : false,
+            get             : function() {
+                return _SystemClock.toString() + " | " + this.status;
+            }
+        });
         
         //--------------------------------
         // "Public" Instance Functions
@@ -51,8 +59,6 @@ var Shell = (function()
         this.putPrompt   = shellPutPrompt;
         this.handleInput = shellHandleInput;
         this.execute     = shellExecute;
-        
-        
     }
     
     //--------------------------------
@@ -250,7 +256,7 @@ var Shell = (function()
         // charw
         sc = new ShellCommand();
         sc.command = "charw";
-        sc.description = "<char> - Gets the pixel width of the given character";
+        sc.description = "<char> - Gets the width of the given character";
         sc.function = shellCharWidth;
         this.commandList[sc.command] = sc;
         
@@ -459,7 +465,7 @@ var Shell = (function()
     
     function shellStatus(str)
     {
-        _OsShell.status = str;
+        _OsShell.status = str.join(' ');
     }
     
     return Shell;
@@ -471,19 +477,3 @@ var Shell = (function()
 // Functions can be added to the prototype
 // here to allow for "Public Static" access
 //
-Shell.prototype.update = function()
-{
-    DRAWING_CONTEXT.fillStyle = "#ffffff";
-    DRAWING_CONTEXT.fillRect(0, CANVAS.height - (DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN*2),  CANVAS.width, DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN*2);
-    
-    var cursorX = _Console.CurrentXPosition;
-    var cursorY = _Console.CurrentYPosition;
-    
-    _Console.CurrentXPosition = 5;
-    _Console.CurrentYPosition = CANVAS.height - FONT_HEIGHT_MARGIN;
-    
-    _Console.putText(_SystemClock.toString() + " | " + this.status);
-    
-    _Console.CurrentXPosition = cursorX;
-    _Console.CurrentYPosition = cursorY;
-}

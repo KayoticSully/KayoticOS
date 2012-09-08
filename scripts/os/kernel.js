@@ -48,6 +48,9 @@ function krnBootstrap()      // Page 8.
     krnTrace("Creating and Launching the shell.")
     _OsShell = new Shell();
     _OsShell.init();
+    
+    // draw taskbar
+    _Console.drawTaskBar();
 }
 
 function krnShutdown()
@@ -142,9 +145,8 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
 
 function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver).
 {
-    // call Shell Update function so the shell can regularly do some housekeeping
-    if('update' in _OsShell)
-        _OsShell.update();
+    // draw the taskbar part of the gui
+    _Console.drawTaskBar();
     
     // Check multiprogramming parameters and enfore quanta here. Call the scheduler / context switch here if necessary.
 }   

@@ -24,6 +24,7 @@ function Console()
     this.putText     = consolePutText;
     this.delChar     = consoleDelText;
     this.advanceLine = consoleAdvanceLine;
+    this.drawTaskBar = consoleDrawTaskBar;
 }
 
 function consoleInit()
@@ -34,7 +35,7 @@ function consoleInit()
 
 function consoleClearScreen()
 {
-    DRAWING_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);
+    DRAWING_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height - TASKBAR_HEIGHT);
 }
 
 function consoleResetXY()
@@ -106,13 +107,13 @@ function consoleAdvanceLine()
 {
     this.CurrentXPosition = 0;
     
-    if(this.CurrentYPosition >= CANVAS.height - (DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN))
+    if(this.CurrentYPosition >= CANVAS.height - (DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN) - TASKBAR_HEIGHT)
     {
 	// calculate line height to move up
 	var lineHeight = DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN;
 	
 	// grab image less line height at top
-	var image = DRAWING_CONTEXT.getImageData(0, lineHeight, CANVAS.width, CANVAS.height);
+	var image = DRAWING_CONTEXT.getImageData(0, lineHeight, CANVAS.width, CANVAS.height - lineHeight - TASKBAR_HEIGHT);
 	
 	// clear "screen"
 	this.clearScreen();
@@ -125,4 +126,18 @@ function consoleAdvanceLine()
 	// if not at bottom try to get there
 	this.CurrentYPosition += DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN;
     }
+}
+
+function consoleDrawTaskBar()
+{
+    // paint background
+    var taskBarTop = CANVAS.height - TASKBAR_HEIGHT;
+    DRAWING_CONTEXT.fillStyle = TASKBAR_COLOR;
+    DRAWING_CONTEXT.fillRect(0,  taskBarTop,  CANVAS.width, TASKBAR_HEIGHT);
+    
+    var taskFontSize = DEFAULT_FONT_SIZE - 3;
+    var text_location = taskBarTop +  (TASKBAR_HEIGHT / 2) + (taskFontSize / 2) - 1;
+    
+    var txt = _OsShell.taskbar;
+    DRAWING_CONTEXT.drawText(this.CurrentFont, taskFontSize, 5, text_location, txt);
 }

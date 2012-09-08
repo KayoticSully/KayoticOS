@@ -38,7 +38,9 @@ var CANVAS = null;              // Initialized in hostInit().
 var DRAWING_CONTEXT = null;     // Initialized in hostInit().
 var DEFAULT_FONT = "sans";      // Ignored, just a place-holder in this version.
 var DEFAULT_FONT_SIZE = 13;     
-var FONT_HEIGHT_MARGIN = 4;     // Additional space added to font size when advancing a line.
+var FONT_HEIGHT_MARGIN = 6;     // Additional space added to font size when advancing a line.
+var TASKBAR_HEIGHT = 25;
+var TASKBAR_COLOR = "#ffffff";
 
 // Default the OS trace to be on.
 var _Trace = true;

@@ -86,7 +86,7 @@ SystemDate.prototype = {
     // output for this object.
     //
     toString : function(){
-        return this.time + " on " + this.month + " " + this.day + ", " + this.year;
+        return this.time + " - " + this.month + " " + this.day + ", " + this.year;
     },
     
     monthName : function (number)
