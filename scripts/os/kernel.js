@@ -43,6 +43,7 @@ function krnBootstrap()      // Page 8.
     // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
     krnTrace("Enabling the interrupts.");
     krnEnableInterrupts();
+    
     // Launch the shell.
     krnTrace("Creating and Launching the shell.")
     _OsShell = new Shell();
@@ -71,6 +72,10 @@ function krnOnCPUClockPulse()
        This, on the other hand, is the clock pulse from the hardware (or host) that tells the kernel 
        that it has to look for interrupts and process them if it finds any.                           */
 
+    // DOES THIS BELONG HERE ???????????
+    if(_OSclock % (1000 / CPU_CLOCK_INTERVAL) == 0)
+        _KernelInterruptQueue.enqueue(new Interrput(TIMER_IRQ, null));
+    
     // Check for an interrupt, are any. Page 560
     if (_KernelInterruptQueue.getSize() > 0)    
     {
@@ -113,7 +118,8 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
     krnTrace("Handling IRQ~" + irq);
 
     // Save CPU state. (I think we do this elsewhere.)
-
+    
+    
     // Invoke the requested Interrupt Service Routine via Switch/Case rather than an Interrupt Vector.
     // TODO: Use Interrupt Vector in the future.
     // Note: There is no need to "dismiss" or acknowledge the interrupts in our design here.  
@@ -136,6 +142,10 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
 
 function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver).
 {
+    // call Shell Update function so the shell can regularly do some housekeeping
+    if('update' in _OsShell)
+        _OsShell.update();
+    
     // Check multiprogramming parameters and enfore quanta here. Call the scheduler / context switch here if necessary.
 }   
 
@@ -168,7 +178,7 @@ function krnTrace(msg)
         if (msg === "Idle")
         {
             // We can't log every idle clock pulse because it would lag the browser very quickly.
-            if (_OSclock % 10 == 0)  // Check the CPU_CLOCK_INTERVAL in globals.js for an 
+            if (_OSclock % (1000 / CPU_CLOCK_INTERVAL) == 0)  // Check the CPU_CLOCK_INTERVAL in globals.js for an 
             {                        // idea of the tick rate and adjust this line accordingly.
                 simLog(msg, "OS");          
             }         

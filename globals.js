@@ -13,7 +13,7 @@
 var APP_NAME = "KayoticOS";  // 'cause I was at a loss for a better name.
 var APP_VERSION = "0.1"
 
-var CPU_CLOCK_INTERVAL = 100;   // in ms, or milliseconds, so 1000 = 1 second.
+var CPU_CLOCK_INTERVAL = 10;   // in ms, or milliseconds, so 1000 = 1 second.
 
 var TIMER_IRQ    = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority). 
                        // NOTE: The timer is different from hardware clock pulses. Don't confuse these.

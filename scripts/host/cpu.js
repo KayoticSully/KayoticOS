@@ -37,7 +37,8 @@ function cpu()
         // Increment the hardware (host) clock.
         _OSclock++;
         
-        // Update System Clock
+        
+        // Update System Time
         _SystemClock.update();
         
         // Call the kernel clock pulse event handler.

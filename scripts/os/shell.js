@@ -1,127 +1,35 @@
-/* ------------
-   Shell.js
-   
-   The OS Shell - The "command line interface" (CLI) or interpreter for the console.
-   ------------ */
-
-// TODO: Write a base class / prototype for system services and let Shell inherit from it.
+/*
+ |---------------------------------------------------------------------
+ | Shell
+ |---------------------------------------------------------------------
+ | The OS Shell - The "command line interface" (CLI) or interpreter
+ | for the console.
+ |---------------------------------------------------------------------
+ | Author(s): Alan G. Labouseur, Ryan Sullivan
+ |   Created: 8/?/2012
+ |   Updated: 9/6/2012
+ |---------------------------------------------------------------------
+ | TODO: Write a base class / prototype for system services and let
+ |       Shell inherit from it.
+ */
 
 function Shell()
 {
+    //--------------------------------
     // Properties
+    //--------------------------------
     this.promptStr   = ">";
     this.commandList = new Object();
     this.curses      = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
     this.apologies   = "[sorry]";
-    // Methods
+    
+    //--------------------------------
+    // Instance Functions
+    //--------------------------------
     this.init        = shellInit;
     this.putPrompt   = shellPutPrompt;
     this.handleInput = shellHandleInput;
     this.execute     = shellExecute;
-}
-
-function shellInit()
-{
-    var sc = null;
-    
-    // Load the command list.
-
-    // ver
-    sc = new ShellCommand();
-    sc.command = "ver";
-    sc.description = "- Displays the current version data."
-    sc.function = shellVer;
-    this.commandList[sc.command] = sc;
-    
-    // help
-    sc = new ShellCommand();
-    sc.command = "help";
-    sc.description = "- This is the help command. Seek help."
-    sc.function = shellHelp;
-    this.commandList[sc.command] = sc;
-    
-    // shutdown
-    sc = new ShellCommand();
-    sc.command = "shutdown";
-    sc.description = "- Shuts down the virtual OS but leaves the underlying hardware simulation running."
-    sc.function = shellShutdown;
-    this.commandList[sc.command] = sc;
-
-    // cls
-    sc = new ShellCommand();
-    sc.command = "cls";
-    sc.description = "- Clears the screen and resets the cursosr position."
-    sc.function = shellCls;
-    this.commandList[sc.command] = sc;
-
-    // man <topic>
-    sc = new ShellCommand();
-    sc.command = "man";
-    sc.description = "<topic> - Displays the MANual page for <topic>.";
-    sc.function = shellMan;
-    this.commandList[sc.command] = sc;
-    
-    // trace <on | off>
-    sc = new ShellCommand();
-    sc.command = "trace";
-    sc.description = "<on | off> - Turns the OS trace on or off.";
-    sc.function = shellTrace;
-    this.commandList[sc.command] = sc;
-
-    // rot13 <string>
-    sc = new ShellCommand();
-    sc.command = "rot13";
-    sc.description = "<string> - Does rot13 obfuscation on <string>.";
-    sc.function = shellRot13;
-    this.commandList[sc.command] = sc;
-
-    // prompt <string>
-    sc = new ShellCommand();
-    sc.command = "prompt";
-    sc.description = "<string> - Sets the prompt.";
-    sc.function = shellPrompt;
-    this.commandList[sc.command] = sc;
-    
-    // date
-    sc = new ShellCommand();
-    sc.command = "date";
-    sc.description = "- Displays the current date and time";
-    sc.function = shellDate;
-    this.commandList[sc.command] = sc;
-    
-    // whereami
-    sc = new ShellCommand();
-    sc.command = "whereami";
-    sc.description = "- Displays your current location";
-    sc.function = shellWhereAmI;
-    this.commandList[sc.command] = sc;
-    
-    // euthanize
-    sc = new ShellCommand();
-    sc.command = "euthanize";
-    sc.description = " - Warms up the neurotoxin emitters";
-    sc.function = shellEuthanize;
-    this.commandList[sc.command] = sc;
-    
-    // blackout
-    sc = new ShellCommand();
-    sc.command = "blackout";
-    sc.description = " - Simulates a power failure";
-    sc.function = shellPowerFailure;
-    this.commandList[sc.command] = sc;
-
-    // charw
-    sc = new ShellCommand();
-    sc.command = "charw";
-    sc.description = " - Gets the pixel width of the given character";
-    sc.function = shellCharWidth;
-    this.commandList[sc.command] = sc;
-    
-    // processes - list the running processes and their IDs
-    // kill <id> - kills the specified process id.
-
-    // Display the initial prompt.
-    this.putPrompt();
 }
 
 function shellPutPrompt()
@@ -135,8 +43,7 @@ function shellHandleInput(buffer)
     
     // Parse the input...
     //
-    var userCommand = new UserCommand();
-    userCommand = shellParseInput(buffer);
+    var userCommand = shellParseInput(buffer);
     
     // ... and assign the command and args to local variables.
     var cmd = userCommand.command;
@@ -178,7 +85,6 @@ function shellHandleInput(buffer)
     }
 }
 
-
 function shellParseInput(buffer)
 {
     var retVal = new UserCommand();
@@ -208,7 +114,6 @@ function shellParseInput(buffer)
     return retVal;
 }
 
-
 function shellExecute(fn, args)
 {
     // we just got a command, so advance the line... 
@@ -224,27 +129,23 @@ function shellExecute(fn, args)
     this.putPrompt();
 }
 
-
 //
 // The rest of these functions ARE NOT part of the Shell "class" (prototype, more accurately), 
 // as they are not denoted in the constructor.  The idea is that you cannot execute them from
 // elsewhere as shell.xxx .  In a better world, and a more perfect Javascript, we'd be 
 // able to make then private.  (Actually, we can. Someone look at Crockford's stuff and give me the details, please.)
+//-------------------------------------------------------------------------------------------------------------------
+// This comment got me off on a 4 hour research tangent... I hope your happy.
+// I have concluded that it is possible, but I need a more complete understanding
+// of JavaScript before I attempt to implement it.  There is a way that involves
+// moving the "private" functions into the Shell constructor.  That is only viable
+// in this specific instance since there should only ever be one instance of this
+// object at a time.  I am on a bit of a mission to make this work by the end of the
+// semester though.
 //
 
 //
 // An "interior" or "private" class (prototype) used only inside Shell() (we hope).
-//
-function ShellCommand()     
-{
-    // Properties
-    this.command = "";
-    this.description = "";
-    this.function = "";
-}
-
-//
-// Another "interior" or "private" class (prototype) used only inside Shell() (we hope).
 //
 function UserCommand()
 {
@@ -253,6 +154,120 @@ function UserCommand()
     this.args = [];
 }
 
+//
+// Another "interior" or "private" class (prototype) used only inside Shell() (we hope).
+//
+var ShellCommand = function()     
+{
+    // Properties
+    this.command = "";
+    this.description = "";
+    this.function = "";
+}
+
+function shellInit()
+{
+    var sc = null;
+    // Load the command list.
+    
+    // ver
+    sc = new ShellCommand();
+    sc.command = "ver";
+    sc.description = "- Displays the current version data."
+    sc.function = shellVer;
+    this.commandList[sc.command] = sc;
+    
+    // help
+    sc = new ShellCommand();
+    sc.command = "help";
+    sc.description = "- This is the help command. Seek help."
+    sc.function = shellHelp;
+    this.commandList[sc.command] = sc;
+    
+    // shutdown
+    sc = new ShellCommand();
+    sc.command = "shutdown";
+    sc.description = "- Shuts down the virtual OS but leaves the underlying hardware simulation running."
+    sc.function = shellShutdown;
+    this.commandList[sc.command] = sc;
+    
+    // cls
+    sc = new ShellCommand();
+    sc.command = "cls";
+    sc.description = "- Clears the screen and resets the cursosr position."
+    sc.function = shellCls;
+    this.commandList[sc.command] = sc;
+    
+    // man <topic>
+    sc = new ShellCommand();
+    sc.command = "man";
+    sc.description = "<topic> - Displays the MANual page for <topic>.";
+    sc.function = shellMan;
+    this.commandList[sc.command] = sc;
+    
+    // trace <on | off>
+    sc = new ShellCommand();
+    sc.command = "trace";
+    sc.description = "<on | off> - Turns the OS trace on or off.";
+    sc.function = shellTrace;
+    this.commandList[sc.command] = sc;
+    
+    // rot13 <string>
+    sc = new ShellCommand();
+    sc.command = "rot13";
+    sc.description = "<string> - Does rot13 obfuscation on <string>.";
+    sc.function = shellRot13;
+    this.commandList[sc.command] = sc;
+    
+    // prompt <string>
+    sc = new ShellCommand();
+    sc.command = "prompt";
+    sc.description = "<string> - Sets the prompt.";
+    sc.function = shellPrompt;
+    this.commandList[sc.command] = sc;
+    
+    // date
+    sc = new ShellCommand();
+    sc.command = "date";
+    sc.description = "- Displays the current date and time";
+    sc.function = shellDate;
+    this.commandList[sc.command] = sc;
+    
+    // whereami
+    sc = new ShellCommand();
+    sc.command = "whereami";
+    sc.description = "- Displays your current location";
+    sc.function = shellWhereAmI;
+    this.commandList[sc.command] = sc;
+    
+    // euthanize
+    sc = new ShellCommand();
+    sc.command = "euthanize";
+    sc.description = " - Warms up the neurotoxin emitters";
+    sc.function = shellEuthanize;
+    this.commandList[sc.command] = sc;
+    
+    // blackout
+    sc = new ShellCommand();
+    sc.command = "blackout";
+    sc.description = " - Simulates a power failure";
+    sc.function = shellPowerFailure;
+    this.commandList[sc.command] = sc;
+    
+    // charw
+    sc = new ShellCommand();
+    sc.command = "charw";
+    sc.description = " - Gets the pixel width of the given character";
+    sc.function = shellCharWidth;
+    this.commandList[sc.command] = sc;
+    
+    // processes - list the running processes and their IDs
+    
+    // kill <id> - kills the specified process id.
+    
+    // Display the initial prompt.
+    this.putPrompt();
+}
 
 //
 // Shell Command Functions.  Again, not part of Shell() class per se', just called from there.

@@ -82,7 +82,11 @@ function simBtnStartOS_click(btn)
     _SystemClock = new SystemDate();
 
     // ... then set the clock pulse simulation to call ?????????.
-    hardwareClockID = setInterval(simClockPulse, CPU_CLOCK_INTERVAL);
+    // I decided to "pulse" the CPU directly so the interval
+    // is more like the pulse and it runs "through" the CPU
+    //
+    hardwareClockID = setInterval(_CPU.pulse, CPU_CLOCK_INTERVAL);
+    
     // .. and call the OS Kernel Bootstrap routine.
     krnBootstrap();
 }

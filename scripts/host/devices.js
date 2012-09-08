@@ -18,44 +18,33 @@
 var hardwareClockID = -1;
 
 //
-// Hardware Clock Pulse
-//
-function simClockPulse()
-{
-   // moved this inside of CPU object
-   // to keep the virtualized hardware
-   // more realistic.  The clock pulse now
-   // "goes through" the CPU.
-   //
-   _CPU.pulse();
-}
-
-//
 // Keyboard Interrupt, a HARDWARE Interrupt Request. (See pages 560-561 in text book.)
 //
 function simEnableKeyboardInterrupt()
 {
-    // Listen for key presses (keydown, actually) in the document 
-    // and call the simulation processor, which will in turn call the 
-    // os interrupt handler.
-    document.addEventListener("keydown", simOnKeypress, false);
+   // Listen for key presses (keydown, actually) in the document 
+   // and call the simulation processor, which will in turn call the 
+   // os interrupt handler.
+   document.addEventListener("keydown", simOnKeypress, false);
 }
 
 function simDisableKeyboardInterrupt()
 {
-    document.removeEventListener("keydown", simOnKeypress, false);
+   document.removeEventListener("keydown", simOnKeypress, false);
 }
 
 function simOnKeypress(event)
 {
-    // The canvas element CAN receive focus if you give it a tab index. 
-    // Check that we are processing keystrokes only from the canvas's id (as set in index.html).
-    if (event.target.id == "display")
-    {
-        event.preventDefault();
-        // Note the pressed key code in the params (Mozilla-specific).
-        var params = new Array(event.which, event.shiftKey);
-        // Enqueue this interrupt on the kernal interrupt queue so that it gets to the Interrupt handler.
-        _KernelInterruptQueue.enqueue( new Interrput(KEYBOARD_IRQ, params) );
-    }
+   // The canvas element CAN receive focus if you give it a tab index. 
+   // Check that we are processing keystrokes only from the canvas's id (as set in index.html).
+   if (event.target.id == "display")
+   {
+      event.preventDefault();
+      
+      // Note the pressed key code in the params (Mozilla-specific).
+      var params = new Array(event.which, event.shiftKey);
+      
+      // Enqueue this interrupt on the kernal interrupt queue so that it gets to the Interrupt handler.
+      _KernelInterruptQueue.enqueue( new Interrput(KEYBOARD_IRQ, params) );
+   }
 }
