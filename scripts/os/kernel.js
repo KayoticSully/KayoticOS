@@ -208,8 +208,7 @@ function krnTrapError(msg)
     _Console.putLine("");
     _Console.putLine("[ERROR] " + msg);
     _Console.putLine("You may proceed into android hell...");
-    
-    
+    _Console.putLine("");
     _Console.putLine("                .+");
     _Console.putLine("             /M;");
     _Console.putLine("              H#@:              ;,");
@@ -230,6 +229,9 @@ function krnTrapError(msg)
     _Console.putLine(" .              ,###;    ;      =$##+");
     _Console.putLine("                .#H,               :XH,");
     _Console.putLine("                 +                   .;-");
+    _Console.putLine("");
+    _Console.putLine("Music: http://www.albinoblacksheep.com/audio/modified");
+    _Console.putLine("ACSII: http://pastebin.com/1AZwKrKp");
     
     krnShutdown();
 }
