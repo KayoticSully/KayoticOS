@@ -186,7 +186,7 @@ var Shell = (function()
         // shutdown
         sc = new ShellCommand();
         sc.command = "shutdown";
-        sc.description = "- Shuts down the virtual OS but leaves the underlying hardware simulation running."
+        sc.description = "- Shuts down the virtual OS."
         sc.function = shellShutdown;
         this.commandList[sc.command] = sc;
         
@@ -272,6 +272,8 @@ var Shell = (function()
         // kill <id> - kills the specified process id.
         
         // Display the initial prompt.
+        _Console.putLine("Oh... it's YOU.");
+        
         this.putPrompt();
     }
     

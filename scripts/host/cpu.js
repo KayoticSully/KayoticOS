@@ -35,6 +35,7 @@ function cpu()
     this.pulse = function()
     {
         // Increment the hardware (host) clock.
+        
         _OSclock++;
         
         

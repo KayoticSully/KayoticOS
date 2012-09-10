@@ -1,0 +1,65 @@
+/* kayoticos.css */
+
+body
+{
+	background-color: #909193;
+	background-image: url(../img/background.jpg);
+	background-repeat: repeat-x;
+	margin-top: 40px;
+}
+
+#display
+{
+	background-color: #DFDBC3;
+	border: 2px solid red; 
+	cursor: default;
+	float: left;
+}
+
+#app_wrapper {
+	width: 1015px;
+	margin: 0px auto;
+	padding-top:20px;
+}
+
+footer 
+{
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8pt;
+    text-align: center;
+}
+
+.label
+{
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+}
+
+.clearfix {
+	clear: both;
+}
+
+
+#panes_wrapper {
+	float: left;
+	overflow: hidden;
+}
+
+#panes_wrapper > #taLog {
+	height:553px;
+	width:250px;
+	background-color:#FFFFFF;
+	overflow: auto;
+}
+
+.log_msg {
+	margin: 8px 0px 8px 0px;
+	padding:0px 5px 0px 5px;
+	font-size: 13px;
+}
+
+audio, embed {
+	display: none;
+}

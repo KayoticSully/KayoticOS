@@ -3,76 +3,72 @@
    <head>
       <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
       <meta name="author"             content="Ryan Sullivan" />
-      <link rel="stylesheet" href="kayoticos.css" type="text/css" media="screen" />
+      <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" media="screen" />
+      <link rel="stylesheet" href="css/kayoticos.css" type="text/css" media="screen" />
       <title>
          KayoticOS 0.1 - a Browser-based virtual Operating System
       </title>
    </head>
    <body onload="simInit();">
-      <div id="app_wrapper">
-         <header>
-            Kayotic OS | A JavaScript Based Operating System
-         </header>
-         <table id="tableDisplay" style="border:1px solid white;">
-            <tr>
-               <td>
-                  <input type="button"
-                         id = "btnStartOS"
-                         name="brnStartOS"
-                         class="normal_button"
-                         value="Start"
-                         tabindex="0"
-                         onclick="simBtnStartOS_click(this)" />
-                  <input type="button"
-                         id = "btnHaltOS"
-                         name="brnHaltOS"
-                         class="normal_button"
-                         disabled="disabled"
-                         value="Halt"
-                         tabindex="1"
-                         onclick="simBtnHaltOS_click(this)" />            
-                  <input type="button"
-                         id = "btnReset"
-                         name="brnReset"
-                         class="normal_button"
-                         disabled="disabled"
-                         value="Reset"
-                         tabindex="2"
-                         onclick="simBtnReset_click(this)" />            
-               </td>
-               <td class="label">
-                  Control Log
-               </td>
-            </tr>
-            <tr valign="top">
-               <td id="tdDisplay">
-                  <canvas id="display"
-                          width="500px"
-                          height="582px"
-                          tabindex="3">
-                  </canvas>
-               </td>
-               <td id="tdLog">
-                  <textarea name="taLog"
-                            id = "taLog"
-                            rows="36"
-                            cols="48"
-                            disabled
-                  ></textarea>
-               </td>
-            </tr>
-         </table>
-         <p></p>
-         <table width="100%" border="0" cellspacing="0" cellpadding="0">
-            <tr valign="top">
-               <td align="center" class="footer">
-                  Copyright &copy; 2008 - 2012 No Rights Reserved. - 
-                  Reproduction is prohibited without the express written consent of 
-                  Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
-               </td>
-            </tr>
-         </table>
+      <div class="navbar navbar-inverse navbar-fixed-top">
+         <div class="navbar-inner">
+            <div class="container">
+               <a class="brand" href="#">Kayotic OS</a>
+               <div class="nav-collapse collapse">
+                  <ul class="nav">
+                     <li>
+                        <a href="#"
+                           id="btnStartOS"
+                           name="brnStartOS"
+                           class="normal_button"
+                           onclick="simBtnStartOS_click(this)">
+                           <i class="icon-off icon-white"></i>
+                           Power On
+                        </a>
+                     </li>
+                     <li>
+                        <a href="#"
+                           id = "btnHaltOS"
+                           name="brnHaltOS"
+                           class="normal_button"
+                           onclick="simBtnHaltOS_click(this)">
+                           <i class="icon-off icon-white"></i>
+                           Halt
+                        </a>
+                     </li>
+                     <li>
+                        <a href="#"
+                           id = "btnReset"
+                           name="brnReset"
+                           class="normal_button"
+                           onclick="simBtnReset_click(this)">
+                           <i class="icon-off icon-white"></i>
+                           Reset
+                        </a>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
       </div>
+      <div id="app_wrapper">
+         <canvas id="display"
+                 width="650px"
+                 height="550px"
+                 tabindex="3">
+         </canvas>
+         <div id="panes_wrapper">
+            <div name="taLog" id = "taLog">
+               &nbsp;
+            </div>
+         </div>
+         <div class="clearfix"></div>
+      </div>
+      <footer>
+         Copyright &copy; 2008 - 2012 No Rights Reserved. - 
+         Reproduction is prohibited without the express written consent of 
+         Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+      </footer>
    </body>
    
    <!-- Libraries -->

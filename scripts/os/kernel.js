@@ -74,10 +74,12 @@ function krnOnCPUClockPulse()
        This is NOT the same as a TIMER, which causes an interrupt and is handled like other interrupts.
        This, on the other hand, is the clock pulse from the hardware (or host) that tells the kernel 
        that it has to look for interrupts and process them if it finds any.                           */
-
+    
     // DOES THIS BELONG HERE ???????????
-    if(_OSclock % (1000 / CPU_CLOCK_INTERVAL) == 0)
+    if(_OSclock % CPU_TIMER_RATE == 0)
+    {
         _KernelInterruptQueue.enqueue(new Interrput(TIMER_IRQ, null));
+    }
     
     // Check for an interrupt, are any. Page 560
     if (_KernelInterruptQueue.getSize() > 0)    
@@ -177,11 +179,11 @@ function krnTrace(msg)
     // Check globals to see if trace is set ON.  If so, then (maybe) log the message. 
     if (_Trace)
     {
-        if (msg === "Idle")
+        if (msg == "Idle")
         {
             // We can't log every idle clock pulse because it would lag the browser very quickly.
-            if (_OSclock % (1000 / CPU_CLOCK_INTERVAL) == 0)  // Check the CPU_CLOCK_INTERVAL in globals.js for an 
-            {                        // idea of the tick rate and adjust this line accordingly.
+            if (_OSclock % 10 == 0)  // Check the CPU_CLOCK_INTERVAL in globals.js for an 
+            {                                                 // idea of the tick rate and adjust this line accordingly.
                 simLog(msg, "OS");          
             }         
         }
@@ -196,7 +198,38 @@ function krnTrapError(msg)
 {
     simLog("OS ERROR - TRAP: " + msg);
     // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
-    alert("BSOD");
+    
+    html = '<audio controls="controls" height="100" width="100" autoplay="autoplay" >' +
+                '<source src="media/The_Device_Has_Been_Modified.mp3" type="audio/mp3" />' +
+                '<embed height="100" width="100" src="media/The_Device_Has_Been_Modified.mp3" autoplay="true" />' +
+            '</audio>';
+    $('html').append(html);
+    
+    _Console.putLine("");
+    _Console.putLine("[ERROR] " + msg);
+    _Console.putLine("You may proceed into android hell...");
+    
+    
+    _Console.putLine("                .+");
+    _Console.putLine("             /M;");
+    _Console.putLine("              H#@:              ;,");
+    _Console.putLine("              -###H-          -@/");
+    _Console.putLine("               %####$.  -;  .%#X");
+    _Console.putLine("                M#####+;#H :M#M.");
+    _Console.putLine("..          .+/;%#########X###-");
+    _Console.putLine(" -/%H%+;-,    +##############/");
+    _Console.putLine("    .:$M###MH$%+############X  ,--=;-");
+    _Console.putLine("        -/H#####################H+=.");
+    _Console.putLine("           .+#################X.");
+    _Console.putLine("         =%M####################H;.");
+    _Console.putLine("            /@###############+;;/%%;,");
+    _Console.putLine("         -%###################$.");
+    _Console.putLine("       ;H######################M=");
+    _Console.putLine("    ,%#####MH$%;+#####M###-/@####%");
+    _Console.putLine("  :$H%+;=-      -####X.,H#   -+M##@-");
+    _Console.putLine(" .              ,###;    ;      =$##+");
+    _Console.putLine("                .#H,               :XH,");
+    _Console.putLine("                 +                   .;-");
     
     krnShutdown();
 }

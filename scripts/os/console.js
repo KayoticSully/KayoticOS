@@ -12,8 +12,8 @@ function Console()
     // Properties
     this.CurrentFont      = DEFAULT_FONT;
     this.CurrentFontSize  = DEFAULT_FONT_SIZE;
-    this.CurrentXPosition = 0;
-    this.CurrentYPosition = DEFAULT_FONT_SIZE;
+    this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
+    this.CurrentYPosition = DEFAULT_FONT_SIZE + CONSOLE_TOP_MARGIN;
     this.buffer = new SimpleStack();
     
     // Methods
@@ -25,6 +25,7 @@ function Console()
     this.delChar     = consoleDelText;
     this.advanceLine = consoleAdvanceLine;
     this.drawTaskBar = consoleDrawTaskBar;
+    this.putLine     = consolePutLine;
 }
 
 function consoleInit()
@@ -40,8 +41,8 @@ function consoleClearScreen()
 
 function consoleResetXY()
 {
-    this.CurrentXPosition = 0;
-    this.CurrentYPosition = this.CurrentFontSize;    
+    this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
+    this.CurrentYPosition = this.CurrentFontSize + CONSOLE_TOP_MARGIN;    
 }
 
 function consoleHandleInput()
@@ -67,6 +68,12 @@ function consoleHandleInput()
             this.buffer.push(chr);
         }
     }
+}
+
+function consolePutLine(txt)
+{
+    this.putText(txt);
+    this.advanceLine();
 }
 
 function consolePutText(txt)    
@@ -105,7 +112,7 @@ function consoleDelText()
 
 function consoleAdvanceLine()
 {
-    this.CurrentXPosition = 0;
+    this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
     
     if(this.CurrentYPosition >= CANVAS.height - (DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN) - TASKBAR_HEIGHT)
     {
@@ -139,5 +146,5 @@ function consoleDrawTaskBar()
     var text_location = taskBarTop +  (TASKBAR_HEIGHT / 2) + (taskFontSize / 2) - 1;
     
     var txt = _OsShell.taskbar;
-    DRAWING_CONTEXT.drawText(this.CurrentFont, taskFontSize, 5, text_location, txt);
+    DRAWING_CONTEXT.drawText(this.CurrentFont, taskFontSize, TASKBAR_LEFT_MARGIN, text_location, txt);
 }

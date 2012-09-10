@@ -14,6 +14,8 @@ var APP_NAME = "KayoticOS";  // 'cause I was at a loss for a better name.
 var APP_VERSION = "0.1"
 
 var CPU_CLOCK_INTERVAL = 10;   // in ms, or milliseconds, so 1000 = 1 second.
+var CPU_TIMER_RATE = 100; // every number of intervals
+var CPU_IDLE_MESSAGE_RATE = 1000; // every number of intervals
 
 var TIMER_IRQ    = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority). 
                        // NOTE: The timer is different from hardware clock pulses. Don't confuse these.
@@ -25,6 +27,8 @@ var EUTHANIZE_IRQ = 24;
 //
 // Global Variables
 //
+var _POWER = false;
+
 var _CPU = null;
 
 var _SystemClock = null; // Controls System Date Time
@@ -38,9 +42,12 @@ var CANVAS = null;              // Initialized in hostInit().
 var DRAWING_CONTEXT = null;     // Initialized in hostInit().
 var DEFAULT_FONT = "sans";      // Ignored, just a place-holder in this version.
 var DEFAULT_FONT_SIZE = 13;     
-var FONT_HEIGHT_MARGIN = 6;     // Additional space added to font size when advancing a line.
+var FONT_HEIGHT_MARGIN = 7;     // Additional space added to font size when advancing a line.
 var TASKBAR_HEIGHT = 25;
+var TASKBAR_LEFT_MARGIN = 10;
 var TASKBAR_COLOR = "#ffffff";
+var CONSOLE_LEFT_MARGIN = 1;
+var CONSOLE_TOP_MARGIN = 3;
 
 // Default the OS trace to be on.
 var _Trace = true;

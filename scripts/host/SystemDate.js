@@ -16,11 +16,11 @@
  * and initializes anything that
  * is needed.
  */
-function SystemDate() {
+function SystemDate(date) {
     //--------------------------------
     // "Private" Instance Variables
     //--------------------------------
-    var dateTime = new Date();
+    var dateTime = date == undefined ? new Date() : new Date(date);
     
     //--------------------------------
     // Properties
@@ -30,11 +30,29 @@ function SystemDate() {
         enumerable      : false,
         get             : function()
         {
+            return this.formatDigits(dateTime.getMonth());
+        }
+    });
+    
+    Object.defineProperty(this, 'monthString', {
+        writeable       : false,
+        enumerable      : false,
+        get             : function()
+        {
             return this.monthName(dateTime.getMonth());
         }
     });
     
     Object.defineProperty(this, 'day', {
+        writeable       : false,
+        enumerable      : false,
+        get             : function()
+        {
+            return this.formatDigits(dateTime.getDate());
+        }
+    });
+    
+    Object.defineProperty(this, 'dayString', {
         writeable       : false,
         enumerable      : false,
         get             : function()
@@ -86,7 +104,11 @@ SystemDate.prototype = {
     // output for this object.
     //
     toString : function(){
-        return this.time + " - " + this.month + " " + this.day + ", " + this.year;
+        return this.time + " - " + this.monthString + " " + this.dayString + ", " + this.year;
+    },
+    
+    logString : function() {
+	return '[' + this.month + '-' + this.day + '-' + this.year + ':' + this.time + ']';
     },
     
     monthName : function (number)

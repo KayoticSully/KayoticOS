@@ -23,12 +23,15 @@ function simInit()
 {
 	// Get a global reference to the canvas.  TODO: Move this stuff into a Display Device Driver, maybe?
 	CANVAS  = document.getElementById('display');
+	
 	// Get a global reference to the drawing context.
 	DRAWING_CONTEXT = CANVAS.getContext('2d');
+	
 	// Enable the added-in canvas text functions (see canvastext.js for provenance and details).
 	CanvasTextFunctions.enable(DRAWING_CONTEXT);
-	// Clear the log text box.
-	document.getElementById("taLog").value="";
+	
+	//document.getElementById("taLog").value="";
+	
 	// Set focus on the start button.
 	document.getElementById("btnStartOS").focus();     // TODO: This does not seem to work.  Why?
 }
@@ -45,17 +48,24 @@ function simLog(msg, source)
     var clock = _OSclock;
 
     // Note the REAL clock in milliseconds since January 1, 1970.
-    var now = new Date().getTime();
+    var now = new SystemDate(new Date().getTime());
 
     // Build the log string.
     var log = new Log(source, msg, clock, now);
-    //var str = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n"; 
-    // WAS: var str = "[" + clock   + "]," + "[" + now    + "]," + "[" + source + "]," +"[" + msg    + "]"  + "\n";
-
+    var logList = $('#taLog');
+    
     // Update the log console.
-    taLog = document.getElementById("taLog");
-    taLog.value = log + taLog.value;
+    // Yes it is worth importing the entire jQuery library for this one chunk.
+    if(msg.toLowerCase() == 'idle' && log.last.toLowerCase() == 'idle')
+	logList.find('.log_msg').first().replaceWith(log.toString());
+    else
+	logList.prepend(log.toString());
+    
+    // store last
+    //log.prototype.last = log;
+    
     // Optionally udpate a log database or some streaming service.
+    // Not Yet
 }
 
 
@@ -64,13 +74,7 @@ function simLog(msg, source)
 //
 function simBtnStartOS_click(btn)
 {
-    // Disable the start button...
-    btn.disabled = true;
-    
-    // .. enable the Emergency Halt and Reset buttons ...
-    document.getElementById("btnHaltOS").disabled = false;
-    document.getElementById("btnReset").disabled = false;
-    
+    _POWER = true;
     // .. set focus on the OS console display ... 
     document.getElementById("display").focus();
     
@@ -85,6 +89,7 @@ function simBtnStartOS_click(btn)
     // I decided to "pulse" the CPU directly so the interval
     // is more like the pulse and it runs "through" the CPU
     //
+    
     hardwareClockID = setInterval(_CPU.pulse, CPU_CLOCK_INTERVAL);
     
     // .. and call the OS Kernel Bootstrap routine.
@@ -93,13 +98,17 @@ function simBtnStartOS_click(btn)
 
 function simBtnHaltOS_click(btn)
 {
-    simLog("emergency halt", "host");
-    simLog("Attempting Kernel shutdown.", "host");
-    // Call the OS sutdown routine.
-    krnShutdown();
-    // Stop the JavaScript interval that's simulating our clock pulse.
-    clearInterval(hardwareClockID);
-    // TODO: Is there anything else we need to do here?
+    if(_POWER)
+    {
+	simLog("emergency halt", "host");
+	simLog("Attempting Kernel shutdown.", "host");
+	// Call the OS sutdown routine.
+	krnShutdown();
+	// Stop the JavaScript interval that's simulating our clock pulse.
+	clearInterval(hardwareClockID);
+	// TODO: Is there anything else we need to do here?
+	_POWER = false;
+    }
 }
 
 function simBtnReset_click(btn)
