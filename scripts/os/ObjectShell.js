@@ -154,15 +154,29 @@ var Shell = (function()
     {
         // we just got a command, so advance the line... 
         _StdIn.advanceLine();
+        
         // .. call the command function passing in the args...
-        fn(args);
-        // Check to see if we need to advance the line again
-        if (_StdIn.CurrentXPosition > 0)
+        var options = fn(args);
+        
+        options = $.extend(
+        // defaults
         {
-            _StdIn.advanceLine();
+            defer : false
+        },
+        // override with
+        options );
+        
+        if(! options.defer)
+        {
+            // Check to see if we need to advance the line again
+            if (_StdIn.CurrentXPosition > 0)
+            {
+                _StdIn.advanceLine();
+            }
+            
+            // ... and finally write the prompt again.
+            this.putPrompt();
         }
-        // ... and finally write the prompt again.
-        this.putPrompt();
     }
     
     function shellInit()
@@ -453,18 +467,42 @@ var Shell = (function()
     }
     
     function shellWhereAmI(args)
-    {
+    {   
+        function getLocation(position)
+        {
+            var geocoder = new google.maps.Geocoder();
+            var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            geocoder.geocode({'latLng': pos}, function(results, status) {
+                if(status == 'OK')
+                {
+                    var location = results[0];
+                    var city = location.address_components[2].long_name;
+                    var state = location.address_components[4].long_name;
+                    var zip = location.address_components[6].short_name;
+                    
+                    _StdOut.putLine("There you are: " + city + ', ' + state + ' ' + zip, true);
+                }
+                else
+                {
+                    _StdOut.putLine("Your location is not worthy of global positioning.", true);
+                }
+            });
+        }
+        
         if (navigator.geolocation) 
         {
-            navigator.geolocation.getCurrentPosition( function(position){
-                alert(position.coords.latitude + ":" + position.coords.longitude);
-            }, function(error){
-                _StdIn.putText("Your location is not worthy of global positioning.");
+            navigator.geolocation.getCurrentPosition(
+                getLocation
+            , function(error){
+                _StdOut.putLine("Your location is not worthy of global positioning.", true);
             });
+            
+            return { defer : true };
         }
         else
         {
-            _StdIn.putText("Your location is not worthy of global positioning.");
+            _StdOut.putText("Your location is not worthy of global positioning.");
+            return null;
         }
     }
     

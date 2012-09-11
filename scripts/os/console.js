@@ -26,6 +26,7 @@ function Console()
     this.advanceLine = consoleAdvanceLine;
     this.drawTaskBar = consoleDrawTaskBar;
     this.putLine     = consolePutLine;
+    this.putImage    = consolePutImage;
 }
 
 function consoleInit()
@@ -70,10 +71,20 @@ function consoleHandleInput()
     }
 }
 
-function consolePutLine(txt)
+function consolePutLine(txt, prompt)
 {
+    if(prompt == undefined && typeof prompt != "boolean")
+    {
+	prompt = false;
+    }
+    
     this.putText(txt);
     this.advanceLine();
+    
+    if(prompt)
+    {
+	_OsShell.putPrompt();
+    }
 }
 
 function consolePutText(txt)    
@@ -133,6 +144,28 @@ function consoleAdvanceLine()
 	// if not at bottom try to get there
 	this.CurrentYPosition += DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN;
     }
+}
+
+/* HIGHLY EXPERIMENTAL */
+function consolePutImage(image)
+{
+    if(this.CurrentYPosition >= CANVAS.height - image.height - TASKBAR_HEIGHT)
+    {
+	var consImg = DRAWING_CONTEXT.getImageData(0, image.height, CANVAS.width, CANVAS.height - image.height - TASKBAR_HEIGHT);
+	
+	// clear "screen"
+	this.clearScreen();
+	
+	// draw image starting from the top
+	DRAWING_CONTEXT.putImageData(consImg, 0, 0);
+    }
+    
+    DRAWING_CONTEXT.drawImage(image, CONSOLE_LEFT_MARGIN, this.CurrentYPosition - DEFAULT_FONT_SIZE);
+    
+    this.CurrentYPosition = image.height + 80;
+    this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
+    
+    _OsShell.putPrompt();
 }
 
 function consoleDrawTaskBar()
