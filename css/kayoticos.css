@@ -45,10 +45,11 @@ footer
 #panes_wrapper {
 	float: left;
 	overflow: hidden;
+	margin:0px 0px 0px 10px;
 }
 
 #panes_wrapper > #taLog {
-	height:553px;
+	height:434px;
 	width:250px;
 	background-color:#FFFFFF;
 	overflow: auto;
@@ -58,6 +59,11 @@ footer
 	margin: 8px 0px 8px 0px;
 	padding:0px 5px 0px 5px;
 	font-size: 13px;
+}
+
+#panes_wrapper > #program_entry {
+	height:100px;
+	width: 236px;
 }
 
 audio, embed {

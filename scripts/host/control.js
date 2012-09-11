@@ -119,3 +119,8 @@ function simBtnReset_click(btn)
     // be reloaded from the server. If it is false or not specified, the browser may reload the 
     // page from its cache, which is not what we want.
 }
+
+function programLoadContents()
+{
+   return $('#program_entry').val();
+}

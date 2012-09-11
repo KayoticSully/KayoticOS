@@ -82,4 +82,8 @@ function krnKbdDispatchKeyPress(params)
     {
         _Console.delChar();
     }
+    else if(keyCode >= 37 && keyCode <= 40)
+    {
+        
+    }
 }

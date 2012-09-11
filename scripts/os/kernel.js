@@ -207,7 +207,7 @@ function krnTrapError(msg)
     
     _Console.putLine("");
     _Console.putLine("[ERROR] " + msg);
-    _Console.putLine("You may proceed into android hell...");
+    _Console.putLine("You may now proceed into android hell...");
     _Console.putLine("                .+");
     _Console.putLine("             /M;");
     _Console.putLine("              H#@:              ;,");

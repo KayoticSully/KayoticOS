@@ -43,6 +43,7 @@ var Shell = (function()
         this.curses      = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         this.apologies   = "[sorry]";
         this.status      = "status <string> to change this text";
+        this.history = new SimpleStack();
         
         Object.defineProperty(this, 'taskbar', {
             writeable       : false,
@@ -267,6 +268,13 @@ var Shell = (function()
         sc.function = shellStatus;
         this.commandList[sc.command] = sc;
         
+        // load-program
+        sc = new ShellCommand();
+        sc.command = "load-program";
+        sc.description = " - Loads a program from the User Program Entry field";
+        sc.function = shellLoadProgram;
+        this.commandList[sc.command] = sc;
+        
         // processes - list the running processes and their IDs
         
         // kill <id> - kills the specified process id.
@@ -446,7 +454,18 @@ var Shell = (function()
     
     function shellWhereAmI(args)
     {
-        _StdIn.putText("Your location is not worthy of global positioning.");
+        if (navigator.geolocation) 
+        {
+            navigator.geolocation.getCurrentPosition( function(position){
+                alert(position.coords.latitude + ":" + position.coords.longitude);
+            }, function(error){
+                _StdIn.putText("Your location is not worthy of global positioning.");
+            });
+        }
+        else
+        {
+            _StdIn.putText("Your location is not worthy of global positioning.");
+        }
     }
     
     function shellEuthanize()
@@ -468,6 +487,25 @@ var Shell = (function()
     function shellStatus(str)
     {
         _OsShell.status = str.join(' ');
+    }
+    
+    function shellLoadProgram()
+    {
+        var programContents = programLoadContents();
+        
+        var programPattern =  /[\da-fA-F]{2}/g;
+        
+        var instructions = programContents.match(programPattern);
+        
+        if(programContents == instructions.join(' '))
+        {
+            _StdIn.putText("Program formatting is acceptable");
+        }
+        else
+        {
+            _StdIn.putLine("Program does not comply with proper formatting standards specified in");
+            _StdIn.putText("the Testing Procedures Manual, section 42 paragraph 285.");
+        }
     }
     
     return Shell;
