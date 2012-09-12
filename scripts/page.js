@@ -1,7 +1,8 @@
 $(document).ready(function(){
-    if(document.location.hostname == ''  && navigator.userAgent.indexOf('Chrome') > -1)
+    if((document.location.hostname == '' || document.location.hostname.toLowerCase() == 'localhost') &&
+       (navigator.userAgent.indexOf('Chrome') > -1 || navigator.userAgent.indexOf('Safari') > -1 ))
     {
-        $('#ChromeAlert').slideDown();
+        $('#OfflineAlert').slideDown();
     }
     
     if(navigator.userAgent.indexOf('Trident') > -1)
