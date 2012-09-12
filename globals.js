@@ -11,7 +11,7 @@
 // Global Constants
 //
 var APP_NAME = "KayoticOS";  // 'cause I was at a loss for a better name.
-var APP_VERSION = "0.1"
+var APP_VERSION = "0.9"
 
 var CPU_CLOCK_INTERVAL = 10;   // in ms, or milliseconds, so 1000 = 1 second.
 var CPU_TIMER_RATE = 100; // every number of intervals
