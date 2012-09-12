@@ -10,6 +10,8 @@
  |---------------------------------------------------------------------
  | TODO: Write a base class / prototype for system services and let
  |       Shell inherit from it.
+ |
+ | Note: This shell behaves a lot like BASH with tab-completes and everything
  */
 
 /*====================================================================*
@@ -43,7 +45,6 @@ var Shell = (function()
         this.curses      = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         this.apologies   = "[sorry]";
         this.status      = "status <string> to change this text";
-        this.history = new SimpleStack();
         
         Object.defineProperty(this, 'taskbar', {
             writeable       : false,
@@ -60,6 +61,7 @@ var Shell = (function()
         this.putPrompt   = shellPutPrompt;
         this.handleInput = shellHandleInput;
         this.execute     = shellExecute;
+        this.specialKeys = shellSpecialKeys;
     }
     
     //--------------------------------
@@ -76,6 +78,9 @@ var Shell = (function()
     function shellHandleInput(buffer)
     {
         krnTrace("Shell Command~" + buffer);
+        
+        // Store command in history
+        _Console.history.add(buffer);
         
         // Parse the input...
         //
@@ -289,6 +294,13 @@ var Shell = (function()
         sc.function = shellLoadProgram;
         this.commandList[sc.command] = sc;
         
+        // history
+        sc = new ShellCommand();
+        sc.command = "history";
+        sc.description = " - Displays command history";
+        sc.function = shellHistory;
+        this.commandList[sc.command] = sc;
+        
         // processes - list the running processes and their IDs
         
         // kill <id> - kills the specified process id.
@@ -297,6 +309,57 @@ var Shell = (function()
         _Console.putLine("Oh... it's YOU.");
         
         this.putPrompt();
+    }
+    
+    function shellSpecialKeys(keyCode)
+    {
+        switch(keyCode)
+        {
+            case 9:
+                shellTabComplete();
+            break;
+            case 38:
+                _Console.history.previous();
+            break;
+            
+            case 40:
+                _Console.history.next();
+            break;
+        }
+    }
+    
+    //
+    // Checks to see if what has been entered
+    // might match a possible command
+    //
+    function shellTabComplete()
+    {
+        // get current entry
+        var entry = _Console.buffer.peekAll();
+        
+        var possible = new Array();
+        for(var key in _OsShell.commandList)
+        {
+            if(key.indexOf(entry) == 0)
+            {
+                possible.push(_OsShell.commandList[key].command);
+            }
+        }
+        
+        if(possible.length == 1)
+        {
+            var command = possible[0];
+            _Console.resetLine();
+            
+            _Console.buffer.popAll();
+            
+            for(var ch in command)
+            {
+                _Console.buffer.push(command[ch]);
+            }
+            
+            _Console.putText(command);
+        }
     }
     
     //=========================
@@ -513,6 +576,7 @@ var Shell = (function()
     
     function shellPowerFailure()
     {
+        _StdOut.putText("Why did you push that!");
         clearInterval(hardwareClockID);
     }
     
@@ -524,26 +588,50 @@ var Shell = (function()
     
     function shellStatus(str)
     {
-        _OsShell.status = str.join(' ');
+        var status =  str.join(' ');
+        _OsShell.status = status;
+        _StdOut.putText("Status set to " + status);
     }
     
     function shellLoadProgram()
     {
-        var programContents = programLoadContents();
+        var programContents = trim(programLoadContents());
         
-        var programPattern =  /[\da-fA-F]{2}/g;
-        
-        var instructions = programContents.match(programPattern);
-        
-        if(programContents == instructions.join(' '))
+        if(programContents != '')
         {
-            _StdIn.putText("Program formatting is acceptable");
+            var programPattern =  /[\da-fA-F]{2}/g;
+            
+            var instructions = programContents.match(programPattern);
+            
+            if(programContents == instructions.join(' '))
+            {
+                _StdIn.putText("Program formatting is acceptable");
+            }
+            else
+            {
+                _StdIn.putLine("Program does not comply with proper formatting standards specified in");
+                _StdIn.putText("the Testing Procedures Manual, section 42 paragraph 285.");
+            }
         }
         else
         {
-            _StdIn.putLine("Program does not comply with proper formatting standards specified in");
-            _StdIn.putText("the Testing Procedures Manual, section 42 paragraph 285.");
+            _StdIn.putText("You first need something to load.");
         }
+    }
+    
+    function shellHistory()
+    {
+        _StdOut.putLine("Command History:");
+        
+        _Console.history.print(
+            // some functional programming because I was bored.
+            function(command, index){
+                if(index != _Console.history.length - 1)
+                    _StdOut.putLine('  ' + command);
+                else
+                    _StdOut.putText('  ' + command);
+            }
+        );
     }
     
     return Shell;

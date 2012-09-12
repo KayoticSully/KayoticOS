@@ -15,6 +15,7 @@ function DeviceDriverKeyboard()                     // Add or override specific 
     // Override the base method pointers.
     this.driverEntry = krnKbdDriverEntry;
     this.isr = krnKbdDispatchKeyPress;
+    
     // "Constructor" code.
     
     //-------------------------
@@ -82,8 +83,9 @@ function krnKbdDispatchKeyPress(params)
     {
         _Console.delChar();
     }
-    else if(keyCode >= 37 && keyCode <= 40)
+    else if(keyCode >= 37 && keyCode <= 40 || // arrows
+            keyCode == 9)                     // tab
     {
-        
+        _OsShell.specialKeys(keyCode);
     }
 }

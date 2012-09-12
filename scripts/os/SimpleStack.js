@@ -46,7 +46,7 @@ var SimpleStack = (function()
         this.popAll = function()
         {
             // pops everything off the stack at once
-            var old = stack.join('');
+            var old = this.peekAll();
             
             // create fresh array to use as new stack
             stack = new Array();
@@ -55,8 +55,10 @@ var SimpleStack = (function()
             return old;
         }
         
-        
-        
+        this.peekAll = function()
+        {
+            return stack.join('');
+        }
     }
     
     return SimpleStack;

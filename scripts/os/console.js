@@ -14,12 +14,16 @@ function Console()
     this.CurrentFontSize  = DEFAULT_FONT_SIZE;
     this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
     this.CurrentYPosition = DEFAULT_FONT_SIZE + CONSOLE_TOP_MARGIN;
+    this.taskbarFontColor = "#000000";
+    this.taskbarColor     = DEFAULT_TASKBAR_COLOR;
     this.buffer = new SimpleStack();
+    this.history = new CommandHistory();
     
     // Methods
     this.init        = consoleInit;
     this.clearScreen = consoleClearScreen;
     this.resetXY     = consoleResetXY;
+    this.resetLine   = consoleResetLine;
     this.handleInput = consoleHandleInput;
     this.putText     = consolePutText;
     this.delChar     = consoleDelText;
@@ -44,6 +48,15 @@ function consoleResetXY()
 {
     this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
     this.CurrentYPosition = this.CurrentFontSize + CONSOLE_TOP_MARGIN;    
+}
+
+function consoleResetLine()
+{
+    this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
+    var lineHeight = this.CurrentFontSize + FONT_HEIGHT_MARGIN;
+    
+    DRAWING_CONTEXT.clearRect(0, this.CurrentYPosition - this.CurrentFontSize, CANVAS.width, lineHeight);
+    _OsShell.putPrompt();
 }
 
 function consoleHandleInput()
@@ -71,14 +84,19 @@ function consoleHandleInput()
     }
 }
 
-function consolePutLine(txt, prompt)
+function consolePutLine(txt, prompt, color)
 {
     if(prompt == undefined && typeof prompt != "boolean")
     {
 	prompt = false;
     }
     
-    this.putText(txt);
+    if(color == undefined)
+    {
+	color = DEFAULT_FONT_COLOR;
+    }
+    
+    this.putText(txt, color);
     this.advanceLine();
     
     if(prompt)
@@ -87,7 +105,7 @@ function consolePutLine(txt, prompt)
     }
 }
 
-function consolePutText(txt)    
+function consolePutText(txt, textColor)    
 {
     // My first inclination here was to write two functions: putChar() and putString().
     // Then I remembered that Javascript is (sadly) untyped and it won't differentiate 
@@ -99,8 +117,13 @@ function consolePutText(txt)
     // Just Saying.
     if (txt != "")
     {
+	if(textColor == undefined)
+	{
+	    textColor = DEFAULT_FONT_COLOR;
+	}
+	
         // Draw the text at the current X and Y coordinates.
-        DRAWING_CONTEXT.drawText(this.CurrentFont, this.CurrentFontSize, this.CurrentXPosition, this.CurrentYPosition, txt);
+        DRAWING_CONTEXT.drawText(this.CurrentFont, this.CurrentFontSize, this.CurrentXPosition, this.CurrentYPosition, txt, textColor);
 	
     	// Move the current X position.
         var offset = DRAWING_CONTEXT.measureText(this.CurrentFont, this.CurrentFontSize, txt);
@@ -172,12 +195,95 @@ function consoleDrawTaskBar()
 {
     // paint background
     var taskBarTop = CANVAS.height - TASKBAR_HEIGHT;
-    DRAWING_CONTEXT.fillStyle = TASKBAR_COLOR;
+    DRAWING_CONTEXT.fillStyle = _Console.taskbarColor;
     DRAWING_CONTEXT.fillRect(0,  taskBarTop,  CANVAS.width, TASKBAR_HEIGHT);
     
     var taskFontSize = DEFAULT_FONT_SIZE - 3;
     var text_location = taskBarTop +  (TASKBAR_HEIGHT / 2) + (taskFontSize / 2) - 1;
     
     var txt = _OsShell.taskbar;
-    DRAWING_CONTEXT.drawText(this.CurrentFont, taskFontSize, TASKBAR_LEFT_MARGIN, text_location, txt);
+    DRAWING_CONTEXT.drawText(this.CurrentFont, taskFontSize, TASKBAR_LEFT_MARGIN, text_location, txt, _Console.taskbarFontColor);
 }
+
+/*
+ |---------------------------------------------------------------------
+ | Command History
+ |---------------------------------------------------------------------
+ | Keeps track of every command entered
+ |---------------------------------------------------------------------
+ | Author(s): Ryan Sullivan
+ |   Created: 9/11/2012
+ |   Updated: 9/11/2012
+ |---------------------------------------------------------------------
+ */
+var CommandHistory = (function()
+{
+    var index = 0;
+    
+    function ShellHistory()
+    {
+	this.commands = new Array();
+	
+	Object.defineProperty(this, 'length', {
+	    writeable       : false,
+	    enumerable      : false,
+	    get             : function() {
+		return this.commands.length;
+	    }
+	});
+	
+	this.add = function(command)
+	{
+	    this.commands.push(command);
+	    index = this.commands.length;
+	}
+	
+	this.previous = function()
+	{
+	    if(index > 0)
+	    {
+		index--;
+	    }
+	    
+	    var command = this.commands[index];
+	    
+	    setCommand(command);
+	}
+	
+	this.next = function()
+	{
+	    if(index != this.commands.length)
+	    {
+		index++;
+	    }
+	    
+	    var command = this.commands[index];
+	    
+	    if(index == this.commands.length)
+		command = '';
+	    
+	    setCommand(command);
+	}
+	
+	this.print = function(func)
+	{
+	    for(var line in this.commands)
+		func(this.commands[line], line);
+	}
+    }
+    
+    function setCommand(command)
+    {
+	_Console.resetLine();
+	_Console.buffer.popAll();
+	
+	for(var ch in command)
+	{
+	    _Console.buffer.push(command[ch]);
+	}
+	
+	_Console.putText(command);
+    }
+    
+    return ShellHistory;
+})();

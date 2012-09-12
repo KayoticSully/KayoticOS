@@ -10,10 +10,15 @@ body
 
 #display
 {
-	background-color: #DFDBC3;
-	border: 2px solid red; 
+	background-color: #000000;
+	border: 2px solid #FFFFFF; 
 	cursor: default;
 	float: left;
+}
+
+#display.error {
+	background-color: #FFFFFF;
+	border: 2px solid red; 
 }
 
 #app_wrapper {

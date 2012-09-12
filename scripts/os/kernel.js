@@ -78,7 +78,8 @@ function krnOnCPUClockPulse()
     // DOES THIS BELONG HERE ???????????
     if(_OSclock % CPU_TIMER_RATE == 0)
     {
-        _KernelInterruptQueue.enqueue(new Interrput(TIMER_IRQ, null));
+        // draw the taskbar part of the gui
+        _Console.drawTaskBar();
     }
     
     // Check for an interrupt, are any. Page 560
@@ -134,12 +135,12 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case TIMER_IRQ: 
             krnTimerISR();                   // Kernel built-in routine for timers (not the clock).
             break;
-        case KEYBOARD_IRQ: 
+        case KEYBOARD_IRQ:
             krnKeyboardDriver.isr(params);   // Kernel mode device driver
             _StdIn.handleInput();
             break;
         default: 
-            krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
+            krnTrapError("Invalid Interrupt Request. irq=" + irq, params);
     }
 
     // 3. Restore the saved state.  TODO: Question: Should we restore the state via IRET in the ISR instead of here? p560.
@@ -147,9 +148,6 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
 
 function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver).
 {
-    // draw the taskbar part of the gui
-    _Console.drawTaskBar();
-    
     // Check multiprogramming parameters and enfore quanta here. Call the scheduler / context switch here if necessary.
 }   
 
@@ -194,7 +192,7 @@ function krnTrace(msg)
     }
 }
    
-function krnTrapError(msg)
+function krnTrapError(msg, secondary)
 {
     simLog("OS ERROR - TRAP: " + msg);
     // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
@@ -205,32 +203,46 @@ function krnTrapError(msg)
             '</audio>';
     $('html').append(html);
     
+    _Console.taskbarColor = "#FF0000";
+    _Console.taskbarFontColor = "#FFFFFF";
+    DEFAULT_FONT_COLOR = "#000000";
+    $('#display').addClass('error');
+    
+    var linePrefix = '        ';
+    
     _Console.putLine("");
     _Console.putLine("[ERROR] " + msg);
-    _Console.putLine("You may now proceed into android hell...");
-    _Console.putLine("                .+");
-    _Console.putLine("             /M;");
-    _Console.putLine("              H#@:              ;,");
-    _Console.putLine("              -###H-          -@/");
-    _Console.putLine("               %####$.  -;  .%#X");
-    _Console.putLine("                M#####+;#H :M#M.");
-    _Console.putLine("..          .+/;%#########X###-");
-    _Console.putLine(" -/%H%+;-,    +##############/");
-    _Console.putLine("    .:$M###MH$%+############X  ,--=;-");
-    _Console.putLine("        -/H#####################H+=.");
-    _Console.putLine("           .+#################X.");
-    _Console.putLine("         =%M####################H;.");
-    _Console.putLine("            /@###############+;;/%%;,");
-    _Console.putLine("         -%###################$.");
-    _Console.putLine("       ;H######################M=");
-    _Console.putLine("    ,%#####MH$%;+#####M###-/@####%");
-    _Console.putLine("  :$H%+;=-      -####X.,H#   -+M##@-");
-    _Console.putLine(" .              ,###;    ;      =$##+");
-    _Console.putLine("                .#H,               :XH,");
-    _Console.putLine("                 +                   .;-");
+    _Console.putLine("[PARAMS] " + secondary);
     _Console.putLine("");
-    _Console.putLine("Music: http://www.albinoblacksheep.com/audio/modified");
-    _Console.putLine("ACSII: http://pastebin.com/1AZwKrKp");
+    _Console.putLine(linePrefix + "You may now proceed into android hell...");
+    
+    DEFAULT_FONT_COLOR = "#FF0000";
+    
+    _Console.putLine(linePrefix + "                .+");
+    _Console.putLine(linePrefix + "             /M;");
+    _Console.putLine(linePrefix + "              H#@:              ;,");
+    _Console.putLine(linePrefix + "              -###H-          -@/");
+    _Console.putLine(linePrefix + "               %####$.  -;  .%#X");
+    _Console.putLine(linePrefix + "                M#####+;#H :M#M.");
+    _Console.putLine(linePrefix + "..          .+/;%#########X###-");
+    _Console.putLine(linePrefix + " -/%H%+;-,    +##############/");
+    _Console.putLine(linePrefix + "    .:$M###MH$%+############X  ,--=;-");
+    _Console.putLine(linePrefix + "        -/H#####################H+=.");
+    _Console.putLine(linePrefix + "           .+#################X.");
+    _Console.putLine(linePrefix + "         =%M####################H;.");
+    _Console.putLine(linePrefix + "            /@###############+;;/%%;,");
+    _Console.putLine(linePrefix + "         -%###################$.");
+    _Console.putLine(linePrefix + "       ;H######################M=");
+    _Console.putLine(linePrefix + "    ,%#####MH$%;+#####M###-/@####%");
+    _Console.putLine(linePrefix + "  :$H%+;=-      -####X.,H#   -+M##@-");
+    _Console.putLine(linePrefix + " .              ,###;    ;      =$##+");
+    _Console.putLine(linePrefix + "                .#H,               :XH,");
+    _Console.putLine(linePrefix + "                 +                   .;-");
+    
+    DEFAULT_FONT_COLOR = "#000000";
+    
+    _Console.putLine(" Music: http://www.albinoblacksheep.com/audio/modified");
+    _Console.putText(" ACSII: http://pastebin.com/1AZwKrKp");
     
     krnShutdown();
 }

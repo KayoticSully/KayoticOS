@@ -41,11 +41,12 @@ var _Mode = 0;   // 0 = Kernel Mode, 1 = User Mode.  See page 21.
 var CANVAS = null;              // Initialized in hostInit().
 var DRAWING_CONTEXT = null;     // Initialized in hostInit().
 var DEFAULT_FONT = "sans";      // Ignored, just a place-holder in this version.
+var DEFAULT_FONT_COLOR = "#3F0";
 var DEFAULT_FONT_SIZE = 13;     
 var FONT_HEIGHT_MARGIN = 7;     // Additional space added to font size when advancing a line.
 var TASKBAR_HEIGHT = 25;
 var TASKBAR_LEFT_MARGIN = 10;
-var TASKBAR_COLOR = "#ffffff";
+var DEFAULT_TASKBAR_COLOR = "#ffffff";
 var CONSOLE_LEFT_MARGIN = 1;
 var CONSOLE_TOP_MARGIN = 3;
 
