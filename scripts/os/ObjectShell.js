@@ -555,6 +555,7 @@ var Shell = (function()
         
         if (navigator.geolocation) 
         {
+            _StdOut.putLine("Share you location, you ca-*static* trust me.");
             navigator.geolocation.getCurrentPosition(
                 getLocation
             , function(error){

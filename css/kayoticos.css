@@ -43,10 +43,21 @@ footer
     font-size: 12pt;
 }
 
-.clearfix {
+.kosclearfix {
 	clear: both;
 }
 
+.collapse {
+	overflow: visible;
+}
+
+.dropdown-menu > li {
+	margin:3px 8px 3px 8px;
+}
+
+.reference {
+	width:400px;
+}
 
 #panes_wrapper {
 	float: left;
@@ -78,4 +89,8 @@ audio, embed {
 
 .alert {
 	display: none;
+}
+
+.navbar {
+	
 }

@@ -74,26 +74,29 @@ function simLog(msg, source)
 //
 function simBtnStartOS_click(btn)
 {
-    _POWER = true;
-    // .. set focus on the OS console display ... 
-    document.getElementById("display").focus();
+    if(!_POWER)
+    {
+	_POWER = true;
+	// .. set focus on the OS console display ... 
+	document.getElementById("display").focus();
+	
+	// ... Create and initialize the CPU ...
+	_CPU = new cpu();
+	_CPU.init();
+	
+	// Initialize System Clock Object
+	_SystemClock = new SystemDate();
     
-    // ... Create and initialize the CPU ...
-    _CPU = new cpu();
-    _CPU.init();
-    
-    // Initialize System Clock Object
-    _SystemClock = new SystemDate();
-
-    // ... then set the clock pulse simulation to call ?????????.
-    // I decided to "pulse" the CPU directly so the interval
-    // is more like the pulse and it runs "through" the CPU
-    //
-    
-    hardwareClockID = setInterval(_CPU.pulse, CPU_CLOCK_INTERVAL);
-    
-    // .. and call the OS Kernel Bootstrap routine.
-    krnBootstrap();
+	// ... then set the clock pulse simulation to call ?????????.
+	// I decided to "pulse" the CPU directly so the interval
+	// is more like the pulse and it runs "through" the CPU
+	//
+	
+	hardwareClockID = setInterval(_CPU.pulse, CPU_CLOCK_INTERVAL);
+	
+	// .. and call the OS Kernel Bootstrap routine.
+	krnBootstrap();
+    }
 }
 
 function simBtnHaltOS_click(btn)

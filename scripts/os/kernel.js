@@ -211,7 +211,8 @@ function krnTrapError(msg, secondary)
     var linePrefix = '        ';
     
     _Console.putLine("");
-    _Console.putLine("[ERROR] " + msg);
+    _Console.putText("[ERROR] " , "#FF0000");
+    _Console.putLine(msg);
     _Console.putLine("[PARAMS] " + secondary);
     _Console.putLine("");
     _Console.putLine(linePrefix + "You may now proceed into android hell...");

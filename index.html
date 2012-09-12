@@ -32,7 +32,7 @@
                            name="brnHaltOS"
                            class="normal_button"
                            onclick="simBtnHaltOS_click(this)">
-                           <i class="icon-off icon-white"></i>
+                           <i class="icon-remove icon-white"></i>
                            Halt
                         </a>
                      </li>
@@ -46,16 +46,31 @@
                            Reset
                         </a>
                      </li>
+                     <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b> Keyboard Reference</a>
+                        <ul class="dropdown-menu reference" role="menu" aria-labelledby="dLabel">
+                           <li>
+                              <i class="icon-arrow-up"></i> Moves backwards through the command history
+                           </li>
+                           <li>
+                              <i class="icon-arrow-down"></i> Moves forwards through the command history
+                           </li>
+                           <li>
+                              <i class="icon-indent-left"></i> Tab completes partially entered commands
+                           </li>
+                        </ul>
+                        </ul>
+                     </li>
                   </ul>
                </div>
             </div>
          </div>
       </div>
-      <div id="ChromeAlert" class="alert alert-info">
+      <div id="OfflineAlert" class="alert alert-info">
          <button type="button" class="close" data-dismiss="alert">&times;</button>
          <a href="http://os.kayoticlabs.com">
             <strong>Running Locally!</strong> HTML5 Geolocation features will not work
-            when running this app locally using this Web Browser.  Click here to
+            when running this app locally using your Web Browser.  Click here to
             run this app of my server.
          </a>
       </div>
@@ -79,7 +94,7 @@
                &nbsp;
             </div>
          </div>
-         <div class="clearfix"></div>
+         <div class="kosclearfix"></div>
       </div>
       <footer>
          Copyright &copy; 2008 - 2012 No Rights Reserved. - 
