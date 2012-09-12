@@ -47,7 +47,7 @@ function consoleClearScreen()
 function consoleResetXY()
 {
     this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
-    this.CurrentYPosition = this.CurrentFontSize + CONSOLE_TOP_MARGIN;    
+    this.CurrentYPosition = CONSOLE_TOP_MARGIN;    
 }
 
 function consoleResetLine()
@@ -238,6 +238,9 @@ var CommandHistory = (function()
 	    index = this.commands.length;
 	}
 	
+	//
+	// Displays the previous stored command
+	// 
 	this.previous = function()
 	{
 	    if(index > 0)
@@ -250,6 +253,9 @@ var CommandHistory = (function()
 	    setCommand(command);
 	}
 	
+	//
+	// Displays the next stored command
+	// 
 	this.next = function()
 	{
 	    if(index != this.commands.length)

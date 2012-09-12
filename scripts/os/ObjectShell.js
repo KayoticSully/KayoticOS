@@ -79,8 +79,9 @@ var Shell = (function()
     {
         krnTrace("Shell Command~" + buffer);
         
-        // Store command in history
-        _Console.history.add(buffer);
+        // Store command in history as long as its not blank
+        if(trim(buffer) != '')
+            _Console.history.add(buffer);
         
         // Parse the input...
         //
