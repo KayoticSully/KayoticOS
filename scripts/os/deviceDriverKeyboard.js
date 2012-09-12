@@ -1,10 +1,15 @@
-/* ----------------------------------
-   DeviceDriverKeyboard.js
-   
-   Requires deviceDriver.js
-   
-   The Kernel Keyboard Device Driver.
-   ---------------------------------- */
+/*
+ |---------------------------------------------------------------------
+ | Device Driver Keyboard
+ |---------------------------------------------------------------------
+ | Requires deviceDriver.js
+ |---------------------------------------------------------------------
+ | The Kernel Keyboard Device Driver.
+ |---------------------------------------------------------------------
+ | Author(s): Alan G. Labouseur, Ryan Sullivan
+ |   Created: 8/?/2012
+ |   Updated: 9/12/2012
+ */
 
 DeviceDriverKeyboard.prototype = new DeviceDriver;  // "Inherit" from prototype DeviceDriver in deviceDriver.js.
 function DeviceDriverKeyboard()                     // Add or override specific attributes and method pointers.
@@ -15,8 +20,6 @@ function DeviceDriverKeyboard()                     // Add or override specific 
     // Override the base method pointers.
     this.driverEntry = krnKbdDriverEntry;
     this.isr = krnKbdDispatchKeyPress;
-    
-    // "Constructor" code.
     
     //-------------------------
     // Properties
@@ -81,6 +84,10 @@ function krnKbdDispatchKeyPress(params)
     }
     else if (keyCode == 8) // backspace
     {
+        // May add this to the "Special Characters"
+        // that get fed into the OsShell.  Might
+        // make more sence for it to officially
+        // handle the keypress
         _Console.delChar();
     }
     else if(keyCode >= 37 && keyCode <= 40 || // arrows

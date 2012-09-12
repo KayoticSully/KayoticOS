@@ -6,7 +6,7 @@
  |---------------------------------------------------------------------
  | Author(s): Alan G. Labouseur, Ryan Sullivan
  |   Created: 8/?/2012
- |   Updated: 9/6/2012
+ |   Updated: 9/12/2012
  |---------------------------------------------------------------------
  | TODO: Write a base class / prototype for system services and let
  |       Shell inherit from it.
@@ -41,7 +41,7 @@ var Shell = (function()
         // Properties
         //--------------------------------
         this.promptStr   = ">";
-        this.commandList = {};
+        this.commandList = {}; // Made this an object so it can be accessed like an associative array
         this.curses      = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         this.apologies   = "[sorry]";
         this.status      = "status <string> to change this text";
@@ -531,7 +531,11 @@ var Shell = (function()
     }
     
     function shellWhereAmI(args)
-    {   
+    {
+        //
+        // I fully plan on moving most of this code to a GPS "device".
+        // Just didn't have the time to do that once I got it working.
+        //
         function getLocation(position)
         {
             var geocoder = new google.maps.Geocoder();
@@ -601,6 +605,12 @@ var Shell = (function()
         
         if(programContents != '')
         {
+            // This pattern should only accept hex pairs.
+            // It actually pulls out the pairs into an array
+            // so there can be any amount of whitespace between pairs.
+            // I figured this may be easier to process later on
+            // when we need to execute the commands one at a time.
+            //
             var programPattern =  /[\da-fA-F]{2}/g;
             
             var instructions = programContents.match(programPattern);
@@ -638,10 +648,3 @@ var Shell = (function()
     
     return Shell;
 })();
-
-//--------------------------------
-// "Public Static" Members
-//--------------------------------
-// Functions can be added to the prototype
-// here to allow for "Public Static" access
-//

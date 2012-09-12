@@ -1,14 +1,18 @@
-/* ------------
-   Kernel.js
-   
-   Requires globals.js
-   
-   Routines for the Operataing System, NOT the host.
-   
-   This code references page numbers in the text book: 
-   Operating System Concepts 8th editiion by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5   
-   ------------ */
-
+/*
+ |---------------------------------------------------------------------
+ | Kernel
+ |---------------------------------------------------------------------
+ | Requires globals.js
+ |---------------------------------------------------------------------
+ | Routines for the Operataing System, NOT the host.
+ |---------------------------------------------------------------------
+ | Author(s): Alan G. Labouseur, Ryan Sullivan
+ |   Created: 8/?/2012
+ |   Updated: 9/12/2012
+ |---------------------------------------------------------------------
+ | This code references page numbers in the text book:
+ | Operating System Concepts 8th editiion by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
+ */
 
 //
 // OS Startup and Shutdown Routines   
@@ -67,7 +71,6 @@ function krnShutdown()
     krnTrace("end shutdown OS");
 }
 
-
 function krnOnCPUClockPulse() 
 {
     /* This gets called from the host hardware every time there is a hardware clock pulse. 
@@ -99,7 +102,6 @@ function krnOnCPUClockPulse()
        krnTrace("Idle");
     }
 }
-
 
 // 
 // Interrupt Handling
@@ -195,30 +197,30 @@ function krnTrace(msg)
 function krnTrapError(msg, secondary)
 {
     simLog("OS ERROR - TRAP: " + msg);
-    // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
     
-    html = '<audio controls="controls" height="100" width="100" autoplay="autoplay" >' +
-                '<source src="media/The_Device_Has_Been_Modified.mp3" type="audio/mp3" />' +
-                '<embed height="100" width="100" src="media/The_Device_Has_Been_Modified.mp3" autoplay="true" />' +
-            '</audio>';
-    $('html').append(html);
+    // Can probably call this in a more "real" fashion
+    // either way, this is just for effect, and because I could.
+    hostErrorResponse();
     
     _Console.taskbarColor = "#FF0000";
     _Console.taskbarFontColor = "#FFFFFF";
-    DEFAULT_FONT_COLOR = "#000000";
-    $('#display').addClass('error');
     
-    var linePrefix = '        ';
+    DEFAULT_FONT_COLOR = "#000000";
     
     _Console.putLine("");
     _Console.putText("[ERROR] " , "#FF0000");
     _Console.putLine(msg);
     _Console.putLine("[PARAMS] " + secondary);
     _Console.putLine("");
+    
+    var linePrefix = '        ';
     _Console.putLine(linePrefix + "You may now proceed into android hell...");
     
     DEFAULT_FONT_COLOR = "#FF0000";
     
+    //
+    // Print out the failure image
+    //
     _Console.putLine(linePrefix + "                .+");
     _Console.putLine(linePrefix + "             /M;");
     _Console.putLine(linePrefix + "              H#@:              ;,");
@@ -242,6 +244,9 @@ function krnTrapError(msg, secondary)
     
     DEFAULT_FONT_COLOR = "#000000";
     
+    //
+    // References, since I didn't make the media
+    //
     _Console.putLine(" Music: http://www.albinoblacksheep.com/audio/modified");
     _Console.putText(" ACSII: http://pastebin.com/1AZwKrKp");
     

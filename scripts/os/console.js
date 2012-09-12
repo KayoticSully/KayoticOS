@@ -1,11 +1,19 @@
-/* ------------
-   Console.js
-
-   Requires globals.js
-
-   The OS Console - stdIn and stdOut by default.
-   Note: This is not the Shell.  The Shell is the "command line interface" (CLI) or interpreter for this console.
-   ------------ */
+/*
+ |---------------------------------------------------------------------
+ | Console
+ |---------------------------------------------------------------------
+ | Requires globals.js; SimpleStack.js
+ |---------------------------------------------------------------------
+ | An extension of the Date object to suite the OS needs.
+ |---------------------------------------------------------------------
+ | Author(s): Alan G. Labouseur, Ryan Sullivan
+ |   Created: 8/?/2012
+ |   Updated: 9/12/2012
+ |---------------------------------------------------------------------
+ | The OS Console - stdIn and stdOut by default.
+ | Note: This is not the Shell.  The Shell is the "command line interface"
+ |       (CLI) or interpreter for this console.
+ */
 
 function Console()
 {
@@ -16,8 +24,8 @@ function Console()
     this.CurrentYPosition = DEFAULT_FONT_SIZE + CONSOLE_TOP_MARGIN;
     this.taskbarFontColor = "#000000";
     this.taskbarColor     = DEFAULT_TASKBAR_COLOR;
-    this.buffer = new SimpleStack();
-    this.history = new CommandHistory();
+    this.buffer 	  = new SimpleStack();
+    this.history 	  = new CommandHistory();
     
     // Methods
     this.init        = consoleInit;
@@ -84,8 +92,10 @@ function consoleHandleInput()
     }
 }
 
-function consolePutLine(txt, prompt, color)
+
+function consolePutLine(txt, prompt, color) 
 {
+    // Shortcut function that advances the line after putting text.
     if(prompt == undefined && typeof prompt != "boolean")
     {
 	prompt = false;
@@ -133,6 +143,7 @@ function consolePutText(txt, textColor)
 
 function consoleDelText()
 {
+    // Deletes the last character entered in the console.
     if(this.buffer.size > 0)
     {
 	var character = this.buffer.pop();
@@ -191,8 +202,13 @@ function consolePutImage(image)
     _OsShell.putPrompt();
 }
 
+
 function consoleDrawTaskBar()
 {
+    // Still not sure if this belongs here or in the shell.
+    // Having a little trouble finding that line that separates
+    // the two objects
+    
     // paint background
     var taskBarTop = CANVAS.height - TASKBAR_HEIGHT;
     DRAWING_CONTEXT.fillStyle = _Console.taskbarColor;
@@ -204,6 +220,13 @@ function consoleDrawTaskBar()
     var txt = _OsShell.taskbar;
     DRAWING_CONTEXT.drawText(this.CurrentFont, taskFontSize, TASKBAR_LEFT_MARGIN, text_location, txt, _Console.taskbarFontColor);
 }
+
+//------------------------------
+//  "Private" Objects 
+//------------------------------
+// Will actually make this "private"
+// in the future when the entire
+// console class is re-worked
 
 /*
  |---------------------------------------------------------------------

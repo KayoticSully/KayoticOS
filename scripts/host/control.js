@@ -1,20 +1,24 @@
-/* ------------  
-   Control.js
-
-   Requires global.js.
-   
-   Routines for the hardware simulation, NOT for our client OS itself. In this manner, it's A LITTLE BIT like a hypervisor,
-   in that the Document envorinment inside a browser is the "bare metal" (so to speak) for which we write code that
-   hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using JavaScript in 
-   both the host and client environments.
-   
-   This (and other host/simulation scripts) is the only place that we should see "web" code, like 
-   DOM manipulation and JavaScript event handling, and so on.  (Index.html is the only place for markup.)
-   
-   This code references page numbers in the text book: 
-   Operating System Concepts 8th editiion by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
-   ------------ */
-
+/*
+ |---------------------------------------------------------------------
+ | Control 
+ |---------------------------------------------------------------------
+ | Requires global.js
+ |---------------------------------------------------------------------
+ | Routines for the hardware simulation, NOT for our client OS itself. In this manner, it's A LITTLE BIT like a hypervisor,
+ | in that the Document environment inside a browser is the "bare metal" (so to speak) for which we write code that
+ | hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using JavaScript in 
+ | both the host and client environments.
+ |---------------------------------------------------------------------
+ | Author(s): Alan G. Labouseur, Ryan Sullivan
+ |   Created: 8/?/2012
+ |   Updated: 9/12/2012
+ |---------------------------------------------------------------------
+ | This (and other host/simulation scripts) is the only place that we should see "web" code, like 
+ | DOM manipulation and JavaScript event handling, and so on.  (Index.html is the only place for markup.)
+ |  
+ | This code references page numbers in the text book: 
+ | Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
+ */
 
 //
 // Control Services
@@ -29,8 +33,6 @@ function simInit()
 	
 	// Enable the added-in canvas text functions (see canvastext.js for provenance and details).
 	CanvasTextFunctions.enable(DRAWING_CONTEXT);
-	
-	//document.getElementById("taLog").value="";
 	
 	// Set focus on the start button.
 	document.getElementById("btnStartOS").focus();     // TODO: This does not seem to work.  Why?
@@ -55,16 +57,12 @@ function simLog(msg, source)
     var logList = $('#taLog');
     
     // Update the log console.
-    // Yes it is worth importing the entire jQuery library for this one chunk.
     if(msg.toLowerCase() == 'idle' && log.last.toLowerCase() == 'idle')
 	logList.find('.log_msg').first().replaceWith(log.toString());
     else
 	logList.prepend(log.toString());
-    
-    // store last
-    //log.prototype.last = log;
-    
-    // Optionally udpate a log database or some streaming service.
+
+    // Optionally update a log database or some streaming service.
     // Not Yet
 }
 
@@ -91,7 +89,6 @@ function simBtnStartOS_click(btn)
 	// I decided to "pulse" the CPU directly so the interval
 	// is more like the pulse and it runs "through" the CPU
 	//
-	
 	hardwareClockID = setInterval(_CPU.pulse, CPU_CLOCK_INTERVAL);
 	
 	// .. and call the OS Kernel Bootstrap routine.
@@ -105,7 +102,7 @@ function simBtnHaltOS_click(btn)
     {
 	simLog("emergency halt", "host");
 	simLog("Attempting Kernel shutdown.", "host");
-	// Call the OS sutdown routine.
+	// Call the OS shutdown routine.
 	krnShutdown();
 	// Stop the JavaScript interval that's simulating our clock pulse.
 	clearInterval(hardwareClockID);
@@ -118,11 +115,15 @@ function simBtnReset_click(btn)
 {
     // The easiest and most thorough way to do this is to reload (not refresh) the document.
     location.reload(true);  
-    // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
+    // That boolean parameter is the 'force get' flag. When it is true it causes the page to always
     // be reloaded from the server. If it is false or not specified, the browser may reload the 
     // page from its cache, which is not what we want.
 }
 
+//
+// "Host Call" Functions
+// Like system calls, just for the host
+//
 function programLoadContents()
 {
    return $('#program_entry').val();

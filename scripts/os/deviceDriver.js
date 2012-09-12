@@ -1,8 +1,13 @@
-/* ------------------------------
-   DeviceDriver.js
-   
-   The "base class" (or 'prototype') for all Device Drivers.
-   ------------------------------ */
+/*
+ |---------------------------------------------------------------------
+ | Device Driver
+ |---------------------------------------------------------------------
+ | The "base class" (or 'prototype') for all Device Drivers.
+ |---------------------------------------------------------------------
+ | Author(s): Alan G. Labouseur, Ryan Sullivan
+ |   Created: 8/?/2012
+ |   Updated: 9/12/2012
+ */
 
 function DeviceDriver()
 {

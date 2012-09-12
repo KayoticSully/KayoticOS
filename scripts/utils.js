@@ -1,8 +1,15 @@
-/* --------  
-   Utils.js
-
-   Utility functions.
-   -------- */
+/*
+ |---------------------------------------------------------------------
+ | Utils 
+ |---------------------------------------------------------------------
+ | Utility functions
+ |---------------------------------------------------------------------
+ | Author(s): Alan G. Labouseur
+ |   Created: 8/?/2012
+ |   Updated: 9/12/2012
+ |---------------------------------------------------------------------
+ | Just making comments consistent across all files
+ */
 
 function trim(str)      // Use a regular expression to remove leading and trailing spaces.
 {
@@ -11,9 +18,9 @@ function trim(str)      // Use a regular expression to remove leading and traili
 	Huh?  Take a breath.  Here we go:
 	- The "|" separates this into two expressions, as in A or B.
 	- "^\s+" matches a sequence of one or more whitespace characters at the beginning of a string.
-    - "\s+$" is the same thing, but at the end of the string.
-    - "g" makes is global, so we get all the whitespace.
-    - "" is nothing, which is what we replace the whitespace with.
+	- "\s+$" is the same thing, but at the end of the string.
+	- "g" makes is global, so we get all the whitespace.
+	- "" is nothing, which is what we replace the whitespace with.
 	*/
 	
 }

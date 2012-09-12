@@ -1,11 +1,15 @@
-/* ------------
-   Queue.js
-   
-   A simple Queue, which is really just a dressed-up Javascript Array.
-   See the Javascript Array documentation at http://www.w3schools.com/jsref/jsref_obj_array.asp .
-   Look at the push and shift methods, as they are the least obvious here.
-   
-   ------------ */
+/*
+ |---------------------------------------------------------------------
+ | Queue
+ |---------------------------------------------------------------------
+ | A simple Queue, which is really just a dressed-up Javascript Array.
+ |  See the Javascript Array documentation at http://www.w3schools.com/jsref/jsref_obj_array.asp .
+ |  Look at the push and shift methods, as they are the least obvious here.
+ |---------------------------------------------------------------------
+ | Author(s): Alan G. Labouseur, Ryan Sullivan
+ |   Created: 8/?/2012
+ |   Updated: 9/6/2012
+ */
    
 function Queue()
 {

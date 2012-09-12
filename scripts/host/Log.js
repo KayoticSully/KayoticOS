@@ -6,23 +6,19 @@
  |---------------------------------------------------------------------
  | Author(s): Ryan Sullivan
  |   Created: 9/4/2012
- |   Updated: 9/4/2012
+ |   Updated: 9/12/2012
  */
 
-/*--------------------------------
- * "Constructor"
- *--------------------------------
- * Sets up the object definition
- * and initializes anything that
- * is needed.
- */
-
-var Log = (function(source, message, clock, now)
+/*-------------------------------*
+ * "Class" Object Definition
+ *-------------------------------*/
+var Log = (function()
 {
     //---------------------------------
     // Private Static Variables
     //--------------------------------
     var last = null;
+    
     //-----------------------------------------------------------------
     // Constructor | This function object is returned at the end
     //-----------------------------------------------------------------
@@ -70,9 +66,7 @@ Log.prototype = {
                     this.message +
                 '</div>' +
             '</div>';
+        
         return html;
-        //return "({ clock:" + this.clock + ", source:" + this.source + ", msg:" + this.message + ", now:" + this.now  + " })"  + "\n";
-    },
-    
-    
+    }
 }
