@@ -617,7 +617,8 @@ var Shell = (function()
             
             if(programContents == instructions.join(' '))
             {
-                _StdIn.putText("Program formatting is acceptable");
+                krnLoadProgram(instructions);
+                _StdIn.putText("The specimen has been processed");
             }
             else
             {

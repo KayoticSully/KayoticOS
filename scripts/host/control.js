@@ -79,8 +79,10 @@ function simBtnStartOS_click(btn)
 	document.getElementById("display").focus();
 	
 	// ... Create and initialize the CPU ...
-	_CPU = new cpu();
+	_CPU = new CPU();
 	_CPU.init();
+	
+	_RAM = new RAM();
 	
 	// Initialize System Clock Object
 	_SystemClock = new SystemDate();

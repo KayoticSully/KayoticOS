@@ -152,9 +152,17 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
 function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver).
 {
     // Check multiprogramming parameters and enfore quanta here. Call the scheduler / context switch here if necessary.
-}   
+}
 
 
+function krnLoadProgram(instructionArray)
+{
+    var offset = 0;
+    for(var instruction in instructionArray)
+    {
+        _RAM.set(instruction + offset, instructionArray[instruction])
+    }
+}
 
 //
 // System Calls... that generate software interrupts via tha Application Programming Interface library routines.

@@ -18,41 +18,47 @@
  | Operating System Concepts 8th editiion by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
  */
 
-function cpu()
+var CPU = (function()
 {
-    this.PC    = 0;     // Program Counter
-    this.Acc   = 0;     // Accumulator
-    this.Xreg  = 0;     // X register
-    this.Yreg  = 0;     // Y register
-    this.Zflag = 0;     // Z-ero flag (Think of it as "isZero".)
-    this.isExecuting = false;
     
-    this.init = function() 
+    function CPU()
     {
-        this.PC    = 0
-        this.Acc   = 0;
-        this.Xreg  = 0;
-        this.Yreg  = 0;
-        this.Zflag = 0;      
-        this.isExecuting = false;  
-    }
+        this.PC    = 0;     // Program Counter
+        this.Acc   = 0;     // Accumulator
+        this.Xreg  = 0;     // X register
+        this.Yreg  = 0;     // Y register
+        this.Zflag = 0;     // Z-ero flag (Think of it as "isZero".)
+        this.isExecuting = false;
     
-    this.pulse = function()
-    {
-        // Increment the hardware (host) clock.
-        _OSclock++;
+        this.init = function() 
+        {
+            this.PC    = 0
+            this.Acc   = 0;
+            this.Xreg  = 0;
+            this.Yreg  = 0;
+            this.Zflag = 0;      
+            this.isExecuting = false;  
+        }
         
-        // Update System Time
-        _SystemClock.update();
+        this.pulse = function()
+        {
+            // Increment the hardware (host) clock.
+            _OSclock++;
+            
+            // Update System Time
+            _SystemClock.update();
+            
+            // Call the kernel clock pulse event handler.
+            krnOnCPUClockPulse();
+        }
         
-        // Call the kernel clock pulse event handler.
-        krnOnCPUClockPulse();
+        this.cycle = function()
+        {
+            krnTrace("CPU cycle");
+            // TODO: Accumulate CPU usage and profiling statistics here.
+            // Do real work here. Set this.isExecuting appropriately.
+        }
     }
     
-    this.cycle = function()
-    {
-        krnTrace("CPU cycle");
-        // TODO: Accumulate CPU usage and profiling statistics here.
-        // Do real work here. Set this.isExecuting appropriately.
-    }
-}
+    return CPU;
+})();

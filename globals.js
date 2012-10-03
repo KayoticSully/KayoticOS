@@ -33,7 +33,8 @@ var EUTHANIZE_IRQ = 24;
 // Global Variables
 //------------------
 var _POWER = false;      // Just so the interface knows when the OS is on or off
-var _CPU = null;         
+var _CPU = null;
+var _RAM = null;
 var _SystemClock = null; // Controls System Date Time
 var _OSclock = 0;        // Page 23.
 var _Mode = 0;           // 0 = Kernel Mode, 1 = User Mode.  See page 21.
