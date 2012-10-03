@@ -292,7 +292,7 @@ var Shell = (function()
         sc = new ShellCommand();
         sc.command = "load-program";
         sc.description = " - Loads a program from the User Program Entry field";
-        sc.function = shellLoadProgram;
+        sc.function = loadProgram;
         this.commandList[sc.command] = sc;
         
         // history
@@ -599,7 +599,7 @@ var Shell = (function()
         _StdOut.putText("Status set to " + status);
     }
     
-    function shellLoadProgram()
+    function loadProgram()
     {
         var programContents = trim(programLoadContents());
         
