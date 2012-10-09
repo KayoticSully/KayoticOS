@@ -118,12 +118,54 @@ function OPCodes()
             _CPU.Zflag = 1;
     }
     
+    this["EE"] = function()
+    {
+        // get data field
+        var location1 = _CPU.fetch();
+        var location2 = _CPU.fetch();
+        var location = location2 + location1;
+        
+        var data = _Memory.get(parseInt(location, 16));
+        _Memory.store(parseInt(location, 16), data + 1);
+    }
+    
+    this["D0"] = function()
+    {
+        // get data field
+        var data = _CPU.fetch();
+        
+        // if z == 0
+        if(_CPU.Zflag == 0)
+        {
+            var offset = parseInt(data, 16);
+            
+            // get signed value
+            if(offset > 127)
+                offset = offset - 255;
+            
+            _CPU.PC = _CPU.PC + offset;
+        }
+    }
+    
     this["FF"] = function()
     {
         if(_CPU.Xreg == 1)
         {
             _KernelInterruptQueue.enqueue(new Interrput(PRINT_IRQ, [_CPU.Yreg]));
-            //_StdOut.putLine(_CPU.Yreg);
+        }
+        else if(_CPU.Xreg == 2)
+        {
+            var data = parseInt(_CPU.fetch(), 16);
+            while(data != 0)
+            {
+                var ch = String.fromCharCode(data);
+                _KernelInterruptQueue.enqueue(new Interrput(PRINT_IRQ, [ch]));
+                data = _CPU.fetch();
+            }
+        }
+        else
+        {
+            _KernelInterruptQueue.enqueue(new Interrput(EUTHANIZE_IRQ));
         }
     }
 }
