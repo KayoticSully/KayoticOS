@@ -295,6 +295,13 @@ var Shell = (function()
         sc.function = loadProgram;
         this.commandList[sc.command] = sc;
         
+        // run
+        sc = new ShellCommand();
+        sc.command = "run";
+        sc.description = "<int> - Starts execution of specified process id";
+        sc.function = run;
+        this.commandList[sc.command] = sc;
+        
         // history
         sc = new ShellCommand();
         sc.command = "history";
@@ -617,8 +624,10 @@ var Shell = (function()
             
             if(programContents == instructions.join(' '))
             {
-                krnLoadProgram(instructions);
-                _StdIn.putText("The specimen has been processed");
+                var PID = krnLoadProgram(instructions);
+                _StdOut.putLine("Your specimen has been processed and now we are ready");
+                _StdOut.putLine("to begin the test proper. Your unique specimen identification");
+                _StdOut.putText("number is " + PID);
             }
             else
             {
@@ -630,6 +639,15 @@ var Shell = (function()
         {
             _StdIn.putText("You first need something to load.");
         }
+    }
+    
+    function run(args)
+    {
+        var PID = args[0];
+        
+        krnRunProgram(PID);
+        
+        return { defer : true }
     }
     
     function shellHistory()

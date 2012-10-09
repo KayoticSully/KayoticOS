@@ -41,6 +41,13 @@ function krnBootstrap()      // Page 8.
     krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
     krnTrace(krnKeyboardDriver.status);
 
+    // Load Queues
+    _JobQ = new Array();
+    _ReadyQ = new Array();
+    
+    // Load the Memory Manager
+    _Memory = new MemoryManager();
+    
     // 
     // ... more?
     //
@@ -142,11 +149,27 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
             krnKeyboardDriver.isr(params);   // Kernel mode device driver
             _StdIn.handleInput();
             break;
+        case SYSTEMCALL_IRQ:
+            krnHandleSysCall(params);
+            break;
+        case PRINT_IRQ:
+            _StdOut.putText(params[0].toString());
+            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq, params);
     }
 
     // 3. Restore the saved state.  TODO: Question: Should we restore the state via IRET in the ISR instead of here? p560.
+}
+
+function krnHandleSysCall(params)
+{
+    switch(params[0])
+    {
+        case "00":
+            krnBreak();
+        break;
+    }
 }
 
 function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver).
@@ -157,11 +180,17 @@ function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Rout
 
 function krnLoadProgram(instructionArray)
 {
-    var offset = 0;
-    for(var instruction in instructionArray)
-    {
-        _RAM.set(instruction + offset, instructionArray[instruction])
-    }
+    return _Memory.loadProgram(instructionArray);
+}
+
+function krnRunProgram(PID)
+{
+    _CPU.isExecuting = true;
+}
+
+function krnBreak()
+{
+    _CPU.isExecuting = false;
 }
 
 //

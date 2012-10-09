@@ -14,14 +14,15 @@
 
 var PCB = (function(){
     
-    function PCB(pc, acc, x, y, z, memoffset)
+    function PCB(PID, PC)
     {
-        this.PC    = PC;    // Program Counter
-        this.Acc   = acc;   // Accumulator
-        this.Xreg  = x;     // X register
-        this.Yreg  = y;     // Y register
-        this.Zflag = z;     // Z-ero flag (Think of it as "isZero".)
-        this.MemOffset = memoffset; // stores the memory offset
+        this.PID    = PID;   // Program ID
+        this.PC     = PC;    // Program Counter
+        this.Acc    = 0;     // Accumulator
+        this.Xreg   = 0;     // X register
+        this.Yreg   = 0;     // Y register
+        this.Zflag  = 0;     // Z-ero flag (Think of it as "isZero".)
+        this.Offset = 0;
     }
     
     return PCB;

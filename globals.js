@@ -27,7 +27,12 @@ var CPU_IDLE_MESSAGE_RATE = 1000; // every X number of intervals
 var TIMER_IRQ    = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority). 
                        // NOTE: The timer is different from hardware clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
+var SYSTEMCALL_IRQ = 2;
+var PRINT_IRQ = 3;
 var EUTHANIZE_IRQ = 24;
+
+
+var PROGRAM_SIZE  = 512;
 
 //------------------
 // Global Variables
@@ -35,10 +40,13 @@ var EUTHANIZE_IRQ = 24;
 var _POWER = false;      // Just so the interface knows when the OS is on or off
 var _CPU = null;
 var _RAM = null;
+var _Memory = null;
 var _SystemClock = null; // Controls System Date Time
 var _OSclock = 0;        // Page 23.
 var _Mode = 0;           // 0 = Kernel Mode, 1 = User Mode.  See page 21.
 var _Trace = true;       // Default the OS trace to be on.
+var _JobQ = null;        // PCB Job QUEUE
+var _ReadyQ = null;        // PCB Job QUEUE
 
 //
 // Canvas Variables

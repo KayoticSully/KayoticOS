@@ -20,11 +20,13 @@ var RAM = (function(){
     {
         this.get = function(PC)
         {
+            console.log("Getting " + memory[PC] + " from " + PC);
             return memory[PC];
         }
         
         this.set = function(PC, value)
         {
+            console.log("Loading " + PC + " with " + value);
             memory[PC] = value;
         }
     }
