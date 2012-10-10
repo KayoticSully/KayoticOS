@@ -22,7 +22,7 @@ var PCB = (function(){
         this.Xreg   = 0;     // X register
         this.Yreg   = 0;     // Y register
         this.Zflag  = 0;     // Z-ero flag (Think of it as "isZero".)
-        this.Offset = 0;
+        this.state  = "new"  // program state
     }
     
     return PCB;
