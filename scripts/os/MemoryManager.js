@@ -4,7 +4,7 @@
  |---------------------------------------------------------------------
  | Requires global.js
  |---------------------------------------------------------------------
- | Acts as the physical memory for the host VM
+ | Acts as the Virtual Memory for the Guest OS
  |---------------------------------------------------------------------
  | Author(s): Ryan Sullivan
  |   Created: 10/3/2012

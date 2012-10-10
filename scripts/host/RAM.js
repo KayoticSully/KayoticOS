@@ -18,18 +18,72 @@ var RAM = (function(){
     
     function RAM()
     {
+        // init ram
+        for(var i = 0; i < RAM_SIZE; i++)
+            memory[i] = 0;
+        
+        var displayPageNumber = 0;
+        Object.defineProperty(this, 'displayPage', {
+            writeable       : true,
+            enumerable      : false,
+            get             : function() {
+                return parseInt(displayPageNumber);
+            },
+            set             : function(value) {
+                displayPageNumber = value;
+                this.display();
+            }
+        });
+        
+        
         this.get = function(PC)
         {
-            console.log("Getting " + memory[PC] + " from " + PC);
-            return memory[PC];
+            if(PC >= 0 && PC < RAM_SIZE)
+            {
+                return memory[PC];
+            }
+            
+            return null;
         }
         
         this.set = function(PC, value)
         {
-            console.log("Loading " + PC + " with " + value);
-            memory[PC] = value;
+            if(PC >= 0 && PC < RAM_SIZE)
+            {
+                memory[PC] = value;
+            }
         }
+        
+        this.display = function()
+        {
+            $("#memory").html(this.toString());
+        }
+        
+        this.display();
     }
     
     return RAM;
 })();
+
+RAM.prototype.toString = function()
+{
+    var str = '';
+    
+    var offset = PROGRAM_SIZE * this.displayPage;
+    
+    for(var group = offset; group < PROGRAM_SIZE * (this.displayPage + 1); group += 32)
+    {
+        str += '<div class="memCol">';
+        
+        for(var location = group; location < group + 32 && location < RAM_SIZE; location++)
+        {
+            var value = this.get(location);
+            str += '<strong>$' + toPettyHex(location) + ":</strong>" + toPettyHex(value, 2) + "<br>";
+        }
+        
+        str += '</div>';
+    }
+    
+    str += '<div class="kosclearfix"></div>';
+    return str;
+}

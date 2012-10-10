@@ -52,6 +52,13 @@ var CPU = (function()
             
             // Call the kernel clock pulse event handler.
             krnOnCPUClockPulse();
+            
+            controlUpdateDisplay();
+            
+            if(STEP_TOGGLE)
+            {
+                _CPU.isExecuting = false;
+            }
         }
         
         this.cycle = function()
@@ -63,10 +70,18 @@ var CPU = (function()
             // Fetch
             var instruction = this.fetch();
             
+            // decode
             if(instruction in OPs)
+            {
+                // execute
                 OPs[instruction]();
-            
-            console.log(instruction);
+            }
+            else
+            {
+                // throw interrupt
+                var interrupt = new Interrput(BADOP_IRQ, "Bad Operation " + instruction + " at location " + (parseInt(this.PC) - 1));
+                _KernelInterruptQueue.enqueue(interrupt);
+            }
         }
         
         this.fetch = function()

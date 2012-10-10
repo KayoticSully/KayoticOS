@@ -19,20 +19,25 @@
 var APP_NAME = "KayoticOS";  // Because I name everything using Kayotic
 var APP_VERSION = "0.9"
 
-var CPU_CLOCK_INTERVAL = 10;   // in ms, or milliseconds, so 1000 = 1 second.
-var CPU_TIMER_RATE = 100; // every X number of intervals
-var CPU_IDLE_MESSAGE_RATE = 1000; // every X number of intervals
+var CPU_CLOCK_INTERVAL = 100;   // in ms, or milliseconds, so 1000 = 1 second.
+var CPU_TIMER_RATE = 1000; // every X number of intervals
+var CPU_IDLE_MESSAGE_RATE = 10000; // every X number of intervals
 
 // IRQs
 var TIMER_IRQ    = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority). 
                        // NOTE: The timer is different from hardware clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
 var SYSTEMCALL_IRQ = 2;
-var PRINT_IRQ = 3;
 var EUTHANIZE_IRQ = 24;
+var BADOP_IRQ = 25;
 
 
-var PROGRAM_SIZE  = 512;
+var PROGRAM_SIZE  = 128;
+var RAM_SIZE  = 384;
+
+var DEVLOG = true;
+
+var STEP_TOGGLE = false;
 
 //------------------
 // Global Variables

@@ -87,13 +87,36 @@
       </div>
       <!-- Host Interface -->
       <div id="app_wrapper">
+         <div class="panes_wrapper">
+            <div id="memoryControls">
+               <label for="memoryPage0" id="title">Main Memory Page:</label>
+               <label for="memoryPage0">0</label><input type="radio" name="memoryPage" id="memoryPage0" value="0" checked />
+               <label for="memoryPage1">1</label><input type="radio" name="memoryPage" id="memoryPage1" value="1" />
+               <label for="memoryPage2">2</label><input type="radio" name="memoryPage" id="memoryPage2" value="2" />
+            </div>
+            <div name="memory" id = "memory">
+               &nbsp;
+            </div>
+         </div>
+         <div id="PCBDisplay">
+            <span class="label left">PCB</span>
+         </div>
          <canvas id="display"
                  width="650px"
                  height="550px"
                  tabindex="3">
          </canvas>
-         <div id="panes_wrapper">
-            <textarea id="program_entry" placeholder="User Program Entry" pattern="[0-9]{13,16}"></textarea>
+         <div id="stepControls">
+            <label for="stepToggle1">Step Through</label>
+            <label for="stepToggle0">Off</label><input type="radio" name="stepToggle" id="stepToggle0" value="false" checked />
+            <label for="stepToggle1">On</label><input type="radio" name="stepToggle" id="stepToggle1" value="true" />
+            <input id="stepBtn" type="button" class="btn" value="Step" title="Be Careful! There is no check on step right now. If you 'Step' after the program terminates, the CPU will try to execute the next memory location."/>
+         </div>
+         <div class="panes_wrapper">
+            <textarea id="program_entry" placeholder="User Program Entry"></textarea>
+            <div class="label">
+               System Logs
+            </div>
             <div name="taLog" id = "taLog">
                &nbsp;
             </div>

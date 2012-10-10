@@ -72,6 +72,8 @@ function krnShutdown()
     // ... Disable the Interruupts.
     krnTrace("Disabling the interrupts.");
     krnDisableInterrupts();
+    
+    
     // 
     // Unload the Device Drivers?
     // More?
@@ -152,9 +154,6 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case SYSTEMCALL_IRQ:
             krnHandleSysCall(params);
             break;
-        case PRINT_IRQ:
-            _StdOut.putText(params[0].toString());
-            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq, params);
     }
@@ -164,11 +163,39 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
 
 function krnHandleSysCall(params)
 {
-    switch(params[0])
+    if(params[0] === "00")
     {
-        case "00":
-            krnBreak();
-        break;
+        krnBreak();
+    }
+    else if(params[0] == "FF")
+    {
+        switch(parseInt(params[1]))
+        {
+            case 1:
+                _StdOut.putText(params[2].toString() + " ");
+            break;
+            
+            case 2:
+                // get first character from starting location
+                var location = parseInt(params[2]);
+                var characterHex = _Memory.get(location++);
+                
+                while(characterHex != "00")
+                {
+                    // decode character
+                    var charCode = parseInt(characterHex, 16);
+                    // convert to string
+                    var character = String.fromCharCode(charCode);
+                    // print character
+                    _StdOut.putText(character);
+                    
+                    // get next
+                    characterHex = _Memory.get(location++);
+                }
+                
+                _StdOut.putText(" ");
+            break;
+        }
     }
 }
 
@@ -185,12 +212,33 @@ function krnLoadProgram(instructionArray)
 
 function krnRunProgram(PID)
 {
+    
+    // force to start of memory for now
+    // Quick fix to allow multiple runs of one program
+    _CPU.PC = 0;
+    
+    _ReadyQ.state = "running";
+    
     _CPU.isExecuting = true;
 }
 
 function krnBreak()
 {
     _CPU.isExecuting = false;
+    
+    // hardcode update _ReadyQ[0] PCB
+    // this will have to change once we
+    // are dealing with more than one
+    // program
+    _ReadyQ[0].PC = _CPU.PC;
+    _ReadyQ[0].Acc = _CPU.Acc;
+    _ReadyQ[0].Xreg = _CPU.Xreg;
+    _ReadyQ[0].Yreg = _CPU.Yreg;
+    _ReadyQ[0].Zflag = _CPU.Zflag;
+    _ReadyQ[0].state = "terminated";
+    
+    _StdOut.advanceLine();
+    _OsShell.putPrompt();
 }
 
 //
@@ -288,5 +336,5 @@ function krnTrapError(msg, secondary)
     _Console.putLine(" Music: http://www.albinoblacksheep.com/audio/modified");
     _Console.putText(" ACSII: http://pastebin.com/1AZwKrKp");
     
-    krnShutdown();
+    simBtnHaltOS_click();
 }

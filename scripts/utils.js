@@ -49,3 +49,31 @@ function rot13(str)     // An easy-to understand implementation of the famous an
     }
     return retVal;
 }
+
+function devLog(str)
+{
+	if(DEVLOG)
+	{
+		console.log(str);
+	}
+}
+
+function toPettyHex(number, digits)
+{
+	if(digits === undefined)
+		digits = 3;
+	
+	var hex = '';
+	if( ! (number instanceof String))
+		hex = number.toString(16);
+	else
+		hex = number;
+	
+	if(hex.length < digits)
+	{
+		for(var i = digits - hex.length; i > 0; i--)
+			hex = "0" + hex;
+	}
+	
+	return hex.toUpperCase();
+}

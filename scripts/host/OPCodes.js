@@ -1,138 +1,275 @@
-
+/*
+ |---------------------------------------------------------------------
+ | OP Codes
+ |---------------------------------------------------------------------
+ | Requires global.js
+ |---------------------------------------------------------------------
+ | Operations the CPU can understand
+ |---------------------------------------------------------------------
+ | Author(s): Ryan Sullivan
+ |   Created: 10/9/2012
+ |   Updated: 10/9/2012
+ |---------------------------------------------------------------------
+ */
 
 function OPCodes()
 {
+    //================================================
+    // Break
+    //------------------------------------------------
+    // System call to stop program execution
+    //================================================
     this["00"] = function()
     {
+        // LOG
+        devLog("BREAK [00]");
+        
+        // make interrupt
         var interrupt = new Interrput(SYSTEMCALL_IRQ, ["00"]);
+        // throw interrupt
         _KernelInterruptQueue.enqueue(interrupt);
     }
     
+    //================================================
+    // LDA [constant]
+    //------------------------------------------------
+    // Load the accumulator with a constant
+    //================================================
     this["A9"] = function()
-    {
-        // get data field
+    {    
+        // get data fields
         var data = _CPU.fetch();
+        
+        // LOG
+        devLog("LDA [A9 " + data + "]");
+        
         // Load Acc after converting from hex to int
         _CPU.Acc = parseInt(data, 16);
     }
     
+    //================================================
+    // LDA [least significant] [most significant]
+    //------------------------------------------------
+    // Load the accumulator from Memory
+    //================================================
     this["AD"] = function()
     {
-        // get data field
+        // get data fields
         var location1 = _CPU.fetch();
         var location2 = _CPU.fetch();
-        var location = location2 + location1;
         
+        // LOG
+        devLog("LDA [AD " + location1 + " " + location2 + "]");
+        
+        // convert encoding
+        var location = location2 + location1;
         // get data at memory location
         var data = _Memory.get(parseInt(location, 16));
+        
         // Load Acc after converting from hex to int
         _CPU.Acc = parseInt(data, 16);
     }
     
+    //================================================
+    // STA [least significant] [most significant]
+    //------------------------------------------------
+    // Store the accumulator to Memory
+    //================================================
     this["8D"] = function()
     {
         // get data field
         var location1 = _CPU.fetch();
         var location2 = _CPU.fetch();
-        var location = location2 + location1;
         
+        // LOG
+        devLog("STA [8D " + location1 + " " + location2 + "]");
+        
+        // convert encoding
+        var location = location2 + location1;
         // get Acc
         var data = _CPU.Acc;
+        
         // store data at memory location
-        _Memory.store(parseInt(location, 16), data.toString(16));
+        _Memory.store(parseInt(location, 16), toHex(data));
     }
     
+    //================================================
+    // ADC [least significant] [most significant]
+    //------------------------------------------------
+    // Add w/ Carry from Memory location to Acc
+    //================================================
     this["6D"] = function()
     {
         // get data field
         var location1 = _CPU.fetch();
         var location2 = _CPU.fetch();
-        var location = location2 + location1;
         
+        // LOG
+        devLog("ADC [6D " + location1 + " " + location2 + "]");
+        
+        // convert encoding
+        var location = location2 + location1;
         // get Acc
         var data = _Memory.get(parseInt(location, 16));
+        
         // store data at memory location
         _CPU.Acc += parseInt(data, 16);
     }
     
+    //================================================
+    // LDX [constant]
+    //------------------------------------------------
+    // Load the X register with a constant
+    //================================================
     this["A2"] = function()
     {
         // get data field
         var data = _CPU.fetch();
         
-        // store data at memory location
+        // LOG
+        devLog("LDX [A2 " + data + "]");
+        
+        // store data in X register
         _CPU.Xreg = parseInt(data, 16);
     }
     
+    //================================================
+    // LDX [least significant] [most significant]
+    //------------------------------------------------
+    // Load the X register from a memory location
+    //================================================
     this["AE"] = function()
     {
         // get data field
         var location1 = _CPU.fetch();
         var location2 = _CPU.fetch();
-        var location = location2 + location1;
         
-        // store data at memory location
+        // LOG
+        devLog("LDX [AE " + location1 + " " + location2 + "]");
+        
+        // convert encoding
+        var location = location2 + location1;
+        // get data from memory location
         var data = _Memory.get(parseInt(location, 16));
         
+        // store data in X register
         _CPU.Xreg = parseInt(data, 16);
     }
     
+    //================================================
+    // LDY [constant]
+    //------------------------------------------------
+    // Load the Y register with a constant
+    //================================================
     this["A0"] = function()
     {
         // get data field
         var data = _CPU.fetch();
         
+        // LOG
+        devLog("LDY [A0 " + data + "]");
+        
         // store data at memory location
         _CPU.Yreg = parseInt(data, 16);
     }
     
+    //================================================
+    // LDY [least significant] [most significant]
+    //------------------------------------------------
+    // Load the Y register from a memory location
+    //================================================
     this["AC"] = function()
     {
         // get data field
         var location1 = _CPU.fetch();
         var location2 = _CPU.fetch();
-        var location = location2 + location1;
         
+        // LOG
+        devLog("LDY [AC " + location1 + " " + location2 + "]");
+        
+        // convert encoding
+        var location = location2 + location1;
+        // get data from memory location
         var data = _Memory.get(parseInt(location, 16));
         
+        // store data in Y register
         _CPU.Yreg = parseInt(data, 16);
     }
     
+    //================================================
+    // NOP
+    //------------------------------------------------
+    // No Operation
+    //================================================
     this["EA"] = function()
     {
-        // no op
+        // LOG
+        devLog("NOP [EA]");
     }
     
+    //================================================
+    // CPX [least significant] [most significant]
+    //------------------------------------------------
+    // Compare byte in memory to X register
+    // Sets Z if equal
+    //================================================
     this["EC"] = function()
     {
         // get data field
         var location1 = _CPU.fetch();
         var location2 = _CPU.fetch();
-        var location = location2 + location1;
         
+        // LOG
+        devLog("CPX [EC " + location1 + " " + location2 + "]");
+        
+        // convert encoding
+        var location = location2 + location1;
+        // get data from memory location
         var data = _Memory.get(parseInt(location, 16));
         
         if(parseInt(data, 16) == _CPU.Xreg)
-            _CPU.Zflag = 0;
-        else
             _CPU.Zflag = 1;
+        else
+            _CPU.Zflag = 0;
     }
     
+    //================================================
+    // INC [least significant] [most significant]
+    //------------------------------------------------
+    // Increment value of a byte
+    //================================================
     this["EE"] = function()
     {
         // get data field
         var location1 = _CPU.fetch();
         var location2 = _CPU.fetch();
-        var location = location2 + location1;
         
+        // LOG
+        devLog("INC [EE " + location1 + " " + location2 + "]");
+        
+        // convert encoding
+        var location = location2 + location1;
+        // get data from memory
         var data = _Memory.get(parseInt(location, 16));
-        _Memory.store(parseInt(location, 16), data + 1);
+        
+        // increment
+        var result = parseInt(data, 16) + 1;
+        
+        _Memory.store(parseInt(location, 16), result.toString(16));
     }
     
+    //================================================
+    // BNE [memory offset]
+    //------------------------------------------------
+    // Branch X bytes if Z == 0
+    //================================================
     this["D0"] = function()
     {
         // get data field
         var data = _CPU.fetch();
+        
+        // LOG
+        devLog("BNE [D0 " + data + "]");
         
         // if z == 0
         if(_CPU.Zflag == 0)
@@ -141,31 +278,46 @@ function OPCodes()
             
             // get signed value
             if(offset > 127)
+            {
                 offset = offset - 255;
+            }
             
-            _CPU.PC = _CPU.PC + offset;
+            // LOG
+            devLog("    Offset: " + offset + " PC: " + _CPU.PC);
+            
+            // apply branch offset ( -1 due to the fetch of the location )
+            _CPU.PC = _CPU.PC + offset - 1;
+            
+            // LOG
+            devLog("    PC: " + _CPU.PC);
         }
     }
     
+    //================================================
+    // System Call
+    //------------------------------------------------
+    // Throws a system call
+    //================================================
     this["FF"] = function()
     {
-        if(_CPU.Xreg == 1)
+        // LOG
+        devLog("System Call [FF]");
+        // send system call
+        _KernelInterruptQueue.enqueue(new Interrput(SYSTEMCALL_IRQ, ["FF", _CPU.Xreg, _CPU.Yreg]));
+    }
+    
+    //
+    // Helper function to convert int to hex
+    // 
+    function toHex(data)
+    {
+        var hex = data.toString(16);
+        
+        if(hex.length == 1)
         {
-            _KernelInterruptQueue.enqueue(new Interrput(PRINT_IRQ, [_CPU.Yreg]));
+            hex = "0" + hex;
         }
-        else if(_CPU.Xreg == 2)
-        {
-            var data = parseInt(_CPU.fetch(), 16);
-            while(data != 0)
-            {
-                var ch = String.fromCharCode(data);
-                _KernelInterruptQueue.enqueue(new Interrput(PRINT_IRQ, [ch]));
-                data = _CPU.fetch();
-            }
-        }
-        else
-        {
-            _KernelInterruptQueue.enqueue(new Interrput(EUTHANIZE_IRQ));
-        }
+        
+        return hex;
     }
 }

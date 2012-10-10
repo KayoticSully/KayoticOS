@@ -86,7 +86,10 @@ function simBtnStartOS_click(btn)
 	
 	// Initialize System Clock Object
 	_SystemClock = new SystemDate();
-    
+	
+	// Host Events
+	setupHostEvents();
+	
 	// ... then set the clock pulse simulation to call ?????????.
 	// I decided to "pulse" the CPU directly so the interval
 	// is more like the pulse and it runs "through" the CPU
@@ -96,6 +99,31 @@ function simBtnStartOS_click(btn)
 	// .. and call the OS Kernel Bootstrap routine.
 	krnBootstrap();
     }
+}
+
+function setupHostEvents()
+{
+	$('input[name=memoryPage]').on('change', function(){
+		_RAM.displayPage = $(this).val();
+	});
+	
+	$('input[name=stepToggle]').on('change', function(){
+		if($(this).val())
+		{
+			STEP_TOGGLE = true;
+		}
+		else
+		{
+			STEP_TOGGLE = false;
+		}
+	});
+	
+	$('#stepBtn').on('click', function(){
+		if(STEP_TOGGLE)
+		{
+			_CPU.isExecuting = true;
+		}
+	});
 }
 
 function simBtnHaltOS_click(btn)
@@ -129,4 +157,27 @@ function simBtnReset_click(btn)
 function programLoadContents()
 {
    return $('#program_entry').val();
+}
+
+function controlUpdateDisplay()
+{
+	_RAM.display();
+	updatePCB();
+}
+
+function updatePCB()
+{
+	var str = '<span class="label left">PCB</span>';
+	
+	str += '<strong>PC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.PC) + '</span>&nbsp;&nbsp;';
+	str += '<strong>ACC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Acc, 2) + '</span>&nbsp;&nbsp;';
+	str += '<strong>X:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Xreg, 2) + '</span>&nbsp;&nbsp;';
+	str += '<strong>Y:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Yreg, 2) + '</span>&nbsp;&nbsp;';
+	str += '<strong>Z:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Zflag, 1) + '</span>&nbsp;&nbsp;';
+	
+	// hard coded for now
+	if(_ReadyQ.length > 0)
+		str += '<strong>State:</strong>' + '<span class="PCBField">' + _ReadyQ[0].state.toUpperCase() + '</span>&nbsp;&nbsp;';
+	
+	$('#PCBDisplay').html(str);
 }
