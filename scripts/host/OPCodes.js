@@ -274,22 +274,22 @@ function OPCodes()
         // if z == 0
         if(_CPU.Zflag == 0)
         {
+            devLog("  PC before branch: " + _CPU.PC);
+            
+            // get the branch-ahead offset.
             var offset = parseInt(data, 16);
             
-            // get signed value
-            if(offset > 127)
+            // apply branch-ahead offset
+            _CPU.PC = _CPU.PC + offset;
+            
+            // check to see that we haven't gone "around" past 255.
+            if(_CPU.PC > 255)
             {
-                offset = offset - 255;
+                _CPU.PC = _CPU.PC - 256;
             }
             
             // LOG
-            devLog("    Offset: " + offset + " PC: " + _CPU.PC);
-            
-            // apply branch offset ( -1 due to the fetch of the location )
-            _CPU.PC = _CPU.PC + offset - 1;
-            
-            // LOG
-            devLog("    PC: " + _CPU.PC);
+            devLog("  PC after branch: " + _CPU.PC);
         }
     }
     

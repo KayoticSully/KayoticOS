@@ -17,11 +17,11 @@
 // Global Constants
 //------------------
 var APP_NAME = "KayoticOS";  // Because I name everything using Kayotic
-var APP_VERSION = "0.9"
+var APP_VERSION = "0.2.0"
 
-var CPU_CLOCK_INTERVAL = 100;   // in ms, or milliseconds, so 1000 = 1 second.
-var CPU_TIMER_RATE = 1000; // every X number of intervals
-var CPU_IDLE_MESSAGE_RATE = 10000; // every X number of intervals
+var CPU_CLOCK_INTERVAL = 1;   // in ms, or milliseconds, so 1000 = 1 second.
+var CPU_TIMER_RATE = 10; // every X number of intervals
+var CPU_IDLE_MESSAGE_RATE = 100; // every X number of intervals
 
 // IRQs
 var TIMER_IRQ    = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority). 
