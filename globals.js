@@ -32,8 +32,8 @@ var EUTHANIZE_IRQ = 24;
 var BADOP_IRQ = 25;
 
 
-var PROGRAM_SIZE  = 128;
-var RAM_SIZE  = 384;
+var PROGRAM_SIZE  = 256;
+var RAM_SIZE  = 768;
 
 var DEVLOG = true;
 

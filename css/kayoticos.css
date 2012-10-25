@@ -121,9 +121,9 @@ audio, embed {
 /* Memory */
 .panes_wrapper > #memory
 {
-	font-family: "Consolas", sans-serif;
-	font-size: 15px;
-	line-height: 16px;
+	font-family: "Courier", sans-serif;
+	font-size: 14px;
+	line-height: 15px;
 	width: 300px;
 	padding:5px 5px;
 	background-color:#FFFFFF;

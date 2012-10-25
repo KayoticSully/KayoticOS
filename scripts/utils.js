@@ -61,7 +61,7 @@ function devLog(str)
 function toPettyHex(number, digits)
 {
 	if(digits === undefined)
-		digits = 3;
+		digits = 4;
 	
 	var hex = '';
 	if( ! (number instanceof String))

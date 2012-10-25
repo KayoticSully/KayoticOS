@@ -285,6 +285,7 @@ function OPCodes()
             // check to see that we haven't gone "around" past 255.
             if(_CPU.PC > 255)
             {
+                // fix to make this 255 ????? 
                 _CPU.PC = _CPU.PC - 256;
             }
             
