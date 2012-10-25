@@ -32,7 +32,7 @@ footer
 
 #app_wrapper
 {
-	width: 1255px;
+	width: 1270px;
 	margin: 0px auto;
 	padding-top:20px;
 }
@@ -96,7 +96,7 @@ audio, embed {
 	width: 649px;
 	padding:2px 0px 3px 0px;
 	background-color: white;
-	margin: 0px 0px 10px 333px;
+	margin: 0px 0px 10px 348px;
 }
 
 #PCBDisplay > .PCBField
@@ -109,7 +109,7 @@ audio, embed {
 #stepControls
 {
 	color: #FFFFFF;
-	margin:-36px 0px 0px 995px;
+	margin:-36px 0px 0px 1010px;
 }
 
 #stepControls > input[type=button]
@@ -124,7 +124,7 @@ audio, embed {
 	font-family: "Courier", sans-serif;
 	font-size: 14px;
 	line-height: 15px;
-	width: 300px;
+	width: 315px;
 	padding:5px 5px;
 	background-color:#FFFFFF;
 	height:542px;
