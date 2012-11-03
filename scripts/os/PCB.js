@@ -14,10 +14,11 @@
 
 var PCB = (function(){
     
-    function PCB(PID, PC)
+    function PCB(PID, Offset)
     {
         this.PID    = PID;   // Program ID
-        this.PC     = PC;    // Program Counter
+        this.Offset = Offset;
+        this.PC     = 0;    // Program Counter
         this.Acc    = 0;     // Accumulator
         this.Xreg   = 0;     // X register
         this.Yreg   = 0;     // Y register

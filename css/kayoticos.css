@@ -32,8 +32,8 @@ footer
 
 #app_wrapper
 {
-	width: 1255px;
-	margin: 0px auto;
+	/*width: 1505px;
+	margin: 0px auto;*/
 	padding-top:20px;
 }
 
@@ -96,7 +96,7 @@ audio, embed {
 	width: 649px;
 	padding:2px 0px 3px 0px;
 	background-color: white;
-	margin: 0px 0px 10px 333px;
+	margin: 0px 0px 10px 603px;
 }
 
 #PCBDisplay > .PCBField
@@ -109,7 +109,7 @@ audio, embed {
 #stepControls
 {
 	color: #FFFFFF;
-	margin:-36px 0px 0px 995px;
+	margin:-36px 0px 0px 1265px;
 }
 
 #stepControls > input[type=button]
@@ -124,17 +124,17 @@ audio, embed {
 	font-family: "Consolas", sans-serif;
 	font-size: 15px;
 	line-height: 16px;
-	width: 300px;
+	width: 570px;
 	padding:5px 5px;
 	background-color:#FFFFFF;
-	height:542px;
+	height:515px;
 	overflow: auto;
 	margin-top:6px;
 }
 
 .panes_wrapper > #memory > .memCol
 {
-	width:75px;
+	width:71px;
 	float:left;
 }
 

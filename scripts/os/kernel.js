@@ -154,11 +154,61 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case SYSTEMCALL_IRQ:
             krnHandleSysCall(params);
             break;
+        case HOST_IRQ:
+            switch(params)
+            {
+                case 'load':
+                    krnLoadProgram();
+                    break;
+            }
+            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq, params);
     }
 
     // 3. Restore the saved state.  TODO: Question: Should we restore the state via IRET in the ISR instead of here? p560.
+}
+
+function krnLoadProgram()
+{
+    var programContents = trim(programLoadContents());
+    
+    if(programContents != '')
+    {
+        // This pattern should only accept hex pairs.
+        // It actually pulls out the pairs into an array
+        // so there can be any amount of whitespace between pairs.
+        // I figured this may be easier to process later on
+        // when we need to execute the commands one at a time.
+        //
+        var programPattern =  /[\da-fA-F]{2}/g;
+        
+        var instructions = programContents.match(programPattern);
+        
+        if(programContents == instructions.join(' '))
+        {
+            var PID = _Memory.loadProgram(instructions);
+            
+            // Print Acknowledgement 
+            _StdOut.putLine("Your specimen has been processed and now we are ready");
+            _StdOut.putLine("to begin the test proper. Your unique specimen identification");
+            _StdOut.putText("number is " + PID);
+        }
+        else
+        {
+            // Print Error
+            _StdIn.putLine("Program does not comply with proper formatting standards specified in");
+            _StdIn.putText("the Testing Procedures Manual, section 42 paragraph 285.");
+        }
+    }
+    else
+    {
+        // Print Error
+        _StdIn.putText("You first need something to load.");
+    }
+    
+    _StdOut.advanceLine();
+    _OsShell.putPrompt();
 }
 
 function krnHandleSysCall(params)
@@ -202,12 +252,6 @@ function krnHandleSysCall(params)
 function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver).
 {
     // Check multiprogramming parameters and enfore quanta here. Call the scheduler / context switch here if necessary.
-}
-
-
-function krnLoadProgram(instructionArray)
-{
-    return _Memory.loadProgram(instructionArray);
 }
 
 function krnRunProgram(PID)

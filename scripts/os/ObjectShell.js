@@ -608,37 +608,8 @@ var Shell = (function()
     
     function loadProgram()
     {
-        var programContents = trim(programLoadContents());
-        
-        if(programContents != '')
-        {
-            // This pattern should only accept hex pairs.
-            // It actually pulls out the pairs into an array
-            // so there can be any amount of whitespace between pairs.
-            // I figured this may be easier to process later on
-            // when we need to execute the commands one at a time.
-            //
-            var programPattern =  /[\da-fA-F]{2}/g;
-            
-            var instructions = programContents.match(programPattern);
-            
-            if(programContents == instructions.join(' '))
-            {
-                var PID = krnLoadProgram(instructions);
-                _StdOut.putLine("Your specimen has been processed and now we are ready");
-                _StdOut.putLine("to begin the test proper. Your unique specimen identification");
-                _StdOut.putText("number is " + PID);
-            }
-            else
-            {
-                _StdIn.putLine("Program does not comply with proper formatting standards specified in");
-                _StdIn.putText("the Testing Procedures Manual, section 42 paragraph 285.");
-            }
-        }
-        else
-        {
-            _StdIn.putText("You first need something to load.");
-        }
+        _KernelInterruptQueue.enqueue(new Interrput(HOST_IRQ, "load"));
+        return { defer : true };
     }
     
     function run(args)
