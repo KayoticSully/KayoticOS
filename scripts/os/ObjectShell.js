@@ -617,6 +617,7 @@ var Shell = (function()
         var PID = args[0];
         // tell system to add program to readyQ
         _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", PID)));
+        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
         _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("execute", null)));
         return { defer : true }
     }

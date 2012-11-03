@@ -13,8 +13,6 @@
  */
 
 var MemoryManager = (function(){
-    
-    var Offset = 0;
     var slots = new Array();
     
     function MemoryManager()
@@ -24,6 +22,7 @@ var MemoryManager = (function(){
             slots[slot] = 0;
         
         this.ActivePID = null;
+        this.Offset = 0;
         //------------------------------------
         // Memory Manager Instance Functions
         //------------------------------------
@@ -51,7 +50,7 @@ var MemoryManager = (function(){
         
         this.store = function(location, value, specifiedOffset)
         {
-            var memOffset = Offset
+            var memOffset = this.Offset
             if(specifiedOffset !== undefined)
                 memOffset = specifiedOffset;
             
@@ -60,7 +59,7 @@ var MemoryManager = (function(){
         
         this.get = function(location)
         {
-            return _RAM.get(parseInt(location) + Offset);
+            return _RAM.get(parseInt(location) + this.Offset);
         }
     }
     

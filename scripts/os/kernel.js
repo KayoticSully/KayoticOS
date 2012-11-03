@@ -105,6 +105,13 @@ function krnOnCPUClockPulse()
     }
     else if (_CPU.isExecuting) // If there are no interrupts then run a CPU cycle if there is anything being processed.
     {
+        /*
+        if(_Memory.ActivePID == null)
+            krnContextSwitch();
+        else if(_JobQ[_Memory.ActivePID].state == "terminated")
+            krnContextSwitch();
+        */
+        
         _CPU.cycle();
     }    
     else                       // If there are no interrupts and there is nothing being executed then just be idle.
@@ -161,6 +168,9 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
                     break;
                 case "execute":
                     krnExecute();
+                    break;
+                case "context-switch":
+                    krnContextSwitch();
                     break;
             }
             break;
@@ -265,10 +275,7 @@ function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Rout
 }
 
 function krnExecute()
-{
-    // set status to running
-    _JobQ[_Memory.ActivePID].state = "running";
-    
+{   
     // start executing
     _CPU.isExecuting = true;
 }
@@ -280,17 +287,13 @@ function krnContextSwitch()
         // pack up running process
         var process = _JobQ[_Memory.ActivePID];
         krnSaveState(process, "waiting");
-        
-        // _Memory.ActivePID = null;
     }
     
     // get PCB
     var process = _ReadyQ.pop();
     
     if(process !== undefined)
-    {
-        krnLoadState(process);
-    }
+        krnLoadState(process, "running");
 }
 
 function krnSaveState(process, status)
@@ -303,7 +306,7 @@ function krnSaveState(process, status)
     process.status  = status;
 }
 
-function krnLoadState(process)
+function krnLoadState(process, status)
 {
     // unpack PCB
     _CPU.PC     = process.PC;
@@ -312,14 +315,27 @@ function krnLoadState(process)
     _CPU.Yreg   = process.Yreg;
     _CPU.Zflag  = process.Zflag;
     
+    _Memory.Offset = process.Offset;
     _Memory.ActivePID = process.PID;
+    process.state = status;
+}
+
+function krnResetProgram(process)
+{
+    process.PC      = 0;
+    process.Acc     = 0;
+    process.Xreg    = 0;
+    process.Yreg    = 0;
+    process.Zflag   = 0;
 }
 
 function krnReadyProgram(PID)
 {
     var program = _JobQ[PID];
+    
     // set PCB state
     program.state = "ready";
+    
     // add to ReadyQ
     _ReadyQ.push(program);
 }
@@ -328,7 +344,9 @@ function krnBreak()
 {
     _CPU.isExecuting = false;
     
+    _JobQ[_Memory.ActivePID].state = "terminated";
     
+    krnResetProgram(_CPU);
     
     _StdOut.advanceLine();
     _OsShell.putPrompt();
