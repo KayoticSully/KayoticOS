@@ -23,6 +23,7 @@ var MemoryManager = (function(){
         for(var slot = 0; slot < PROGRAMS_ALLOWED; slot++)
             slots[slot] = 0;
         
+        this.ActivePID = null;
         //------------------------------------
         // Memory Manager Instance Functions
         //------------------------------------

@@ -56,9 +56,7 @@ var CPU = (function()
             controlUpdateDisplay();
             
             if(STEP_TOGGLE)
-            {
                 _CPU.isExecuting = false;
-            }
         }
         
         this.cycle = function()

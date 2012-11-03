@@ -176,8 +176,8 @@ function updatePCB()
 	str += '<strong>Z:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Zflag, 1) + '</span>&nbsp;&nbsp;';
 	
 	// hard coded for now
-	if(_ReadyQ.length > 0)
-		str += '<strong>State:</strong>' + '<span class="PCBField">' + _ReadyQ[0].state.toUpperCase() + '</span>&nbsp;&nbsp;';
+	if(_JobQ.length > 0)
+		str += '<strong>State:</strong>' + '<span class="PCBField">' + _JobQ[_Memory.ActivePID].state.toUpperCase() + '</span>&nbsp;&nbsp;';
 	
 	$('#PCBDisplay').html(str);
 }

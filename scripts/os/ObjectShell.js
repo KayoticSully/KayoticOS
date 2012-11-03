@@ -615,9 +615,9 @@ var Shell = (function()
     function run(args)
     {
         var PID = args[0];
-        
-        krnRunProgram(PID);
-        
+        // tell system to add program to readyQ
+        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", PID)));
+        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("execute", null)));
         return { defer : true }
     }
     

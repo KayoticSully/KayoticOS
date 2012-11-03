@@ -28,9 +28,10 @@ var TIMER_IRQ    = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt p
                        // NOTE: The timer is different from hardware clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
 var SYSTEMCALL_IRQ = 2;
+var HOST_IRQ = 3;
+var PROGRAM_IRQ = 4;
 var EUTHANIZE_IRQ = 24;
 var BADOP_IRQ = 25;
-var HOST_IRQ = 3;
 
 var PROGRAM_SIZE  = 256;
 var PROGRAMS_ALLOWED = 3;

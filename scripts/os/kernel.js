@@ -154,6 +154,16 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case SYSTEMCALL_IRQ:
             krnHandleSysCall(params);
             break;
+        case PROGRAM_IRQ:
+            switch (params[0]) {
+                case "ready":
+                    krnReadyProgram(params[1]);
+                    break;
+                case "execute":
+                    krnExecute();
+                    break;
+            }
+            break;
         case HOST_IRQ:
             switch(params)
             {
@@ -254,32 +264,71 @@ function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Rout
     // Check multiprogramming parameters and enfore quanta here. Call the scheduler / context switch here if necessary.
 }
 
-function krnRunProgram(PID)
+function krnExecute()
 {
+    // set status to running
+    _JobQ[_Memory.ActivePID].state = "running";
     
-    // force to start of memory for now
-    // Quick fix to allow multiple runs of one program
-    _CPU.PC = 0;
-    
-    _ReadyQ.state = "running";
-    
+    // start executing
     _CPU.isExecuting = true;
+}
+
+function krnContextSwitch()
+{
+    if(_Memory.ActivePID != null)
+    {
+        // pack up running process
+        var process = _JobQ[_Memory.ActivePID];
+        krnSaveState(process, "waiting");
+        
+        // _Memory.ActivePID = null;
+    }
+    
+    // get PCB
+    var process = _ReadyQ.pop();
+    
+    if(process !== undefined)
+    {
+        krnLoadState(process);
+    }
+}
+
+function krnSaveState(process, status)
+{
+    process.PC      = _CPU.PC;
+    process.Acc     = _CPU.Acc;
+    process.Xreg    = _CPU.Xreg;
+    process.Yreg    = _CPU.Yreg;
+    process.Zflag   = _CPU.Zflag;
+    process.status  = status;
+}
+
+function krnLoadState(process)
+{
+    // unpack PCB
+    _CPU.PC     = process.PC;
+    _CPU.Acc    = process.Acc;
+    _CPU.Xreg   = process.Xreg;
+    _CPU.Yreg   = process.Yreg;
+    _CPU.Zflag  = process.Zflag;
+    
+    _Memory.ActivePID = process.PID;
+}
+
+function krnReadyProgram(PID)
+{
+    var program = _JobQ[PID];
+    // set PCB state
+    program.state = "ready";
+    // add to ReadyQ
+    _ReadyQ.push(program);
 }
 
 function krnBreak()
 {
     _CPU.isExecuting = false;
     
-    // hardcode update _ReadyQ[0] PCB
-    // this will have to change once we
-    // are dealing with more than one
-    // program
-    _ReadyQ[0].PC = _CPU.PC;
-    _ReadyQ[0].Acc = _CPU.Acc;
-    _ReadyQ[0].Xreg = _CPU.Xreg;
-    _ReadyQ[0].Yreg = _CPU.Yreg;
-    _ReadyQ[0].Zflag = _CPU.Zflag;
-    _ReadyQ[0].state = "terminated";
+    
     
     _StdOut.advanceLine();
     _OsShell.putPrompt();
