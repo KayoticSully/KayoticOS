@@ -8,7 +8,7 @@
  |---------------------------------------------------------------------
  | Author(s): Ryan Sullivan
  |   Created: 10/9/2012
- |   Updated: 10/9/2012
+ |   Updated: 11/4/2012
  |---------------------------------------------------------------------
  */
 
@@ -63,6 +63,7 @@ function OPCodes()
         
         // convert encoding
         var location = location2 + location1;
+        alert(location);
         // get data at memory location
         var data = _Memory.get(parseInt(location, 16));
         
@@ -86,6 +87,7 @@ function OPCodes()
         
         // convert encoding
         var location = location2 + location1;
+        
         // get Acc
         var data = _CPU.Acc;
         

@@ -8,7 +8,7 @@
  |---------------------------------------------------------------------
  | Author(s): Alan G. Labouseur, Ryan Sullivan
  |   Created: 8/?/2012
- |   Updated: 9/12/2012
+ |   Updated: 11/4/2012
  |---------------------------------------------------------------------
  | This code references page numbers in the text book:
  | Operating System Concepts 8th editiion by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
@@ -43,10 +43,12 @@ function krnBootstrap()      // Page 8.
 
     // Load Queues
     _JobQ = new Array();
-    _ReadyQ = new Array();
+    _ReadyQ = new Queue();
     
     // Load the Memory Manager
     _Memory = new MemoryManager();
+    
+    _Scheduler = new ProcessScheduler();
     
     // 
     // ... more?
@@ -105,13 +107,9 @@ function krnOnCPUClockPulse()
     }
     else if (_CPU.isExecuting) // If there are no interrupts then run a CPU cycle if there is anything being processed.
     {
-        /*
-        if(_Memory.ActivePID == null)
-            krnContextSwitch();
-        else if(_JobQ[_Memory.ActivePID].state == "terminated")
-            krnContextSwitch();
-        */
-        
+        // PS Tick
+        _Scheduler.tick();
+        // cycle
         _CPU.cycle();
     }    
     else                       // If there are no interrupts and there is nothing being executed then just be idle.
@@ -142,9 +140,6 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
     // Trace our entrance here so we can compute Interrupt Latency by analyzing the log file later on.  Page 766.
     krnTrace("Handling IRQ~" + irq);
 
-    // Save CPU state. (I think we do this elsewhere.)
-    
-    
     // Invoke the requested Interrupt Service Routine via Switch/Case rather than an Interrupt Vector.
     // TODO: Use Interrupt Vector in the future.
     // Note: There is no need to "dismiss" or acknowledge the interrupts in our design here.  
@@ -271,6 +266,7 @@ function krnHandleSysCall(params)
 
 function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver).
 {
+    alert("test");
     // Check multiprogramming parameters and enfore quanta here. Call the scheduler / context switch here if necessary.
 }
 
@@ -286,14 +282,26 @@ function krnContextSwitch()
     {
         // pack up running process
         var process = _JobQ[_Memory.ActivePID];
+        
         krnSaveState(process, "waiting");
+        
+        _ReadyQ.enqueue(process);
+        
+        _Mode = 0;
     }
     
     // get PCB
-    var process = _ReadyQ.pop();
-    
-    if(process !== undefined)
-        krnLoadState(process, "running");
+    if(_ReadyQ.getSize() > 0)
+    {
+        var process = _ReadyQ.dequeue();
+        
+        if(process !== undefined) // make sure PCB is something
+            krnLoadState(process, "running");
+        else // Crash system if this ever happens!
+            _KernelInterruptQueue.enqueue(new Interrput(EUTHANIZE_IRQ, "PCB is corrupt"));
+            
+        _Mode = 1;
+    }
 }
 
 function krnSaveState(process, status)
@@ -308,16 +316,18 @@ function krnSaveState(process, status)
 
 function krnLoadState(process, status)
 {
-    // unpack PCB
+    // unpack PCB into CPU
     _CPU.PC     = process.PC;
     _CPU.Acc    = process.Acc;
     _CPU.Xreg   = process.Xreg;
     _CPU.Yreg   = process.Yreg;
     _CPU.Zflag  = process.Zflag;
-    
-    _Memory.Offset = process.Offset;
-    _Memory.ActivePID = process.PID;
-    process.state = status;
+    // unpack PCB into Memory
+    _Memory.Base        = process.Base;
+    _Memory.Limit       = process.Limit;
+    _Memory.ActivePID   = process.PID;
+    // set state
+    process.state       = status;
 }
 
 function krnResetProgram(process)
@@ -336,20 +346,28 @@ function krnReadyProgram(PID)
     // set PCB state
     program.state = "ready";
     
+    // ensure fresh program state
+    krnResetProgram(program);
+    
     // add to ReadyQ
-    _ReadyQ.push(program);
+    _ReadyQ.enqueue(program);
 }
 
 function krnBreak()
 {
-    _CPU.isExecuting = false;
+    _JobQ[_Memory.ActivePID].state = "terminated";   
     
-    _JobQ[_Memory.ActivePID].state = "terminated";
+    _Memory.ActivePID = null;
     
-    krnResetProgram(_CPU);
-    
-    _StdOut.advanceLine();
-    _OsShell.putPrompt();
+    // this will cause a strange quantum bug, remember this
+    if(_ReadyQ.getSize() > 0)
+        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
+    else
+    {
+        _CPU.isExecuting = false;
+        _StdOut.advanceLine();
+        _OsShell.putPrompt();
+    }
 }
 
 //

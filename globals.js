@@ -7,7 +7,7 @@
  |---------------------------------------------------------------------
  | Author(s): Alan G. Labouseur, Ryan Sullivan
  |   Created: 8/?/2012
- |   Updated: 9/12/2012
+ |   Updated: 11/4/2012
  |---------------------------------------------------------------------
  | This code references page numbers in the text book: 
  | Operating System Concepts 8th editiion by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
@@ -54,6 +54,7 @@ var _Mode = 0;           // 0 = Kernel Mode, 1 = User Mode.  See page 21.
 var _Trace = true;       // Default the OS trace to be on.
 var _JobQ = null;        // PCB Job QUEUE
 var _ReadyQ = null;        // PCB Job QUEUE
+var _Scheduler = null;
 
 //
 // Canvas Variables

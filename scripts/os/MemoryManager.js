@@ -8,7 +8,7 @@
  |---------------------------------------------------------------------
  | Author(s): Ryan Sullivan
  |   Created: 10/3/2012
- |   Updated: 10/3/2012
+ |   Updated: 11/4/2012
  |---------------------------------------------------------------------
  */
 
@@ -22,7 +22,8 @@ var MemoryManager = (function(){
             slots[slot] = 0;
         
         this.ActivePID = null;
-        this.Offset = 0;
+        this.Base = null;
+        this.Limit = null;
         //------------------------------------
         // Memory Manager Instance Functions
         //------------------------------------
@@ -41,25 +42,49 @@ var MemoryManager = (function(){
             
             for(var instruction in instructionArray)
             {
-                this.store(instruction, instructionArray[instruction], newPCB.Offset);
+                this.store(instruction, instructionArray[instruction], newPCB);
             }
             
-            _ReadyQ.push(_JobQ[PID]);
             return PID;
         }
         
-        this.store = function(location, value, specifiedOffset)
+        this.store = function(location, value, pcb)
         {
-            var memOffset = this.Offset
-            if(specifiedOffset !== undefined)
-                memOffset = specifiedOffset;
+            var memBase = this.Base;
+            var memLimit = this.Limit;
             
-            _RAM.set(parseInt(location) + memOffset, value);
+            if(pcb !== undefined)
+            {
+                memBase = pcb.Base;
+                memLimit = pcb.Limit;
+            }
+            
+            var physicalLocation = parseInt(location) + memBase;
+            
+            // ensure memory access is within proper bounds
+            if(physicalLocation >= memBase && physicalLocation <= memLimit)
+            {
+                _RAM.set(physicalLocation, value);
+            }
+            else
+            {
+                alert("MEM Access Violation [STORE] @" + physicalLocation + " from " + location + " B:" + memBase + " L:" + memLimit + "\n" + JSON.stringify(_Memory));
+            }
         }
         
         this.get = function(location)
         {
-            return _RAM.get(parseInt(location) + this.Offset);
+            var physicalLocation = parseInt(location) + this.Base;
+            
+            if(physicalLocation >= this.Base && physicalLocation <= this.Limit)
+            {
+                return _RAM.get(physicalLocation);
+            }
+            else
+            {
+                alert("MEM Access Violation [GET] @" + physicalLocation + " from " + location  + " B:" + this.Base + " L:" + this.Limit + "\n" + JSON.stringify(_Memory));
+                return null;
+            }
         }
     }
     

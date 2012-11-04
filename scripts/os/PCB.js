@@ -8,17 +8,19 @@
  |---------------------------------------------------------------------
  | Author(s): Ryan Sullivan
  |   Created: 10/3/2012
- |   Updated: 10/3/2012
+ |   Updated: 11/4/2012
  |---------------------------------------------------------------------
  */
 
 var PCB = (function(){
     
-    function PCB(PID, Offset)
+    function PCB(PID, Base)
     {
         this.PID    = PID;   // Program ID
-        this.Offset = Offset;
-        this.PC     = 0;    // Program Counter
+        this.Base   = Base;
+        this.Limit  = Base + PROGRAM_SIZE - 1;
+        
+        this.PC     = 0;     // Program Counter
         this.Acc    = 0;     // Accumulator
         this.Xreg   = 0;     // X register
         this.Yreg   = 0;     // Y register

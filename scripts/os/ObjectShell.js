@@ -6,7 +6,7 @@
  |---------------------------------------------------------------------
  | Author(s): Alan G. Labouseur, Ryan Sullivan
  |   Created: 8/?/2012
- |   Updated: 9/12/2012
+ |   Updated: 11/4/2012
  |---------------------------------------------------------------------
  | TODO: Write a base class / prototype for system services and let
  |       Shell inherit from it.
@@ -312,6 +312,12 @@ var Shell = (function()
         // processes - list the running processes and their IDs
         
         // kill <id> - kills the specified process id.
+        // history
+        sc = new ShellCommand();
+        sc.command = "kill";
+        sc.description = " <id> - kills the specified process id";
+        sc.function = shellKill;
+        this.commandList[sc.command] = sc;
         
         // Display the initial prompt.
         _Console.putLine("Oh... it's YOU.");
@@ -614,11 +620,15 @@ var Shell = (function()
     
     function run(args)
     {
-        var PID = args[0];
-        // tell system to add program to readyQ
-        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", PID)));
+        // add programs to ReadyQ
+        for(var PID in args)
+        {
+            _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", PID)));
+        }
+        
         _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
         _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("execute", null)));
+        
         return { defer : true }
     }
     
@@ -635,6 +645,11 @@ var Shell = (function()
                     _StdOut.putText('  ' + command);
             }
         );
+    }
+    
+    function shellKill()
+    {
+        
     }
     
     return Shell;
