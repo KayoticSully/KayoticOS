@@ -60,11 +60,7 @@ var CPU = (function()
         }
         
         this.cycle = function()
-        {
-            krnTrace("CPU cycle");
-            // TODO: Accumulate CPU usage and profiling statistics here.
-            // Do real work here. Set this.isExecuting appropriately.
-            
+        {   
             // Fetch
             var instruction = this.fetch();
             

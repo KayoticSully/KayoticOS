@@ -20,7 +20,7 @@
 //
 function krnBootstrap()      // Page 8.
 {
-    simLog("bootstrap", "host");  // Use simLog because we ALWAYS want this, even if _Trace is off.
+    simLog("Bootstrap Init", "Kernel");  // Use simLog because we ALWAYS want this, even if _Trace is off.
 
     // Initialize our global queues.
     _KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
@@ -29,6 +29,7 @@ function krnBootstrap()      // Page 8.
     _Console = new Console();             // The console output device.
     
     // Initialize the Console.
+    krnTrace("Starting Console.");
     _Console.init();
 
     // Initialize standard input and output to the _Console.
@@ -49,16 +50,12 @@ function krnBootstrap()      // Page 8.
     
     _Scheduler = new ProcessScheduler();
     
-    // 
-    // ... more?
-    //
-
     // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
     krnTrace("Enabling the interrupts.");
     krnEnableInterrupts();
     
     // Launch the shell.
-    krnTrace("Creating and Launching the shell.")
+    krnTrace("Creating and Launching the shell.");
     _OsShell = new Shell();
     _OsShell.init();
     
@@ -68,7 +65,7 @@ function krnBootstrap()      // Page 8.
 
 function krnShutdown()
 {
-    krnTrace("begin shutdown OS");
+    krnTrace("Begin Shutdown OS.");
     // TODO: Check for running processes.  Alert if there are some, alert and stop.  Else...    
     // ... Disable the Interruupts.
     krnTrace("Disabling the interrupts.");
@@ -92,7 +89,7 @@ function krnShutdown()
     _KernelInterruptQueue = null;
     
     
-    krnTrace("end shutdown OS");
+    krnTrace("End Shutdown OS");
 }
 
 function krnOnCPUClockPulse() 
@@ -150,7 +147,7 @@ function krnDisableInterrupts()
 function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Routine.  Page 8.
 {
     // Trace our entrance here so we can compute Interrupt Latency by analyzing the log file later on.  Page 766.
-    krnTrace("Handling IRQ~" + irq);
+    krnTrace("[Handling IRQ] " + irq);
 
     // Invoke the requested Interrupt Service Routine via Switch/Case rather than an Interrupt Vector.
     // TODO: Use Interrupt Vector in the future.
@@ -183,6 +180,10 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
                     krnKillProgram(params[1]);
                     break;
             }
+            break;
+        case BADOP_IRQ:
+            simLog("Bad OP - Killing Program", "Error");
+            _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", _Memory.ActivePID)));
             break;
         case HOST_IRQ:
             switch(params)
@@ -293,6 +294,7 @@ function krnExecute()
 
 function krnContextSwitch()
 {
+    krnTrace("Context Switch");
     if(_Memory.ActivePID != null)
     {
         // pack up running process
@@ -421,13 +423,13 @@ function krnTrace(msg)
 {
     // Check globals to see if trace is set ON.  If so, then (maybe) log the message. 
     if (_Trace)
-    {
+    {   
         if (msg == "Idle")
         {
             // We can't log every idle clock pulse because it would lag the browser very quickly.
             if (_OSclock % 10 == 0)  // Check the CPU_CLOCK_INTERVAL in globals.js for an 
             {                                                 // idea of the tick rate and adjust this line accordingly.
-                simLog(msg, "OS");          
+                simLog(msg, "Kernel");          
             }         
         }
         else
@@ -436,7 +438,14 @@ function krnTrace(msg)
         }
     }
 }
-   
+
+function errorTrace(msg)
+{
+    if (_Trace)
+    {
+        simLog(msg, "Error");
+    }
+}
 function krnTrapError(msg, secondary)
 {
     simLog("OS ERROR - TRAP: " + msg);

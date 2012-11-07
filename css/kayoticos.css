@@ -129,7 +129,6 @@ audio, embed {
 	background-color:#FFFFFF;
 	height:515px;
 	overflow: auto;
-	margin-top:6px;
 }
 
 .panes_wrapper > #memory > .memCol
@@ -151,21 +150,24 @@ audio, embed {
 
 #memoryControls
 {
-	padding:2px 0px 3px 0px;
-	text-align: center;
+	margin:0px;
+	font-weight: bold !important;
+	font-size: 12px;
 }
 
-#memoryControls > #title
-{
-	padding:0px 5px;
+#memoryControls > label {
+	margin:-4px -3px -4px 0px;
 }
 
 #memoryControls > label, #stepControls > label
 {
 	color:#3F0;
-	font-size: 15px;
 	display: inline-block;
-	padding:0px 5px 0px 0px;
+	padding:0px 8px 0px 0px;
+}
+
+#memoryControls > input[type=radio] {
+	font-size: 12px;
 }
 
 #memoryControls > input[type=radio], #stepControls > input[type=radio]
@@ -178,7 +180,7 @@ audio, embed {
 {
 	width: 210px;
 	background-color:#FFFFFF;
-	height:500px;
+	height:523px;
 	overflow: auto;
 }
 
@@ -194,15 +196,35 @@ audio, embed {
 	padding:3px 0px;
 }
 
-.lbl-pcb {
-	margin-top:35px;
-}
-
 .log_msg
 {
-	margin: 8px 0px 8px 0px;
-	padding:0px 5px 0px 5px;
+	background-color: #F0F0F0;
+	border-bottom: 1px solid #000000;
+	padding:8px 5px 8px 5px;
 	font-size: 13px;
+}
+
+.devlog {
+	color:#008800;
+}
+
+.log_Host {
+	background-color: #A0A0A0;
+}
+
+.log_Kernel {
+	background-color: #D5D5D5;
+}
+
+.log_DevLog {
+	background-color: #000000;
+	border-bottom: 1px solid #FFFFFF;
+	color: #FFFFFF;
+}
+
+.log_Error {
+	background-color: #FFFFFF;
+	color: #FF0000;
 }
 
 /* Program Entry */
@@ -210,6 +232,13 @@ audio, embed {
 {
 	height:100px;
 	width: 236px;
+}
+
+.somethingClever {
+	color: #FFFFFF;
+	margin:7px 0px;
+	padding:7px;
+	background-color: #000000;
 }
 
 /*-------------------------*

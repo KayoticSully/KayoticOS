@@ -271,12 +271,12 @@ function OPCodes()
         var data = _CPU.fetch();
         
         // LOG
-        devLog("BNE [D0 " + data + "]");
+        var msg = "BNE [D0 " + data + "]";
         
         // if z == 0
         if(_CPU.Zflag == 0)
         {
-            devLog("  PC before branch: " + _CPU.PC);
+            msg += "<br>&nbsp;&nbsp;" + "PC before branch: " + _CPU.PC;
             
             // get the branch-ahead offset.
             var offset = parseInt(data, 16);
@@ -292,8 +292,10 @@ function OPCodes()
             }
             
             // LOG
-            devLog("  PC after branch: " + _CPU.PC);
+            msg += "<br>&nbsp;&nbsp;" + "PC after branch: " + _CPU.PC;
         }
+        
+        devLog(msg);
     }
     
     //================================================

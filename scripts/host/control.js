@@ -73,7 +73,7 @@ function simLog(msg, source)
 function simBtnStartOS_click(btn)
 {
 	if(!_POWER)
-	{
+	{	
 		_POWER = true;
 		// .. set focus on the OS console display ... 
 		document.getElementById("display").focus();
@@ -96,6 +96,8 @@ function simBtnStartOS_click(btn)
 		//
 		hardwareClockID = setInterval(_CPU.pulse, CPU_CLOCK_INTERVAL);
 		
+		simLog("POST", "Host");
+		
 		// .. and call the OS Kernel Bootstrap routine.
 		krnBootstrap();
 	}
@@ -115,6 +117,7 @@ function simHostShutdown()
 	_RAM = null;
 	_CPU = null;
 	_POWER = false;
+	_OSclock = 0;
 	
 	// HARDWARE IS OFF!
 }

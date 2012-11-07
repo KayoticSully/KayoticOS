@@ -108,7 +108,7 @@ SystemDate.prototype = {
     },
     
     logString : function() {
-	return '[' + this.month + '-' + this.day + '-' + this.year + ':' + this.time + ']';
+	return '[' + this.month + '-' + this.day + '-' + this.year + '] ' + this.time;
     },
     
     monthName : function (number)

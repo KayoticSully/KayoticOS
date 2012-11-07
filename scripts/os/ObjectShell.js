@@ -77,7 +77,7 @@ var Shell = (function()
     
     function shellHandleInput(buffer)
     {
-        krnTrace("Shell Command~" + buffer);
+        krnTrace("[Shell Command] " + buffer);
         
         // Store command in history as long as its not blank
         if(trim(buffer) != '')
@@ -475,7 +475,7 @@ var Shell = (function()
         simHostShutdown();
         // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
         
-        if(args == "r")
+        if(args == "-r")
         {
             setTimeout(simBtnStartOS_click, 500);
         }

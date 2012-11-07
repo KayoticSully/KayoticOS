@@ -31,7 +31,7 @@ function DeviceDriverKeyboard()                     // Add or override specific 
 function krnKbdDriverEntry()
 {
     // Initialization routine for this, the kernel-mode Keyboard Device Driver.
-    this.status = "loaded";
+    this.status = "Loaded";
     // More?
 }
 

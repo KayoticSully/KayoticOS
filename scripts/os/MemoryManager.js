@@ -69,7 +69,8 @@ var MemoryManager = (function(){
             }
             else
             {
-                alert("MEM Access Violation [STORE] @" + physicalLocation + " from " + location + " B:" + memBase + " L:" + memLimit + "\n" + JSON.stringify(_Memory));
+                errorTrace("MEM Access Violation on STORE @" + physicalLocation + " from " + location + " B:" + memBase + " L:" + memLimit);
+                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", this.ActivePID)));
             }
         }
         
@@ -83,7 +84,8 @@ var MemoryManager = (function(){
             }
             else
             {
-                alert("MEM Access Violation [GET] @" + physicalLocation + " from " + location  + " B:" + this.Base + " L:" + this.Limit + "\n" + JSON.stringify(_Memory));
+                errorTrace("MEM Access Violation on GET @" + physicalLocation + " from " + location  + " B:" + this.Base + " L:" + this.Limit);
+                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", this.ActivePID)));
                 return null;
             }
         }

@@ -13,7 +13,7 @@
 
 var ProcessScheduler = (function(){
     
-    var processTicks    = -1;
+    var processTicks    = 0;
     var processQ = new Queue();
     var sys_quantum     = 6; // not of solace
     
@@ -50,18 +50,23 @@ var ProcessScheduler = (function(){
         
         this.tick = function()
         {
-            processTicks = (processTicks + 1) % sys_quantum;
+            // there may be something strange going on with this.
+            // sometimes random context switches occur.  I haven't had time
+            // to track down the source.  It could be working correctly, I am
+            // just not sure.
             
-            if(processTicks == 0)
+            processTicks++;
+            // only schedule if more than one process
+            if(processTicks % sys_quantum == 0 && processQ.q.length > 0)
             {
                 _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch")));
-                devLog("Switch!");
             }
         }
         
         this.schedule = function(process)
         {
             // put into process q
+            krnTrace("Scheduling Process " + process.PID);
             processQ.enqueue(process);
         }
         
@@ -72,6 +77,7 @@ var ProcessScheduler = (function(){
         
         this.kill = function(pid)
         {
+            krnTrace("Killing Process " + process.PID);
             var process = _ReadyQ[pid];
             processQ.remove(process);
         }

@@ -12,6 +12,21 @@ Topics (Table of Contents): Not updated at all since last time :(
 
 Notes
 -------
+**[iProject3]**
+*   Three programs can be loaded into memory... the only problem is more than 3 can be loaded.
+    I did not go through the trouble of preventing a 4th program loading, since I would just
+    have to remove that for the final project.  If a 4th - nth program is loaded the system executes
+    program in memory location $0000, but it does update the correct PCB's status.
+*   I pulled my DevLog into the System logs (it replaces the generic CPU Cycle message) and color coded
+    things a little bit.  The DevLog still prints out in the JavaScript console though, I personally find
+    it easier to read.
+*   In general I am using Interrupts a lot more.  I moved a few Kernel function calls (like loading programs)
+    over to Interrupt messages. To me it feels more correct that way.  I also use Interrupts exclusively for all
+    process management now.
+*   I added a "Reboot" button to the action bar.  This is a soft-reset vs "Reset" which I kept as a hard-reset.
+    I also modified the shutdown command in the Shell.  It still shuts down the sysem properly but you can use
+    the flag '-r' to reboot instead.  Ex: shutdown -r
+
 **[iProject2]**
 *   I had some issues with the PCB.  I believe it is implemented correctly, but I hard coded
     most of its access since I know I am only dealing with one process.  I need to re-think

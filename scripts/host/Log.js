@@ -55,7 +55,7 @@ Log.prototype = {
     //
     toString : function(){
         var html = '' +
-            '<div id="msg-' + this.id + '" class="log_msg">' +
+            '<div id="msg-' + this.id + '" class="log_msg log_' + this.source + '">' +
                 '<div class="time">' +
                     '<strong>' + this.now.logString() + '</strong> - ' + this.clock +
                 '</div>' +
@@ -63,9 +63,22 @@ Log.prototype = {
                     '<strong>Source:</strong> ' + this.source + 
                 '</div>' +
                 '<div class="message">' +
-                    this.message +
+                    this.messageHTML() +
                 '</div>' +
             '</div>';
+        
+        return html;
+    },
+    messageHTML : function() {
+        var html = '';
+        if(this.source.toLowerCase() == "devlog")
+        {
+            html += '<span class="devlog">' + this.message + '</span>';
+        }
+        else
+        {
+            html += this.message;
+        }
         
         return html;
     }

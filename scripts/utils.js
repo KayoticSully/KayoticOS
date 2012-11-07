@@ -54,7 +54,8 @@ function devLog(str)
 {
 	if(DEVLOG)
 	{
-		console.log(str);
+		simLog(str, "DevLog");
+		console.log(str.replace('<br>&nbsp;&nbsp;', "\n   ").replace('<br>&nbsp;&nbsp;', "\n   "));
 	}
 }
 
