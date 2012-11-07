@@ -40,11 +40,11 @@ var ProcessScheduler = (function(){
             }
         });
         
-        Object.defineProperty(this, "running", {
+        Object.defineProperty(this, "readyQ", {
             writeable   :   false,
             enumerable  :   false,
             get         :   function() {
-                return 
+                return processQ.q;
             }
         });
         
@@ -78,7 +78,7 @@ var ProcessScheduler = (function(){
         this.kill = function(pid)
         {
             krnTrace("Killing Process " + process.PID);
-            var process = _ReadyQ[pid];
+            var process = _ResidentQ[pid];
             processQ.remove(process);
         }
         

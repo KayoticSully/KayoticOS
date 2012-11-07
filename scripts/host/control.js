@@ -207,10 +207,10 @@ function controlUpdateDisplay()
 function updatePCB()
 {
 	var str = '';
-
-	for(var pcb in _ReadyQ)
+	var queue = _Scheduler.readyQ;
+	for(var pcb in queue)
 	{
-		str += _ReadyQ[pcb]
+		str += queue[pcb];
 	}
 	
 	$('#PCB').html(str);

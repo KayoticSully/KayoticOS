@@ -35,11 +35,11 @@ var MemoryManager = (function(){
             //
             var slot = getFreeSlot();
             
-            var PID = _ReadyQ.length;
+            var PID = _ResidentQ.length;
             
             var newPCB = new PCB(PID, slot * PROGRAM_SIZE);
             
-            _ReadyQ.push(newPCB);
+            _ResidentQ.push(newPCB);
             
             for(var instruction in instructionArray)
             {
