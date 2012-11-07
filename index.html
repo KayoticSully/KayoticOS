@@ -29,6 +29,16 @@
                      </li>
                      <li>
                         <a href="#"
+                           id = "brnReboot"
+                           name="brnReboot"
+                           class="normal_button"
+                           onclick="simBtnReboot_click(this)">
+                           <i class="icon-refresh icon-white"></i>
+                           Reboot
+                        </a>
+                     </li>
+                     <li>
+                        <a href="#"
                            id = "btnHaltOS"
                            name="brnHaltOS"
                            class="normal_button"
@@ -43,7 +53,7 @@
                            name="brnReset"
                            class="normal_button"
                            onclick="simBtnReset_click(this)">
-                           <i class="icon-off icon-white"></i>
+                           <i class="icon-repeat icon-white"></i>
                            Reset
                         </a>
                      </li>
@@ -98,8 +108,19 @@
                &nbsp;
             </div>
          </div>
-         <div id="PCBDisplay">
-            <span class="label left">PCB</span>
+         <div class="panes_wrapper">
+            <div class="label lbl-pcb">
+               Ready Queue
+            </div>
+            <div name="PCB" id="PCB">
+               &nbsp;
+            </div>
+         </div>
+         <div id="CPUDisplay">
+            <span class="label left">
+               System
+            </span>
+            <span id="CPU"></span>
          </div>
          <canvas id="display"
                  width="650px"
@@ -152,6 +173,9 @@
    <script type="text/javascript" src="scripts/host/RAM.js"></script>
    
    <!-- Virtual OS Objects  -->
+   <script type="text/javascript" src="scripts/os/interrupt.js"></script>
+   <script type="text/javascript" src="scripts/os/deviceDriver.js"></script>
+   <script type="text/javascript" src="scripts/os/queue.js"></script>
    <script type="text/javascript" src="scripts/os/SymbolCodes.js"></script>
    <script type="text/javascript" src="scripts/os/SimpleStack.js"></script>
    <script type="text/javascript" src="scripts/os/MemoryManager.js"></script>
@@ -159,12 +183,9 @@
    <script type="text/javascript" src="scripts/os/PCB.js"></script>
    
    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
-   <script type="text/javascript" src="scripts/os/interrupt.js"></script>
    <script type="text/javascript" src="scripts/os/canvastext.js"></script>	
    <script type="text/javascript" src="scripts/os/console.js"></script>	
-   <script type="text/javascript" src="scripts/os/deviceDriver.js"></script>
    <script type="text/javascript" src="scripts/os/deviceDriverKeyboard.js"></script>
-   <script type="text/javascript" src="scripts/os/queue.js"></script>
    <script type="text/javascript" src="scripts/os/ObjectShell.js"></script>
    <script type="text/javascript" src="scripts/os/kernel.js"></script>
    

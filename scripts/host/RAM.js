@@ -71,14 +71,21 @@ RAM.prototype.toString = function()
     
     var offset = PROGRAM_SIZE * this.displayPage;
     
-    for(var group = offset; group < PROGRAM_SIZE * (this.displayPage + 1); group += 32)
+    for(var group = offset; group < PROGRAM_SIZE * (this.displayPage + 1); group += 8)
     {
-        str += '<div class="memCol">';
+        str += '<div class="memRow">';
         
-        for(var location = group; location < group + 32 && location < RAM_SIZE; location++)
+        for(var location = group; location < group + 8 && location < RAM_SIZE; location++)
         {
             var value = this.get(location);
-            str += '<strong>$' + toPettyHex(location) + ":</strong>" + toPettyHex(value, 2) + "<br>";
+            if(location % 8 == 0)
+            {
+                str += '<strong>$' + toPettyHex(location) + ":</strong>" + '<div class="memCell">' + toPettyHex(value, 2) + '</div>';
+            }
+            else
+            {
+                str += '<div class="memCell">' + toPettyHex(value, 2) + '</div>';
+            }
         }
         
         str += '</div>';

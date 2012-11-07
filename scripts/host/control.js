@@ -11,7 +11,7 @@
  |---------------------------------------------------------------------
  | Author(s): Alan G. Labouseur, Ryan Sullivan
  |   Created: 8/?/2012
- |   Updated: 9/12/2012
+ |   Updated: 11/7/2012
  |---------------------------------------------------------------------
  | This (and other host/simulation scripts) is the only place that we should see "web" code, like 
  | DOM manipulation and JavaScript event handling, and so on.  (Index.html is the only place for markup.)
@@ -72,33 +72,51 @@ function simLog(msg, source)
 //
 function simBtnStartOS_click(btn)
 {
-    if(!_POWER)
-    {
-	_POWER = true;
-	// .. set focus on the OS console display ... 
-	document.getElementById("display").focus();
+	if(!_POWER)
+	{
+		_POWER = true;
+		// .. set focus on the OS console display ... 
+		document.getElementById("display").focus();
+		
+		// ... Create and initialize the CPU ...
+		_CPU = new CPU();
+		_CPU.init();
+		
+		_RAM = new RAM();
+		
+		// Initialize System Clock Object
+		_SystemClock = new SystemDate();
+		
+		// Host Events
+		setupHostEvents();
+		
+		// ... then set the clock pulse simulation to call ?????????.
+		// I decided to "pulse" the CPU directly so the interval
+		// is more like the pulse and it runs "through" the CPU
+		//
+		hardwareClockID = setInterval(_CPU.pulse, CPU_CLOCK_INTERVAL);
+		
+		// .. and call the OS Kernel Bootstrap routine.
+		krnBootstrap();
+	}
+}
+
+function simHostShutdown()
+{
+	// stop clock pulse;
+	clearInterval(hardwareClockID);
+	hardwareClockID = null;
 	
-	// ... Create and initialize the CPU ...
-	_CPU = new CPU();
-	_CPU.init();
+	// kill interface update
+	shutdownHostEvents();
 	
-	_RAM = new RAM();
+	// null out hardware
+	_SystemClock = null;
+	_RAM = null;
+	_CPU = null;
+	_POWER = false;
 	
-	// Initialize System Clock Object
-	_SystemClock = new SystemDate();
-	
-	// Host Events
-	setupHostEvents();
-	
-	// ... then set the clock pulse simulation to call ?????????.
-	// I decided to "pulse" the CPU directly so the interval
-	// is more like the pulse and it runs "through" the CPU
-	//
-	hardwareClockID = setInterval(_CPU.pulse, CPU_CLOCK_INTERVAL);
-	
-	// .. and call the OS Kernel Bootstrap routine.
-	krnBootstrap();
-    }
+	// HARDWARE IS OFF!
 }
 
 function setupHostEvents()
@@ -126,6 +144,13 @@ function setupHostEvents()
 	});
 }
 
+function shutdownHostEvents()
+{
+	$('input[name=memoryPage]').off('change');
+	$('input[name=stepToggle]').off('change');
+	$('#stepBtn').off('click');
+}
+
 function simBtnHaltOS_click(btn)
 {
     if(_POWER)
@@ -134,11 +159,21 @@ function simBtnHaltOS_click(btn)
 	simLog("Attempting Kernel shutdown.", "host");
 	// Call the OS shutdown routine.
 	krnShutdown();
-	// Stop the JavaScript interval that's simulating our clock pulse.
-	clearInterval(hardwareClockID);
+	simHostShutdown();
+	
 	// TODO: Is there anything else we need to do here?
 	_POWER = false;
     }
+}
+
+function simBtnReboot_click(btn)
+{
+	if(_POWER)
+	{
+		krnShutdown();
+		simHostShutdown();
+		simBtnStartOS_click();
+	}
 }
 
 function simBtnReset_click(btn)
@@ -163,21 +198,30 @@ function controlUpdateDisplay()
 {
 	_RAM.display();
 	updatePCB();
+	updateCPU();
 }
 
 function updatePCB()
 {
-	var str = '<span class="label left">PCB</span>';
+	var str = '';
+
+	for(var pcb in _ReadyQ)
+	{
+		str += _ReadyQ[pcb]
+	}
 	
-	str += '<strong>PC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.PC) + '</span>&nbsp;&nbsp;';
-	str += '<strong>ACC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Acc, 2) + '</span>&nbsp;&nbsp;';
-	str += '<strong>X:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Xreg, 2) + '</span>&nbsp;&nbsp;';
-	str += '<strong>Y:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Yreg, 2) + '</span>&nbsp;&nbsp;';
-	str += '<strong>Z:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Zflag, 1) + '</span>&nbsp;&nbsp;';
-	
-	// hard coded for now
-	if(_Memory.ActivePID != null)
-		str += '<strong>State:</strong>' + '<span class="PCBField">' + _JobQ[_Memory.ActivePID].state.toUpperCase() + '</span>&nbsp;&nbsp;';
-	
-	$('#PCBDisplay').html(str);
+	$('#PCB').html(str);
+}
+
+function updateCPU()
+{
+	var str = '<strong>PC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.PC) + '</span>&nbsp;&nbsp;' +
+		  '<strong>ACC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Acc, 2) + '</span>' +
+		  '<strong>X:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Xreg, 2) + '</span>&nbsp;&nbsp;' +
+		  '<strong>Y:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Yreg, 2) + '</span>&nbsp;&nbsp;' +
+		  '<strong>Z:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Zflag, 2) + '</span>&nbsp;&nbsp;' +
+		  '<strong>PID:</strong>' + '<span class="PCBField">' + _Memory.ActivePID + '</span>&nbsp;' +
+		  '<strong>Base:</strong>' + '<span class="PCBField">' + _Memory.Base + '</span>&nbsp;&nbsp;' +
+		  '<strong>Limit:</strong>' + '<span class="PCBField">' + _Memory.Limit + '</span>&nbsp;&nbsp;';
+	$('#CPU').html(str);
 }

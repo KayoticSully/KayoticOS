@@ -299,7 +299,7 @@ var Shell = (function()
         sc = new ShellCommand();
         sc.command = "run";
         sc.description = "<int> - Starts execution of specified process id";
-        sc.function = run;
+        sc.function = shellRun;
         this.commandList[sc.command] = sc;
         
         // history
@@ -312,11 +312,31 @@ var Shell = (function()
         // processes - list the running processes and their IDs
         
         // kill <id> - kills the specified process id.
-        // history
         sc = new ShellCommand();
         sc.command = "kill";
         sc.description = " <id> - kills the specified process id";
         sc.function = shellKill;
+        this.commandList[sc.command] = sc;
+        
+        // quantum <num> - sets quantum clock ticks
+        sc = new ShellCommand();
+        sc.command = "quantum";
+        sc.description = " - returns current quantum | <num> - sets quantum clock ticks";
+        sc.function = shellQuantum;
+        this.commandList[sc.command] = sc;
+        
+        // processes - displays all process information
+        sc = new ShellCommand();
+        sc.command = "processes";
+        sc.description = " - displays all process information";
+        sc.function = shellProcesses;
+        this.commandList[sc.command] = sc;
+        
+        // running - displays pid's of active processes
+        sc = new ShellCommand();
+        sc.command = "running";
+        sc.description = " - displays pid's of active processes";
+        sc.function = shellRunning;
         this.commandList[sc.command] = sc;
         
         // Display the initial prompt.
@@ -448,11 +468,19 @@ var Shell = (function()
     }
     
     function shellShutdown(args)
-    {
-         _StdIn.putText("Shutting down...");
-         // Call Kernal shutdown routine.
-        krnShutdown();   
+    {   
+        _StdIn.putText("Shutting down...");
+        // Call Kernal shutdown routine.
+        krnShutdown();
+        simHostShutdown();
         // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
+        
+        if(args == "r")
+        {
+            setTimeout(simBtnStartOS_click, 500);
+        }
+        
+        return {defer : true };
     }
     
     function shellCls(args)
@@ -618,12 +646,12 @@ var Shell = (function()
         return { defer : true };
     }
     
-    function run(args)
+    function shellRun(args)
     {
         // add programs to ReadyQ
         for(var PID in args)
         {
-            _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", PID)));
+            _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", args[PID])));
         }
         
         _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
@@ -647,9 +675,50 @@ var Shell = (function()
         );
     }
     
-    function shellKill()
+    function shellKill(args)
     {
+        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", args)));
+    }
+    
+    function shellQuantum(args)
+    {
+        if(args != "")
+        {
+            _Scheduler.quantum = args;
+            _StdOut.putText("Quantum is set to " + _Scheduler.quantum);
+        }
+        else
+        {
+            _StdOut.putText("Current quantum is " + _Scheduler.quantum);
+        }
+    }
+    
+    function shellProcesses()
+    {
+        var numOfRunning = _Scheduler.totalRunning;
+        var numOfPrograms = _ReadyQ.length;
         
+        if(_CPU.isExecuting)
+            numOfRunning++;
+        
+        _StdOut.putLine(numOfRunning + " running out of " + numOfPrograms + " programs.");
+    }
+    
+    function shellRunning()
+    {
+        var runningProcesses = new Array();
+        for(PID in _ReadyQ)
+        {
+            if(_ReadyQ[PID].state == "ready" || _ReadyQ[PID].state == "waiting" || _ReadyQ[PID].state == "running")
+                runningProcesses.push(PID);
+        }
+        
+        runningProcesses.sort();
+        
+        if(runningProcesses.length == 0)
+            runningProcesses = "None";
+        
+        _StdOut.putLine(runningProcesses);
     }
     
     return Shell;

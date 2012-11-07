@@ -30,3 +30,27 @@ var PCB = (function(){
     
     return PCB;
 })();
+
+PCB.prototype.toString = function()
+{
+    var str = '<div class="pcbObject">' +
+                    '<div class="PID">' +
+                        '<strong>PID:</strong>' + this.PID +
+                    '</div>' +
+                    '<div class="Data">' +
+                        '<div>' +
+                            '<strong>PC:</strong>' + '<span class="PCBField">&nbsp;' + toPettyHex(this.PC) + '</span>&nbsp;&nbsp;' +
+                            '<strong>ACC:</strong>' + '<span class="PCBField">&nbsp;' + toPettyHex(this.Acc, 2) + '</span>' +
+                        '</div>' +
+                        '<div>' +
+                            '<strong>X:</strong>' + '<span class="PCBField">&nbsp;' + toPettyHex(this.Xreg, 2) + '</span>&nbsp;&nbsp;' +
+                            '<strong>Y:</strong>' + '<span class="PCBField">&nbsp;' + toPettyHex(this.Yreg, 2) + '</span>&nbsp;&nbsp;' +
+                            '<strong>Z:</strong>' + '<span class="PCBField">&nbsp;' + toPettyHex(this.Zflag, 2) + '</span>&nbsp;&nbsp;' +
+                        '</div>' +
+                        '<div>' +
+                            '<strong>State:</strong>' + '<span class="PCBField">&nbsp;' + this.state + '</span>&nbsp;&nbsp;' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+    return str;
+}

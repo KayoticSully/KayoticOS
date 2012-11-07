@@ -29,7 +29,7 @@ function Queue()
 
     this.enqueue  = function(element)
     {
-        this.q.push(element);        
+        this.q.push(element);
     }
     
     this.dequeue  = function()
@@ -40,6 +40,20 @@ function Queue()
             retVal = this.q.shift();
         }
         return retVal;        
+    }
+    
+    this.remove = function(obj)
+    {
+        var i = 0;
+        var item = this.q[i];
+        
+        while(item != obj && i < this.q.length)
+        {
+            i++;
+            item = this.q[i];
+        }
+        
+        this.q.splice(i, 1);
     }
     
     this.toString = function()

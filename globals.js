@@ -52,7 +52,6 @@ var _SystemClock = null; // Controls System Date Time
 var _OSclock = 0;        // Page 23.
 var _Mode = 0;           // 0 = Kernel Mode, 1 = User Mode.  See page 21.
 var _Trace = true;       // Default the OS trace to be on.
-var _JobQ = null;        // PCB Job QUEUE
 var _ReadyQ = null;        // PCB Job QUEUE
 var _Scheduler = null;
 

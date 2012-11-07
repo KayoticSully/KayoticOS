@@ -34,11 +34,12 @@ var MemoryManager = (function(){
             // need to figure out PC Offset here
             //
             var slot = getFreeSlot();
-            var PID = _JobQ.length;
+            
+            var PID = _ReadyQ.length;
             
             var newPCB = new PCB(PID, slot * PROGRAM_SIZE);
             
-            _JobQ.push(newPCB);
+            _ReadyQ.push(newPCB);
             
             for(var instruction in instructionArray)
             {

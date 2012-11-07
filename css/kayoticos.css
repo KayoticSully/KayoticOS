@@ -32,8 +32,7 @@ footer
 
 #app_wrapper
 {
-	/*width: 1505px;
-	margin: 0px auto;*/
+	width: 1510px;
 	padding-top:20px;
 }
 
@@ -63,6 +62,7 @@ audio, embed {
 	border: 2px solid #FFFFFF; 
 	cursor: default;
 	float: left;
+	margin:0px 7px;
 }
 
 #display.error
@@ -78,7 +78,7 @@ audio, embed {
 {
 	float: left;
 	overflow: hidden;
-	margin:0px 10px 0px 10px;
+	margin:0px 4px 0px 7px;
 }
 
 /* Logs */
@@ -91,25 +91,25 @@ audio, embed {
 }
 
 /* PCB */
-#PCBDisplay
+#CPUDisplay
 {
 	width: 649px;
 	padding:2px 0px 3px 0px;
 	background-color: white;
-	margin: 0px 0px 10px 603px;
+	margin: 0px 0px 10px 587px;
 }
 
-#PCBDisplay > .PCBField
+#CPUDisplay .PCBField
 {
 	display: inline-block;
-	width:50px;
-	margin-left:5px;
+	width:30px;
+	margin:0px 5px;
 }
 
 #stepControls
 {
 	color: #FFFFFF;
-	margin:-36px 0px 0px 1265px;
+	margin:-36px 0px 0px 1256px;
 }
 
 #stepControls > input[type=button]
@@ -124,8 +124,8 @@ audio, embed {
 	font-family: "Consolas", sans-serif;
 	font-size: 15px;
 	line-height: 16px;
-	width: 570px;
-	padding:5px 5px;
+	width: 335px;
+	padding:4px 5px;
 	background-color:#FFFFFF;
 	height:515px;
 	overflow: auto;
@@ -136,6 +136,17 @@ audio, embed {
 {
 	width:71px;
 	float:left;
+}
+
+.panes_wrapper > #memory > .memRow
+{
+	
+}
+
+.panes_wrapper > #memory > .memRow > .memCell
+{
+	display: inline;
+	padding: 0 10px;
 }
 
 #memoryControls
@@ -160,6 +171,31 @@ audio, embed {
 #memoryControls > input[type=radio], #stepControls > input[type=radio]
 {
 	margin:-2px 3px 0px 0px;
+}
+
+/* PCB */
+.panes_wrapper > #PCB
+{
+	width: 210px;
+	background-color:#FFFFFF;
+	height:500px;
+	overflow: auto;
+}
+
+.panes_wrapper > #PCB > .pcbObject {
+	background-color: #F0F0F0;
+	border-bottom: 1px solid #000000;
+	padding:10px 5px;
+	text-align: center;
+}
+
+.panes_wrapper > #PCB > .pcbObject > .PID {
+	font-size: 18px;
+	padding:3px 0px;
+}
+
+.lbl-pcb {
+	margin-top:35px;
 }
 
 .log_msg

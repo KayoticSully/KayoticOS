@@ -27,7 +27,7 @@ function krnBootstrap()      // Page 8.
     _KernelBuffers = new Array();         // Buffers... for the kernel.
     _KernelInputQueue = new Queue();      // Where device input lands before being processed out somewhere.
     _Console = new Console();             // The console output device.
-
+    
     // Initialize the Console.
     _Console.init();
 
@@ -42,8 +42,7 @@ function krnBootstrap()      // Page 8.
     krnTrace(krnKeyboardDriver.status);
 
     // Load Queues
-    _JobQ = new Array();
-    _ReadyQ = new Queue();
+    _ReadyQ = new Array();
     
     // Load the Memory Manager
     _Memory = new MemoryManager();
@@ -80,6 +79,19 @@ function krnShutdown()
     // Unload the Device Drivers?
     // More?
     //
+    _OsShell = null;
+    _Scheduler = null;
+    _Memory = null;
+    _ReadyQ = null;
+    krnKeyboardDriver = null;
+    _StdOut = null;
+    _StdIn  = null;
+    _Console = null;
+    _KernelInputQueue = null;
+    _KernelBuffers = null;
+    _KernelInterruptQueue = null;
+    
+    
     krnTrace("end shutdown OS");
 }
 
@@ -166,6 +178,9 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
                     break;
                 case "context-switch":
                     krnContextSwitch();
+                    break;
+                case "kill":
+                    krnKillProgram(params[1]);
                     break;
             }
             break;
@@ -281,19 +296,19 @@ function krnContextSwitch()
     if(_Memory.ActivePID != null)
     {
         // pack up running process
-        var process = _JobQ[_Memory.ActivePID];
+        var process = _ReadyQ[_Memory.ActivePID];
         
         krnSaveState(process, "waiting");
         
-        _ReadyQ.enqueue(process);
+        _Scheduler.schedule(process);
         
         _Mode = 0;
     }
     
     // get PCB
-    if(_ReadyQ.getSize() > 0)
+    if(_Scheduler.totalRunning > 0)
     {
-        var process = _ReadyQ.dequeue();
+        var process = _Scheduler.getProcess();
         
         if(process !== undefined) // make sure PCB is something
             krnLoadState(process, "running");
@@ -341,26 +356,39 @@ function krnResetProgram(process)
 
 function krnReadyProgram(PID)
 {
-    var program = _JobQ[PID];
-    
+    var program = _ReadyQ[PID];
     // set PCB state
     program.state = "ready";
-    
     // ensure fresh program state
     krnResetProgram(program);
+    // schedule 
+    _Scheduler.schedule(program);
+}
+
+function krnKillProgram(PID)
+{
     
-    // add to ReadyQ
-    _ReadyQ.enqueue(program);
+    // ensure the process you are killing
+    // is not running.
+    if(_Memory.ActivePID == PID)
+    {
+        // I am happily surprised that this works.
+        // I also like that I managed to use a recursively calling interrupt
+        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
+        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", pid)));
+    }
+    
+    _Scheduler.kill(PID);
 }
 
 function krnBreak()
 {
-    _JobQ[_Memory.ActivePID].state = "terminated";   
+    _ReadyQ[_Memory.ActivePID].state = "terminated";   
     
     _Memory.ActivePID = null;
     
     // this will cause a strange quantum bug, remember this
-    if(_ReadyQ.getSize() > 0)
+    if(_Scheduler.totalRunning > 0)
         _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
     else
     {
