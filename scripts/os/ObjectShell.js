@@ -648,10 +648,20 @@ var Shell = (function()
     
     function shellRun(args)
     {
-        // add programs to ReadyQ
-        for(var PID in args)
+        if(args == 'all')
         {
-            _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", args[PID])));
+            for(var PID in _ResidentQ)
+            {
+                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", _ResidentQ[PID].PID)));
+            }
+        }
+        else
+        {
+            // add programs to ReadyQ
+            for(var PID in args)
+            {
+                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", args[PID])));
+            }
         }
         
         _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
@@ -696,7 +706,7 @@ var Shell = (function()
     function shellProcesses()
     {
         var numOfRunning = _Scheduler.totalRunning;
-        var numOfPrograms = _ReadyQ.length;
+        var numOfPrograms = _ResidentQ.length;
         
         if(_CPU.isExecuting)
             numOfRunning++;
@@ -707,9 +717,9 @@ var Shell = (function()
     function shellRunning()
     {
         var runningProcesses = new Array();
-        for(PID in _ReadyQ)
+        for(PID in _ResidentQ)
         {
-            if(_ReadyQ[PID].state == "ready" || _ReadyQ[PID].state == "waiting" || _ReadyQ[PID].state == "running")
+            if(_ResidentQ[PID].state == "ready" || _ResidentQ[PID].state == "waiting" || _ResidentQ[PID].state == "running")
                 runningProcesses.push(PID);
         }
         

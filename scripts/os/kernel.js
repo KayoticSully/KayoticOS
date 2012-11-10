@@ -43,7 +43,7 @@ function krnBootstrap()      // Page 8.
     krnTrace(krnKeyboardDriver.status);
 
     // Load Queues
-    _ReadyQ = new Array();
+    _ResidentQ = new Array();
     
     // Load the Memory Manager
     _Memory = new MemoryManager();
@@ -79,7 +79,7 @@ function krnShutdown()
     _OsShell = null;
     _Scheduler = null;
     _Memory = null;
-    _ReadyQ = null;
+    _ResidentQ = null;
     krnKeyboardDriver = null;
     _StdOut = null;
     _StdIn  = null;
@@ -298,9 +298,9 @@ function krnContextSwitch()
     if(_Memory.ActivePID != null)
     {
         // pack up running process
-        var process = _ReadyQ[_Memory.ActivePID];
+        var process = _ResidentQ[_Memory.ActivePID];
         
-        krnSaveState(process, "waiting");
+        krnSaveState(process, "ready");
         
         _Scheduler.schedule(process);
         
@@ -328,7 +328,7 @@ function krnSaveState(process, status)
     process.Xreg    = _CPU.Xreg;
     process.Yreg    = _CPU.Yreg;
     process.Zflag   = _CPU.Zflag;
-    process.status  = status;
+    process.state  = status;
 }
 
 function krnLoadState(process, status)
@@ -358,7 +358,7 @@ function krnResetProgram(process)
 
 function krnReadyProgram(PID)
 {
-    var program = _ReadyQ[PID];
+    var program = _ResidentQ[PID];
     // set PCB state
     program.state = "ready";
     // ensure fresh program state
@@ -385,7 +385,7 @@ function krnKillProgram(PID)
 
 function krnBreak()
 {
-    _ReadyQ[_Memory.ActivePID].state = "terminated";   
+    _ResidentQ[_Memory.ActivePID].state = "terminated";   
     
     _Memory.ActivePID = null;
     
