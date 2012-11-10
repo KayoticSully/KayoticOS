@@ -26,6 +26,10 @@ Notes
 *   I added a "Reboot" button to the action bar.  This is a soft-reset vs "Reset" which I kept as a hard-reset.
     I also modified the shutdown command in the Shell.  It still shuts down the sysem properly but you can use
     the flag '-r' to reboot instead.  Ex: shutdown -r
+*	Lastly... I am not sure how you wanted the commands that deal with running processes to work (kill, processes, etc.).
+	If a processes is printing output it is very confusing to type out a command, and the response back isn't always displayed if
+	a process' output overwrites the command's output (or vice a versa).  I left it as that since I did not really have time
+	to do anything clever to improve the user's experience.  Just making that note here...
 
 **[iProject2]**
 *   I had some issues with the PCB.  I believe it is implemented correctly, but I hard coded
