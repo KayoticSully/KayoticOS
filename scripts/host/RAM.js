@@ -80,12 +80,15 @@ RAM.prototype.toString = function()
             var value = this.get(location);
             if(location % 8 == 0)
             {
-                str += '<strong>$' + toPettyHex(location) + ":</strong>" + '<div class="memCell">' + toPettyHex(value, 2) + '</div>';
+                str += '<strong>$' + toPettyHex(location) + ":</strong>";// + '<div class="memCell">' + toPettyHex(value, 2) + '</div>';
             }
-            else
-            {
-                str += '<div class="memCell">' + toPettyHex(value, 2) + '</div>';
-            }
+            //else
+            //{
+            if(STEP_TOGGLE)
+                console.log(value + " => " + toPettyHex(value, 2));
+            
+            str += '<div class="memCell">' + toPettyHex(value, 2) + '</div>';
+            //}
         }
         
         str += '</div>';
