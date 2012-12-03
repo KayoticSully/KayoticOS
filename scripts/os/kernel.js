@@ -193,6 +193,9 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
                     break;
             }
             break;
+        case FS_IRQ:
+            
+            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq, params);
     }
