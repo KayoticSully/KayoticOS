@@ -69,11 +69,11 @@ var DeviceDriverFileSystem = function() {
             break;
             
             case "read":
-                return readFile(params[1]);
+                console.log(readFile(params[1]));
             break;
-        
-            case "test":
-                getHandle(Types.FILE);
+            
+            case "create":
+                createFile(params[1]);
             break;
         }
     }
@@ -82,11 +82,18 @@ var DeviceDriverFileSystem = function() {
     // Drive Operations
     //========================================
     function writeFile(fileName, data) {
-        diskDrives[loadedDrive].write(0,0,0, data);
+        var handle = getHandle(fileName);
+        
+        // if we didn't find the file
+        if(handle.kind != Type.FILE.kind)
+            return null;
+        else
+            return null; // write data
     }
     
     function readFile(fileName) {
         var handle = getHandle(fileName);
+
         if(handle.kind != Type.FILE.kind)
             return null;
         else
@@ -98,7 +105,16 @@ var DeviceDriverFileSystem = function() {
     }
     
     function createFile(fileName) {
-        var fileHandle = getHandle(Type.FILE);
+        // get free file handle
+        var handle = getHandle(fileName);
+        
+        if(handle.kind != BaseType.STRUCTURE.mark) {
+            // error file name already exists
+        } else {
+            // we have an empty file marker
+            // lets try to allocate some space
+            allocateRecord(handle, fileName, Type.FILE);
+        }
     }
     
     function deleteFile(fileName) {
@@ -150,6 +166,41 @@ var DeviceDriverFileSystem = function() {
         return handle;
     }
     
+    function allocateRecord(handle, data, type){
+        // get next open handle slot
+        var next = getNextEmptyRecord(handle.tsb, type.growth);
+        
+        if(next == undefined) {
+            throw {
+                message : "Hard Drive Full"
+            }
+        }
+        
+        // copy marker down
+        next.parse(handle.rawRecord);
+        next.write();
+        
+        // insert new data ending wil nil
+        handle.kind = type.kind;
+        handle.data = data;
+        handle.write();
+    }
+    
+    function getNextEmptyRecord(tsb, growth) {
+        var handle = new Handle();
+        
+        while(handle.kind != BaseType.EMPTY.kind) {
+            handle.parse(drive.read(tsb));
+            tsb = nextTSB(tsb, growth);
+            
+            if(tsb == undefined)
+                return undefined;
+        }
+        
+        handle.tsb = nextTSB(tsb, -1*growth);
+        return handle;
+    }
+    
     // this function enables awesomesauce
     function extend(object1, object2) {
         for(var attr in object1)
@@ -163,6 +214,10 @@ var DeviceDriverFileSystem = function() {
     function nextTSB(tsb, growth){
         var baseTen = parseInt(tsb, 8);
         baseTen += growth;
+        
+        // NO NEGATIVE NUMBERS
+        if(baseTen < 0)
+            return undefined;
         
         var newTSB = baseTen.toString(8);
         
@@ -183,7 +238,7 @@ var DeviceDriverFileSystem = function() {
     // Helper Objects
     //======================================
     // TODO only out here for testing, will pull into private scope later
-    var Handle = function() {
+    var Handle = function(raw) {
         
         var _kind = null;
         var _chainTSB = null;
@@ -191,26 +246,35 @@ var DeviceDriverFileSystem = function() {
         var _tsb = null;
         
         Object.defineProperty(this, 'kind', {
-            writeable       : false,
+            writeable       : true,
             enumerable      : false,
             get             : function() {
                 return _kind;
+            },
+            set             : function(value) {
+                _kind = value;
             }
         });
         
         Object.defineProperty(this, 'chainTSB', {
-            writeable       : false,
+            writeable       : true,
             enumerable      : false,
             get             : function() {
                 return _chainTSB;
+            },
+            set             : function(value) {
+                _chainTSB = value;
             }
         });
         
         Object.defineProperty(this, 'data', {
-            writeable       : false,
+            writeable       : true,
             enumerable      : false,
             get             : function() {
                 return _data;
+            },
+            set             : function(value) {
+                _data = value;
             }
         });
         
@@ -218,23 +282,39 @@ var DeviceDriverFileSystem = function() {
             writeable       : true,
             enumerable      : false,
             get             : function() {
-                if(isNaN(_tsb))
-                    return null;
-                else
-                    return _tsb;
+                return _tsb;
             },
             set             : function(value) {
                 _tsb = value;
             }
         });
         
+        Object.defineProperty(this, 'rawRecord', {
+            writeable       : false,
+            enumerable      : false,
+            get             : function() {
+                return _kind + _chainTSB + _data + nil;
+            }
+        });
         
         this.parse = function(raw) {
             _kind = raw[0];
             _chainTSB = raw.substring(1, 4);
-            _data = raw.substring(4, raw.indexOf(nil));
+            _data = raw.substring(4, raw.indexOf(nil, 4));
         }
         
+        this.write = function() {
+            drive.write(_tsb, this.rawRecord);
+        }
+        
+        if(raw != undefined)
+        {
+            this.parse(raw);
+        }
+    }
+    
+    Handle.prototype.toString = function() {
+        return this.tsb + " => [ " + this.kind + ", " + this.chainTSB + ", " + this.data + " ]";
     }
     
     var File = function(handle) {
@@ -247,16 +327,22 @@ var DeviceDriverFileSystem = function() {
             }
         });
         
-        this.data = chase(handle.chainTSB);
+        if(handle.chainTSB == nil + nil + nil)
+            this.data = null;
+        else
+            this.data = chase(handle.chainTSB);
         
+        // auto chain ftw!
         function chase(tsb) {
-            var chainHandle = new Handle(drive.read(tsb));
+            var raw = drive.read(tsb);
             
-            if(chainHandle.chainTSB == null)
+            var chainHandle = new Handle(raw);
+            chainHandle.tsb = tsb;
+            
+            if(chainHandle.chainTSB == nil + nil + nil)
                 return chainHandle.data;
             else
                 return chainHandle.data + chase(chainHandle.chainTSB);
-            
         }
     }
 }

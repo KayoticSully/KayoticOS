@@ -36,7 +36,7 @@ var HDD = (function(){
         
         this.read = function(tsb) {
             var storageId = this.driveId + tsb;
-            return localStorage[storageId];
+            return localStorage[storageId];;
         }
     }
     
