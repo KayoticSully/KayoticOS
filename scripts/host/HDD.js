@@ -7,7 +7,7 @@
  |---------------------------------------------------------------------
  | Author(s): Ryan Sullivan
  |   Created: 12/2/2012
- |   Updated: 12/2/2012
+ |   Updated: 12/4/2012
  |---------------------------------------------------------------------
  */
 
@@ -36,7 +36,7 @@ var HDD = (function(){
         
         this.read = function(tsb) {
             var storageId = this.driveId + tsb;
-            return localStorage[storageId];;
+            return localStorage[storageId];
         }
     }
     
