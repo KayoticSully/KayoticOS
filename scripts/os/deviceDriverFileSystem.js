@@ -65,7 +65,7 @@ var DeviceDriverFileSystem = function() {
     this.isr = function(params) {
         switch (params[0]) {
             case "write":
-                writeFile(params[1], params[2]);
+                console.log(writeFile(params[1], params[2]));
             break;
             
             case "read":
@@ -82,13 +82,19 @@ var DeviceDriverFileSystem = function() {
     // Drive Operations
     //========================================
     function writeFile(fileName, data) {
+        console.log("get Handle");
         var handle = getHandle(fileName);
         
         // if we didn't find the file
         if(handle.kind != Type.FILE.kind)
             return null;
-        else
-            return null; // write data
+        else {
+            console.log(handle);
+            var fileObject = new File(handle);
+            fileObject.data = data;
+            fileObject.save();
+            return fileObject;
+        }
     }
     
     function readFile(fileName) {
@@ -232,8 +238,6 @@ var DeviceDriverFileSystem = function() {
         return newTSB;
     }
     
-    
-    
     //======================================
     // Helper Objects
     //======================================
@@ -319,18 +323,24 @@ var DeviceDriverFileSystem = function() {
     
     var File = function(handle) {
         
+        // properties
+        this.data = null;
+        
+        // auto fetch file data
+        if(handle.chainTSB != nil + nil + nil)
+            this.data = chase(handle.chainTSB);
+        
         Object.defineProperty(this, 'name', {
-            writeable       : true,
+            writeable       : false,
             enumerable      : false,
             get             : function() {
                 return handle.data;
             }
         });
         
-        if(handle.chainTSB == nil + nil + nil)
-            this.data = null;
-        else
-            this.data = chase(handle.chainTSB);
+        this.save = function() {
+            
+        }
         
         // auto chain ftw!
         function chase(tsb) {
