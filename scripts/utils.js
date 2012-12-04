@@ -78,3 +78,46 @@ function toPettyHex(number, digits)
 	
 	return hex.toUpperCase();
 }
+
+function encodeToHex(str) {
+	var result = "";
+	for(index in str) {
+		var charCode = str.charCodeAt(index);
+		var hex = toHex(charCode);
+		result += hex;
+	}
+	
+	return result.toUpperCase();
+}
+
+function decodeFromHex(hex) {
+	
+	var hexArr = hex.match(PROGRAM_PATTERN);
+	var result = "";
+	
+	for(hexByte in hexArr) {
+		// decode character
+		var charCode = parseInt(hexArr[hexByte], 16);
+		// convert to string
+		var character = String.fromCharCode(charCode);
+		
+		result += character;
+	}
+	
+	return result;
+}
+
+//
+// Helper function to convert int to hex
+// 
+function toHex(data)
+{
+    var hex = data.toString(16);
+    
+    if(hex.length == 1)
+    {
+	hex = "0" + hex;
+    }
+    
+    return hex;
+}

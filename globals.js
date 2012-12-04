@@ -42,6 +42,14 @@ var DEVLOG = true;
 
 var STEP_TOGGLE = false;
 
+// This pattern should only accept hex pairs.
+// It actually pulls out the pairs into an array
+// so there can be any amount of whitespace between pairs.
+// I figured this may be easier to process later on
+// when we need to execute the commands one at a time.
+//
+var PROGRAM_PATTERN =  /[\da-fA-F]{2}/g;
+
 //------------------
 // Global Variables
 //------------------
@@ -102,3 +110,4 @@ var _SarcasticMode = false;
 // Global Device Driver Objects - page 12
 //
 var krnKeyboardDriver = null;
+var krnFileSystemDriver = null;

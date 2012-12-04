@@ -22,22 +22,23 @@ var DeviceDriverFileSystem = function() {
     // Base Data Types
     var BaseType = {
         EMPTY : {
-            kind    : 0,
-            tsb     : nil + nil + nil,
-            format  : 0 + nil + nil + nil + nil,
+            kind        : 0,
+            tsb         : nil + nil + nil,
+            format      : 0 + nil + nil + nil + nil,
         },
         
         DATA : {
-            kind    : 1,
-            mark    : 2,
-            baseTSB : "777",
-            growth  : -1,
+            kind        : 1,
+            mark        : 2, // I don't think I need this, but I will leave what I have implemented so far of it just in case
+            baseTSB     : "777",
+            growth      : -1,
+            blockSize  : 123
         },
         
         STRUCTURE : {
-            mark    : 5,
-            baseTSB : "001",
-            growth  : 1,
+            mark        : 5,
+            baseTSB     : "001",
+            growth      : 1,
         },
     }
     
@@ -66,14 +67,36 @@ var DeviceDriverFileSystem = function() {
         switch (params[0]) {
             case "write":
                 console.log(writeFile(params[1], params[2]));
+                _StdOut.putLine("File " + params[1] + " successfully written.", true);
             break;
             
             case "read":
-                console.log(readFile(params[1]));
+                var file = readFile(params[1]);
+                _StdOut.putLine(decodeFromHex(file.data), true);
             break;
             
             case "create":
-                createFile(params[1]);
+                console.log(createFile(params[1]));
+                _StdOut.putLine("File " + params[1] + " successfully created.", true);
+            break;
+            
+            case "delete":
+                console.log(deleteFile(params[1]));
+                _StdOut.putLine("File " + params[1] + " successfully deleted.", true);
+            break;
+            
+            case "format":
+                format();
+                _StdOut.putLine("Format Complete!", true);
+            break;
+            
+            case "list":
+                var fileList = getFiles();
+                
+                for(file in fileList)
+                    _StdOut.putLine("  " + fileList[file]);
+                
+                _StdOut.putLine("", true);
             break;
         }
     }
@@ -82,14 +105,12 @@ var DeviceDriverFileSystem = function() {
     // Drive Operations
     //========================================
     function writeFile(fileName, data) {
-        console.log("get Handle");
         var handle = getHandle(fileName);
         
         // if we didn't find the file
         if(handle.kind != Type.FILE.kind)
             return null;
         else {
-            console.log(handle);
             var fileObject = new File(handle);
             fileObject.data = data;
             fileObject.save();
@@ -106,25 +127,45 @@ var DeviceDriverFileSystem = function() {
             return new File(handle);
     }
     
-    function listFiles(dirName) {
+    function getFiles(dirName) {
+        var handle = new Handle();
+        var tsb = BaseType.STRUCTURE.baseTSB;
         
+        var files = new Array();
+        while(handle.kind != BaseType.STRUCTURE.mark) {
+            handle.parse(drive.read(tsb));
+            
+            if(handle.kind == Type.FILE.kind)
+                files.push(handle.data);
+            
+            tsb = nextTSB(tsb, BaseType.STRUCTURE.growth);
+        }
+        
+        return files;
     }
     
     function createFile(fileName) {
         // get free file handle
+        var firstEmpty = getHandle();
+        // make sure file does not already exist
         var handle = getHandle(fileName);
         
         if(handle.kind != BaseType.STRUCTURE.mark) {
-            // error file name already exists
+            return null;// error file name already exists
         } else {
             // we have an empty file marker
             // lets try to allocate some space
-            allocateRecord(handle, fileName, Type.FILE);
+            return allocateRecord(firstEmpty, fileName, Type.FILE);
         }
     }
     
     function deleteFile(fileName) {
+        var handle = getHandle(fileName);
         
+        if(handle.kind != Type.FILE.kind)
+            return null;
+        else
+            return deleteChain(handle);
     }
     
     function createDir(dirName) {
@@ -136,7 +177,7 @@ var DeviceDriverFileSystem = function() {
     }
     
     // TODO make private
-    this.format = function() {
+    function format() {
         // set MBR
         drive.write("000", "MBR");        
         
@@ -145,13 +186,10 @@ var DeviceDriverFileSystem = function() {
         drive.write(BaseType.STRUCTURE.baseTSB, defaultStructureMarker);
         
         var tsb = "002";
-        while(tsb != "777") {
+        while(tsb != undefined) {
             drive.write(tsb, BaseType.EMPTY.format);
             tsb = nextTSB(tsb, 1);
         }
-        
-        var defaultDataMarker = BaseType.DATA.mark + BaseType.EMPTY.tsb + nil;
-        drive.write(BaseType.DATA.baseTSB, defaultDataMarker);
     }
     
     //=======================================
@@ -162,34 +200,52 @@ var DeviceDriverFileSystem = function() {
         var handle = new Handle();
         var tsb = BaseType.STRUCTURE.baseTSB;
         
-        while(handle.kind != BaseType.STRUCTURE.mark && handle.data != fileName) {
+        while(handle.kind != BaseType.STRUCTURE.mark) {
             handle.parse(drive.read(tsb));
+            
+            // if we are looking for an empty handle and found one return it
+            if(fileName == undefined && handle.kind == BaseType.EMPTY.kind) {
+                handle.tsb = tsb;
+                return handle;
+            }
+            // if we are looking for a file and found it reutrn it
+            else if(handle.kind != BaseType.EMPTY.kind && handle.data == fileName) {
+                handle.tsb = tsb;
+                return handle;
+            }
+            
             tsb = nextTSB(tsb, BaseType.STRUCTURE.growth);
         }
         
-        // go back to last tsb since we overshot it
+        // if we found no empty slots return the marker
         handle.tsb = nextTSB(tsb, -1 * BaseType.STRUCTURE.growth);
         return handle;
     }
     
     function allocateRecord(handle, data, type){
-        // get next open handle slot
-        var next = getNextEmptyRecord(handle.tsb, type.growth);
         
-        if(next == undefined) {
-            throw {
-                message : "Hard Drive Full"
+        // get next open handle slot if we are at a marker
+        if(handle.kind == BaseType.STRUCTURE.mark || handle.kind == BaseType.DATA.mark) {
+            var next = getNextEmptyRecord(handle.tsb, type.growth);
+            
+            if(next == undefined) {
+                throw {
+                    message : "Hard Drive Full"
+                }
             }
+            
+            // copy marker down
+            next.parse(handle.rawRecord);
+            next.write();
         }
         
-        // copy marker down
-        next.parse(handle.rawRecord);
-        next.write();
         
-        // insert new data ending wil nil
+        // insert new data
         handle.kind = type.kind;
         handle.data = data;
+        handle.chainTSB = nil + nil + nil;
         handle.write();
+        return handle;
     }
     
     function getNextEmptyRecord(tsb, growth) {
@@ -197,13 +253,14 @@ var DeviceDriverFileSystem = function() {
         
         while(handle.kind != BaseType.EMPTY.kind) {
             handle.parse(drive.read(tsb));
+            handle.tsb = tsb;
+            
             tsb = nextTSB(tsb, growth);
             
             if(tsb == undefined)
                 return undefined;
         }
         
-        handle.tsb = nextTSB(tsb, -1*growth);
         return handle;
     }
     
@@ -236,6 +293,22 @@ var DeviceDriverFileSystem = function() {
             newTSB = undefined;
         
         return newTSB;
+    }
+    
+    function nextHandle(handle) {
+        var next = new Handle(drive.read(handle.chainTSB));
+        next.tsb = handle.chainTSB;
+        return next;
+    }
+    
+    function deleteChain(handle) {
+        handle.kind = BaseType.EMPTY.kind;
+        handle.write();
+        
+        if(handle.chainTSB == nil + nil+ nil)
+            return null; // have to return something might find a use for this later
+        else
+            return deleteChain(nextHandle(handle));
     }
     
     //======================================
@@ -328,7 +401,7 @@ var DeviceDriverFileSystem = function() {
         
         // auto fetch file data
         if(handle.chainTSB != nil + nil + nil)
-            this.data = chase(handle.chainTSB);
+            this.data = chase(handle);
         
         Object.defineProperty(this, 'name', {
             writeable       : false,
@@ -340,19 +413,48 @@ var DeviceDriverFileSystem = function() {
         
         this.save = function() {
             
+            var toWrite = this.data;
+            var lastHandle = handle;
+            
+            // while we have more than a block left to write
+            while(toWrite.length > 0) {
+                // grab the next block
+                var block = toWrite.substr(0, BaseType.DATA.blockSize);
+                // store the leftovers
+                toWrite = toWrite.substr(BaseType.DATA.blockSize);
+                
+                // get an empty record for the data
+                var blockHandle = null;
+                if(lastHandle.chainTSB == nil + nil + nil)
+                    blockHandle = getNextEmptyRecord(BaseType.DATA.baseTSB, BaseType.DATA.growth);
+                else
+                    blockHandle = nextHandle(lastHandle);
+                
+                // chain the last handle to this new one
+                lastHandle.chainTSB = blockHandle.tsb;
+                lastHandle.write();
+                
+                lastHandle = allocateRecord(blockHandle, block, BaseType.DATA);
+            }
+            
+            // clean up if we had a longer file than we are writing
+            if(lastHandle.chainTSB != nil + nil + nil)
+                deleteChain(nextHandle(lastHandle));
+            
+            // make sure its the end
+            lastHandle.chainTSB = nil + nil + nil;
+            lastHandle.write();
         }
         
         // auto chain ftw!
-        function chase(tsb) {
-            var raw = drive.read(tsb);
+        function chase(handle) {
             
-            var chainHandle = new Handle(raw);
-            chainHandle.tsb = tsb;
+            var chainHandle = nextHandle(handle);
             
             if(chainHandle.chainTSB == nil + nil + nil)
                 return chainHandle.data;
             else
-                return chainHandle.data + chase(chainHandle.chainTSB);
+                return chainHandle.data + chase(chainHandle);
         }
     }
 }

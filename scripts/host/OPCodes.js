@@ -310,19 +310,4 @@ function OPCodes()
         // send system call
         _KernelInterruptQueue.enqueue(new Interrput(SYSTEMCALL_IRQ, ["FF", _CPU.Xreg, _CPU.Yreg]));
     }
-    
-    //
-    // Helper function to convert int to hex
-    // 
-    function toHex(data)
-    {
-        var hex = data.toString(16);
-        
-        if(hex.length == 1)
-        {
-            hex = "0" + hex;
-        }
-        
-        return hex;
-    }
 }

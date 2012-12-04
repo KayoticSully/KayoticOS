@@ -134,11 +134,13 @@ var Shell = (function()
         // 1. Remove leading and trailing spaces.
         buffer = trim(buffer);
         // 2. Lower-case it.
-        buffer = buffer.toLowerCase();
+        //buffer = buffer.toLowerCase();
+        
         // 3. Separate on spaces so we can determine the command and command-line args, if any.
-        var tempList = buffer.split(" ");
+        var tempList = buffer.match(/\w+|"[\w\s]*"/g);
+        
         // 4. Take the first (zeroth) element and use that as the command.
-        var cmd = tempList.shift();  // Yes, you can do that to an array in Javascript.  See the Queue class.
+        var cmd = tempList.shift().toLowerCase();;  // Yes, you can do that to an array in Javascript.  See the Queue class.
         // 4.1 Remove any left-over spaces.
         cmd = trim(cmd);
         // 4.2 Record it in the return value.
@@ -150,9 +152,11 @@ var Shell = (function()
             var arg = trim(tempList[i]);
             if (arg != "")
             {
-                retVal.args[retVal.args.length] = tempList[i];
+                retVal.args[retVal.args.length] = tempList[i].replace(/["]/g, "");
             }
         }
+        
+        console.log(retVal);
         return retVal;
     }
     
@@ -267,19 +271,12 @@ var Shell = (function()
         sc.function = shellEuthanize;
         this.commandList[sc.command] = sc;
         
-        // blackout
+        /* blackout  removed to make room
         sc = new ShellCommand();
         sc.command = "blackout";
         sc.description = " - Simulates a power failure";
         sc.function = shellPowerFailure;
-        this.commandList[sc.command] = sc;
-        
-        // charw
-        sc = new ShellCommand();
-        sc.command = "charw";
-        sc.description = "<char> - Gets the width of the given character";
-        sc.function = shellCharWidth;
-        this.commandList[sc.command] = sc;
+        this.commandList[sc.command] = sc;*/
         
         // status
         sc = new ShellCommand();
@@ -337,6 +334,48 @@ var Shell = (function()
         sc.command = "running";
         sc.description = " - displays pid's of active processes";
         sc.function = shellRunning;
+        this.commandList[sc.command] = sc;
+        
+        // create <filename> - creates a file on the HDD of the given name
+        sc = new ShellCommand();
+        sc.command = "create";
+        sc.description = " <filename> - creates a file on the HDD of the given name";
+        sc.function = shellFileCreate;
+        this.commandList[sc.command] = sc;
+        
+        // write <filename> <data> - writes <data> to given <filename>
+        sc = new ShellCommand();
+        sc.command = "write";
+        sc.description = " <filename> <data> - writes <data> to given <filename>";
+        sc.function = shellFileWrite;
+        this.commandList[sc.command] = sc;
+        
+        // read <filename> - gets contents of <filename>
+        sc = new ShellCommand();
+        sc.command = "read";
+        sc.description = " <filename> - gets contents of <filename>";
+        sc.function = shellFileRead;
+        this.commandList[sc.command] = sc;
+        
+        // delete <filename> - deletes given file <filename>
+        sc = new ShellCommand();
+        sc.command = "delete";
+        sc.description = " <filename> - deletes given file <filename>";
+        sc.function = shellFileDelete;
+        this.commandList[sc.command] = sc;
+        
+        // format - formats the harddrive
+        sc = new ShellCommand();
+        sc.command = "format";
+        sc.description = " - formats the harddrive";
+        sc.function = shellDriveFormat;
+        this.commandList[sc.command] = sc;
+        
+        // ls - list files
+        sc = new ShellCommand();
+        sc.command = "ls";
+        sc.description = " - lists files";
+        sc.function = shellListFiles;
         this.commandList[sc.command] = sc;
         
         // Display the initial prompt.
@@ -460,6 +499,7 @@ var Shell = (function()
     function shellHelp(args)
     {
         _StdIn.putText("Commands:");
+        
         for (i in _OsShell.commandList)
         {
             _StdIn.advanceLine();
@@ -627,12 +667,6 @@ var Shell = (function()
         clearInterval(hardwareClockID);
     }
     
-    function shellCharWidth(character)
-    {
-        var letter = CanvasTextFunctions.letter(character);
-        _StdIn.putText("Width of " + character + " is " + letter.width);
-    }
-    
     function shellStatus(str)
     {
         var status =  str.join(' ');
@@ -729,6 +763,67 @@ var Shell = (function()
             runningProcesses = "None";
         
         _StdOut.putLine(runningProcesses);
+    }
+    
+    function shellFileCreate(args)
+    {
+        var fileName = args[0];
+        
+        _StdOut.putLine("Creating File " + fileName);
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", fileName)));
+        
+        return { defer : true }
+    }
+    
+    function shellFileDelete(args)
+    {
+        var fileName = args[0];
+        
+        _StdOut.putLine("Deleting File " + fileName);
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("delete", fileName)));
+        
+        return { defer : true }
+    }
+    
+    function shellFileWrite(args)
+    {
+        var fileName = args[0];
+        var fileData = args[1];
+        
+        _StdOut.putLine("Writing To File " + fileName);
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", fileName, encodeToHex(fileData))));
+        
+        return { defer : true }
+    }
+    
+    function shellFileRead(args)
+    {
+        var fileName = args[0];
+        
+        _StdOut.putLine("File " + fileName);
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", fileName)));
+        
+        return { defer : true }
+    }
+    
+    function shellDriveFormat()
+    {
+        _StdOut.putLine("Formatting Drive");
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("format")));
+        
+        return { defer : true }
+    }
+    
+    function shellListFiles()
+    {
+        _StdOut.putLine("Files:");
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("list")));
+        return { defer : true }
     }
     
     return Shell;

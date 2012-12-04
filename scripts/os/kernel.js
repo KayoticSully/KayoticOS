@@ -8,7 +8,7 @@
  |---------------------------------------------------------------------
  | Author(s): Alan G. Labouseur, Ryan Sullivan
  |   Created: 8/?/2012
- |   Updated: 11/4/2012
+ |   Updated: 12/4/2012
  |---------------------------------------------------------------------
  | This code references page numbers in the text book:
  | Operating System Concepts 8th editiion by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
@@ -41,6 +41,11 @@ function krnBootstrap()      // Page 8.
     krnKeyboardDriver = new DeviceDriverKeyboard();     // Construct it.
     krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
     krnTrace(krnKeyboardDriver.status);
+    
+    // Load the File System
+    krnFileSystemDriver = new DeviceDriverFileSystem();
+    krnFileSystemDriver.driverEntry();
+    krnTrace(krnFileSystemDriver.status);
 
     // Load Queues
     _ResidentQ = new Array();
@@ -81,6 +86,7 @@ function krnShutdown()
     _Memory = null;
     _ResidentQ = null;
     krnKeyboardDriver = null;
+    krnFileSystemDriver = null;
     _StdOut = null;
     _StdIn  = null;
     _Console = null;
@@ -162,6 +168,9 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
             krnKeyboardDriver.isr(params);   // Kernel mode device driver
             _StdIn.handleInput();
             break;
+        case FS_IRQ:
+            krnFileSystemDriver.isr(params);
+            break;
         case SYSTEMCALL_IRQ:
             krnHandleSysCall(params);
             break;
@@ -193,9 +202,6 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
                     break;
             }
             break;
-        case FS_IRQ:
-            
-            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq, params);
     }
@@ -209,15 +215,7 @@ function krnLoadProgram()
     
     if(programContents != '')
     {
-        // This pattern should only accept hex pairs.
-        // It actually pulls out the pairs into an array
-        // so there can be any amount of whitespace between pairs.
-        // I figured this may be easier to process later on
-        // when we need to execute the commands one at a time.
-        //
-        var programPattern =  /[\da-fA-F]{2}/g;
-        
-        var instructions = programContents.match(programPattern);
+        var instructions = programContents.match(PROGRAM_PATTERN);
         
         if(programContents == instructions.join(' '))
         {
