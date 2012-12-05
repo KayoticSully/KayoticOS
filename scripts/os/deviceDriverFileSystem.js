@@ -66,6 +66,11 @@ var DeviceDriverFileSystem = function() {
     this.driverEntry = function() {
         this.status = "Loaded";
         drive = new HDD();
+        
+        var MBR = drive.read('000');
+        if(MBR != 'MBR') {
+            format();
+        }
     }
     
     this.isr = function(params) {
