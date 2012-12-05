@@ -140,9 +140,10 @@ var Shell = (function()
         var tempList = buffer.match(/[\w\.\-]+|"[\w\.\-\s]*"/g);
         
         // 4. Take the first (zeroth) element and use that as the command.
-        var cmd = tempList.shift().toLowerCase();;  // Yes, you can do that to an array in Javascript.  See the Queue class.
-        // 4.1 Remove any left-over spaces.
-        cmd = trim(cmd);
+        var cmd = null;
+        if(tempList && tempList.length > 0)
+            var cmd = trim(tempList.shift().toLowerCase());  // Yes, you can do that to an array in Javascript.  See the Queue class.
+            
         // 4.2 Record it in the return value.
         retVal.command = cmd;
         
@@ -439,6 +440,11 @@ var Shell = (function()
             
             _Console.putText(command);
         }
+    }
+    
+    function shellPrintFile(fileName, data) {
+        _StdOut.putLine("File " + fileName);
+        _StdOut.putLine(decodeFromHex(data), true);
     }
     
     //=========================
@@ -778,7 +784,7 @@ var Shell = (function()
         
         _StdOut.putLine("Creating File " + fileName);
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", fileName)));
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", fileName, { printLine : true })));
         
         return { defer : true }
     }
@@ -801,7 +807,7 @@ var Shell = (function()
         
         _StdOut.putLine("Writing To File " + fileName);
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", fileName, encodeToHex(fileData))));
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", fileName, encodeToHex(fileData), { printLine : true })));
         
         return { defer : true }
     }
@@ -810,9 +816,7 @@ var Shell = (function()
     {
         var fileName = args[0];
         
-        _StdOut.putLine("File " + fileName);
-        
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", fileName)));
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", fileName, shellPrintFile)));
         
         return { defer : true }
     }
@@ -834,9 +838,14 @@ var Shell = (function()
         return null;
     }
     
-    function shellListFiles()
+    function shellListFiles(args)
     {
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("list")));
+        var all = false;
+        if(args[0] == '-a') {
+            all = true;
+        }
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("list", { allFiles : all })));
         return { defer : true }
     }
     

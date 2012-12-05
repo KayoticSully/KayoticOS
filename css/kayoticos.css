@@ -32,7 +32,7 @@ footer
 
 #app_wrapper
 {
-	width: 1570px;
+	width: 1600px;
 	padding-top:20px;
 }
 
@@ -96,7 +96,7 @@ audio, embed {
 	width: 649px;
 	padding:2px 0px 3px 0px;
 	background-color: white;
-	margin: 0px 0px 10px 638px;
+	margin: 0px 0px 10px 678px;
 }
 
 #CPUDisplay .PCBField
@@ -109,7 +109,7 @@ audio, embed {
 #stepControls
 {
 	color: #FFFFFF;
-	margin:-36px 0px 0px 1307px;
+	margin:-36px 0px 0px 1347px;
 }
 
 #stepControls > input[type=button]
@@ -178,7 +178,7 @@ audio, embed {
 /* PCB */
 .panes_wrapper > #PCB, .panes_wrapper > #PCB_RQ
 {
-	width: 130px;
+	width: 150px;
 	background-color:#FFFFFF;
 	height:523px;
 	overflow: auto;

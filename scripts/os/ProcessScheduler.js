@@ -93,11 +93,30 @@ var ProcessScheduler = (function(){
         
         this.kill = function(pid)
         {
-            krnTrace("Killing Process " + process.PID);
             var process = _ResidentQ[pid];
+            krnTrace("Killing Process " + process.PID);
             processQ.remove(process);
         }
         
+        this.programInQ = function(pid) {
+            for(var x in processQ.q) {
+                if(x.pid == pid)
+                    return true;
+            }
+            
+            return false;
+        }
+        
+        this.pickSacrifice = function() {
+            // find process that is not already rolled out
+            var index = processQ.getSize() - 1;
+            var last = processQ.q[index--];
+            while(last.Base < 0) {
+                last = processQ.q[index--];
+            }
+            
+            return last;
+        }
     }
     
     return ProcessScheduler;

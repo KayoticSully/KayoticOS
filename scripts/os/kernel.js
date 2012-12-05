@@ -180,8 +180,12 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case HOST_IRQ:
             krnHostISR(params);
             break;
+        case KRN_IRQ:
+            krnISR(params);
+            break;
         case BADOP_IRQ:
             simLog("Bad OP - Killing Program", "Error");
+            console.log("BADOP: " + params);
             _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", _Memory.ActivePID)));
             break;
         default: 
@@ -214,6 +218,18 @@ function krnHostISR(params)
     switch(params[0]) {
         case 'load':
             krnLoadProgram(params[1]);
+            break;
+    }
+}
+
+function krnISR(params)
+{
+    switch(params[0]) {
+        case 'printLine':
+            _StdOut.putLine(params[1], params[2]);
+            break;
+        case 'printHexLine':
+            _StdOut.putLine(decodeFromHex(params[1]), true);
             break;
     }
 }
@@ -304,6 +320,7 @@ function krnExecute()
 
 function krnContextSwitch()
 {
+    console.log("CONTEXT SWITCH LIKE A BOSS");
     krnTrace("Context Switch");
     if(_Memory.ActivePID != null)
     {
@@ -317,13 +334,22 @@ function krnContextSwitch()
         _Mode = 0;
     }
     
+    console.log("RUnning: " + _Scheduler.totalRunning);
+    console.log(_Scheduler.readyQ[0]);
+    
     // get PCB
     if(_Scheduler.totalRunning > 0)
     {
         var process = _Scheduler.getProcess();
-        
-        if(process !== undefined) // make sure PCB is something
-            krnLoadState(process, "running");
+        console.log(process);
+        if(process !== undefined) { // make sure PCB is something
+            if(process.Base == -1) {
+                var fileName = 'p' + process.PID;
+                _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array('read', fileName, _Memory.rollIn)));
+            }
+            else
+                krnLoadState(process, "running");
+        }
         else // Crash system if this ever happens!
             _KernelInterruptQueue.enqueue(new Interrput(EUTHANIZE_IRQ, "PCB is corrupt"));
             
@@ -379,15 +405,15 @@ function krnReadyProgram(PID)
 
 function krnKillProgram(PID)
 {
-    
     // ensure the process you are killing
     // is not running.
     if(_Memory.ActivePID == PID)
     {
-        // I am happily surprised that this works.
-        // I also like that I managed to use a recursively calling interrupt
+        //> I am happily surprised that this works.
+        //> I also like that I managed to use a recursively calling interrupt
+        // WHAT THE HELL WERE YOUR THINKING THIS WAS A HORRIBLE IDEA
         _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
-        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", pid)));
+        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", PID)));
     }
     
     _Scheduler.kill(PID);

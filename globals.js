@@ -31,6 +31,7 @@ var SYSTEMCALL_IRQ = 2;
 var HOST_IRQ = 3;
 var PROGRAM_IRQ = 4;
 var FS_IRQ = 5;
+var KRN_IRQ = 6;
 var EUTHANIZE_IRQ = 24;
 var BADOP_IRQ = 25;
 

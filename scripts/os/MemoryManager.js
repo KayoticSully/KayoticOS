@@ -19,34 +19,73 @@ var MemoryManager = (function(){
     {
         // prepare Memory Manager
         for(var slot = 0; slot < PROGRAMS_ALLOWED; slot++)
-            slots[slot] = 0;
+            slots[slot] = -1;
         
         this.ActivePID = null;
         this.Base = null;
         this.Limit = null;
+        
         //------------------------------------
         // Memory Manager Instance Functions
         //------------------------------------
         this.loadProgram = function(instructionArray, priority)
         {
-            //
-            // Once we are dealing with more than one process
-            // need to figure out PC Offset here
-            //
             var slot = getFreeSlot();
+            // auto(bots) rollout if we have no space
+            var sacrificialPCB = null;
+            if(slot === false)
+            {
+                if(_Scheduler.readyQ.length + 1< PROGRAMS_ALLOWED) {
+                    for(var slot in slots) {
+                        var pid = slots[slot];
+                        if(pid != _Memory.ActivePID && !_Scheduler.programInQ(pid))
+                        {
+                            sacrificialPCB = _ResidentQ[pid];
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    sacrificialPCB = _Scheduler.pickSacrifice();
+                }
+                
+                
+                if(! (sacrificialPCB instanceof PCB)) {
+                    slot = sacrificialPCB;
+                    sacrificialPCB = _ResidentQ[slots[slot]];
+                }
+                
+                // get slot to compute memory locations for replacement
+                slot = sacrificialPCB.Base / PROGRAM_SIZE;
+                
+                // Autobots...
+                rollOut(sacrificialPCB);
+            }
             
-            var PID = _ResidentQ.length;
+            var newPCB = null;
+            var base = slot * PROGRAM_SIZE;
             
-            var newPCB = new PCB(PID, slot * PROGRAM_SIZE, priority);
-            
-            _ResidentQ.push(newPCB);
+            if(priority instanceof PCB)
+            {
+                newPCB = priority;
+                newPCB.updateMemoryFrame(base);
+                krnLoadState(newPCB);
+            }
+            else
+            {
+                var PID = _ResidentQ.length;
+                newPCB = new PCB(PID, base, priority);
+                _ResidentQ.push(newPCB);
+            }
             
             for(var instruction in instructionArray)
             {
                 this.store(instruction, instructionArray[instruction], newPCB);
             }
             
-            return PID;
+            slots[slot] = newPCB.PID;
+            return newPCB.PID;
         }
         
         this.store = function(location, value, pcb)
@@ -74,20 +113,60 @@ var MemoryManager = (function(){
             }
         }
         
-        this.get = function(location)
+        this.get = function(location, pcb)
         {
-            var physicalLocation = parseInt(location) + this.Base;
+            var memBase = this.Base;
+            var memLimit = this.Limit;
             
-            if(physicalLocation >= this.Base && physicalLocation <= this.Limit)
+            if(pcb !== undefined)
+            {
+                memBase = pcb.Base;
+                memLimit = pcb.Limit;
+            }
+            
+            var physicalLocation = parseInt(location) + memBase;
+            
+            if(physicalLocation >= memBase && physicalLocation <= memLimit)
             {
                 return _RAM.get(physicalLocation);
             }
             else
             {
-                errorTrace("MEM Access Violation on GET @" + physicalLocation + " from " + location  + " B:" + this.Base + " L:" + this.Limit);
+                errorTrace("MEM Access Violation on GET @" + physicalLocation + " from " + location  + " B:" + memBase + " L:" + memLimit);
                 _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", this.ActivePID)));
                 return null;
             }
+        }
+        
+        this.rollIn = function(fileName, fileData) {
+            var pid = parseInt(fileName.replace('p', ''));
+            var pcb = _ResidentQ[pid];
+            
+            var instructions = fileData.match(PROGRAM_PATTERN);
+            
+            _Memory.loadProgram(instructions, pcb);
+            
+            _CPU.isExecuting = true;
+        }
+        
+        function rollOut(PCB) {
+            
+            _CPU.isExecuting = false;
+            
+            var swapData = "";
+            for(var location = 0; location < PROGRAM_SIZE; location++) {
+                var dat = _Memory.get(location, PCB);
+                // get data at memory location in the context of the program
+                swapData += dat;
+            }
+            
+            var fileName = "p" + PCB.PID;
+            
+            // make sure file handle is created
+            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", fileName, { mode : 'system_file'})));
+            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", fileName, swapData)));
+            PCB.Base = -1;
+            PCB.Limit = -1;
         }
     }
     
@@ -95,9 +174,9 @@ var MemoryManager = (function(){
     {
         for(slot = 0; slot < slots.length; slot++)
         {
-            if(slots[slot] == 0)
+            if(slots[slot] == -1)
             {
-                slots[slot] = 1;
+                slots[slot] = -2;
                 return slot;
             }
         }

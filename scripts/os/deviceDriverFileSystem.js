@@ -29,7 +29,7 @@ var DeviceDriverFileSystem = function() {
         
         DATA : {
             kind        : 1,
-            mark        : 2, // I don't think I need this, but I will leave what I have implemented so far of it just in case
+           // mark        : 2, // I don't think I need this, but I will leave what I have implemented so far of it just in case
             baseTSB     : "777",
             growth      : -1,
             blockSize  : 123
@@ -49,6 +49,11 @@ var DeviceDriverFileSystem = function() {
             kind    : 3,
         }),
         
+        SYSTEM_FILE : extend( BaseType.STRUCTURE,
+        {
+            kind    : 2,
+        }),
+        
         DIRECTORY : extend( BaseType.STRUCTURE,
         {
             kind    : 4,
@@ -66,18 +71,36 @@ var DeviceDriverFileSystem = function() {
     this.isr = function(params) {
         switch (params[0]) {
             case "write":
+                var options = {};
+                if(params.length > 3) {
+                    options = params[3];
+                }
+                
                 console.log(writeFile(params[1], params[2]));
-                _StdOut.putLine("File " + params[1] + " successfully written.", true);
+                
+                if(options.hasOwnProperty('printLine'))
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "File " + params[1] + " successfully written.", true)));
             break;
             
             case "read":
                 var file = readFile(params[1]);
-                _StdOut.putLine(decodeFromHex(file.data), true);
+                params[2](file.name, file.data); // find a way to turn this into an interrupt
             break;
             
             case "create":
-                console.log(createFile(params[1]));
-                _StdOut.putLine("File " + params[1] + " successfully created.", true);
+                // not super clean but it works
+                var options = {};
+                if(params.length > 2)
+                    options = params[2];
+                
+                var mode = 'file';
+                if(options.hasOwnProperty('mode'))
+                    mode = options.mode;
+                
+                console.log(createFile(params[1], mode));
+                
+                if(options.hasOwnProperty('printLine'))
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "File " + params[1] + " successfully written.", true)));
             break;
             
             case "delete":
@@ -91,12 +114,12 @@ var DeviceDriverFileSystem = function() {
             break;
             
             case "list":
-                var fileList = getFiles();
+                var fileList = getFiles(params[1]);
                 
                 for(file in fileList)
-                    _StdOut.putLine("  " + fileList[file]);
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "  " + fileList[file], false)));
                 
-                _StdOut.putLine("", true);
+                _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "", true)));
             break;
         }
     }
@@ -127,7 +150,12 @@ var DeviceDriverFileSystem = function() {
             return new File(handle);
     }
     
-    function getFiles(dirName) {
+    function getFiles(options) {
+        
+        var opts = extend(options, {
+            allFiles    :   false
+        });
+        
         var handle = new Handle();
         var tsb = BaseType.STRUCTURE.baseTSB;
         
@@ -137,6 +165,8 @@ var DeviceDriverFileSystem = function() {
             
             if(handle.kind == Type.FILE.kind)
                 files.push(handle.data);
+            else if(opts.allFiles && handle.kind == Type.SYSTEM_FILE.kind)
+                files.push(handle.data);
             
             tsb = nextTSB(tsb, BaseType.STRUCTURE.growth);
         }
@@ -144,9 +174,22 @@ var DeviceDriverFileSystem = function() {
         return files;
     }
     
-    function createFile(fileName) {
+    function createFile(fileName, mode) {
+        
+        var type = null;
+        switch(mode) {
+            case 'file' :
+                type = Type.FILE;
+            break;
+            
+            case 'system_file':
+                type = Type.SYSTEM_FILE;
+            break;
+        }
+        
         // get free file handle
         var firstEmpty = getHandle();
+        
         // make sure file does not already exist
         var handle = getHandle(fileName);
         
@@ -155,7 +198,7 @@ var DeviceDriverFileSystem = function() {
         } else {
             // we have an empty file marker
             // lets try to allocate some space
-            return allocateRecord(firstEmpty, fileName, Type.FILE);
+            return allocateRecord(firstEmpty, fileName, type);
         }
     }
     
@@ -225,7 +268,7 @@ var DeviceDriverFileSystem = function() {
     function allocateRecord(handle, data, type){
         
         // get next open handle slot if we are at a marker
-        if(handle.kind == BaseType.STRUCTURE.mark || handle.kind == BaseType.DATA.mark) {
+        if(handle.kind == BaseType.STRUCTURE.mark) { // || handle.kind == BaseType.DATA.mark) {
             var next = getNextEmptyRecord(handle.tsb, type.growth);
             
             if(next == undefined) {

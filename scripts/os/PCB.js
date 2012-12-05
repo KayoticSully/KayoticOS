@@ -27,6 +27,11 @@ var PCB = (function(){
         this.Yreg   = 0;     // Y register
         this.Zflag  = 0;     // Z-ero flag (Think of it as "isZero".)
         this.state  = "new"  // program state
+        
+        this.updateMemoryFrame = function(base) {
+            this.Base   = base;
+            this.Limit  = base + PROGRAM_SIZE - 1;
+        }
     }
     
     return PCB;

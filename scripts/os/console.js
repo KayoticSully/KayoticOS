@@ -92,7 +92,6 @@ function consoleHandleInput()
     }
 }
 
-
 function consolePutLine(txt, prompt, color) 
 {
     // Shortcut function that advances the line after putting text.
