@@ -32,7 +32,7 @@ footer
 
 #app_wrapper
 {
-	width: 1510px;
+	width: 1570px;
 	padding-top:20px;
 }
 
@@ -90,13 +90,13 @@ audio, embed {
 	overflow: auto;
 }
 
-/* PCB */
+/* CPU */
 #CPUDisplay
 {
 	width: 649px;
 	padding:2px 0px 3px 0px;
 	background-color: white;
-	margin: 0px 0px 10px 587px;
+	margin: 0px 0px 10px 638px;
 }
 
 #CPUDisplay .PCBField
@@ -109,7 +109,7 @@ audio, embed {
 #stepControls
 {
 	color: #FFFFFF;
-	margin:-36px 0px 0px 1256px;
+	margin:-36px 0px 0px 1307px;
 }
 
 #stepControls > input[type=button]
@@ -124,7 +124,7 @@ audio, embed {
 	font-family: "Consolas", sans-serif;
 	font-size: 15px;
 	line-height: 16px;
-	width: 335px;
+	width: 325px;
 	padding:4px 5px;
 	background-color:#FFFFFF;
 	height:515px;
@@ -176,24 +176,38 @@ audio, embed {
 }
 
 /* PCB */
-.panes_wrapper > #PCB
+.panes_wrapper > #PCB, .panes_wrapper > #PCB_RQ
 {
-	width: 210px;
+	width: 130px;
 	background-color:#FFFFFF;
 	height:523px;
 	overflow: auto;
 }
 
-.panes_wrapper > #PCB > .pcbObject {
+.pcbObject {
 	background-color: #F0F0F0;
 	border-bottom: 1px solid #000000;
-	padding:10px 5px;
+	padding:10px 0px;
 	text-align: center;
 }
 
-.panes_wrapper > #PCB > .pcbObject > .PID {
+.pcbObject > .PID {
 	font-size: 18px;
 	padding:3px 0px;
+}
+
+.pcbObject > .property > .name {
+	display: inline-block;
+	font-weight: bold;
+	width:50px;
+	text-align: right;
+	margin-right: 5px;
+}
+
+.pcbObject > .property > .value {
+	display: inline-block;
+	width:75px;
+	text-align: left;
 }
 
 .log_msg

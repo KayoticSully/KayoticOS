@@ -200,20 +200,20 @@ function programLoadContents()
 function controlUpdateDisplay()
 {
 	_RAM.display();
-	updatePCB();
+	updatePCB(_Scheduler.readyQ, '#PCB');
+	updatePCB(_ResidentQ, '#PCB_RQ');
 	updateCPU();
 }
 
-function updatePCB()
+function updatePCB(queue, element)
 {
 	var str = '';
-	var queue = _Scheduler.readyQ;
 	for(var pcb in queue)
 	{
 		str += queue[pcb];
 	}
 	
-	$('#PCB').html(str);
+	$(element).html(str);
 }
 
 function updateCPU()

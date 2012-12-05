@@ -14,11 +14,12 @@
 
 var PCB = (function(){
     
-    function PCB(PID, Base)
+    function PCB(PID, Base, priority)
     {
         this.PID    = PID;   // Program ID
         this.Base   = Base;
         this.Limit  = Base + PROGRAM_SIZE - 1;
+        this.priority = priority | 1; // default to 1
         
         this.PC     = 0;     // Program Counter
         this.Acc    = 0;     // Accumulator
@@ -34,21 +35,60 @@ var PCB = (function(){
 PCB.prototype.toString = function()
 {
     var str = '<div class="pcbObject">' +
-                    '<div class="PID">' +
-                        '<strong>PID:</strong>' + this.PID +
+                    '<div class="property">' +
+                        '<div class="name">' +
+                            'PID:' +
+                        '</div>' +
+                        '<div class="value">' +
+                            this.PID + "&nbsp(" + this.priority + ")" +
+                        '</div>' +
                     '</div>' +
-                    '<div class="Data">' +
-                        '<div>' +
-                            '<strong>PC:</strong>' + '<span class="PCBField">&nbsp;' + toPettyHex(this.PC) + '</span>&nbsp;&nbsp;' +
-                            '<strong>ACC:</strong>' + '<span class="PCBField">&nbsp;' + toPettyHex(this.Acc, 2) + '</span>' +
+                    '<div class="property">' +
+                        '<div class="name">' +
+                            'PC:' +
                         '</div>' +
-                        '<div>' +
-                            '<strong>X:</strong>' + '<span class="PCBField">&nbsp;' + toPettyHex(this.Xreg, 2) + '</span>&nbsp;&nbsp;' +
-                            '<strong>Y:</strong>' + '<span class="PCBField">&nbsp;' + toPettyHex(this.Yreg, 2) + '</span>&nbsp;&nbsp;' +
-                            '<strong>Z:</strong>' + '<span class="PCBField">&nbsp;' + toPettyHex(this.Zflag, 2) + '</span>&nbsp;&nbsp;' +
+                        '<div class="value">' +
+                            toPettyHex(this.PC) +
                         '</div>' +
-                        '<div>' +
-                            '<strong>State:</strong>' + '<span class="PCBField">&nbsp;' + this.state + '</span>&nbsp;&nbsp;' +
+                    '</div>' +
+                    '<div class="property">' +
+                        '<div class="name">' +
+                            'ACC:' +
+                        '</div>' +
+                        '<div class="value">' +
+                            toPettyHex(this.Acc, 2) +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="property">' +
+                        '<div class="name">' +
+                            'X:' +
+                        '</div>' +
+                        '<div class="value">' +
+                            toPettyHex(this.Xreg, 2) +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="property">' +
+                        '<div class="name">' +
+                            'Y:' +
+                        '</div>' +
+                        '<div class="value">' +
+                            toPettyHex(this.Yreg, 2) +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="property">' +
+                        '<div class="name">' +
+                            'Z:' +
+                        '</div>' +
+                        '<div class="value">' +
+                            toPettyHex(this.Zflag, 2) +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="property">' +
+                        '<div class="name">' +
+                            'State:' +
+                        '</div>' +
+                        '<div class="value">' +
+                            this.state +
                         '</div>' +
                     '</div>' +
                 '</div>';

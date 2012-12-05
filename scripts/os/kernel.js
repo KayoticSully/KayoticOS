@@ -175,32 +175,14 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
             krnHandleSysCall(params);
             break;
         case PROGRAM_IRQ:
-            switch (params[0]) {
-                case "ready":
-                    krnReadyProgram(params[1]);
-                    break;
-                case "execute":
-                    krnExecute();
-                    break;
-                case "context-switch":
-                    krnContextSwitch();
-                    break;
-                case "kill":
-                    krnKillProgram(params[1]);
-                    break;
-            }
+            krnProgramISR(params);
+            break;
+        case HOST_IRQ:
+            krnHostISR(params);
             break;
         case BADOP_IRQ:
             simLog("Bad OP - Killing Program", "Error");
             _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", _Memory.ActivePID)));
-            break;
-        case HOST_IRQ:
-            switch(params)
-            {
-                case 'load':
-                    krnLoadProgram();
-                    break;
-            }
             break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq, params);
@@ -209,7 +191,34 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
     // 3. Restore the saved state.  TODO: Question: Should we restore the state via IRET in the ISR instead of here? p560.
 }
 
-function krnLoadProgram()
+function krnProgramISR(params)
+{
+    switch (params[0]) {
+        case "ready":
+            krnReadyProgram(params[1]);
+            break;
+        case "execute":
+            krnExecute();
+            break;
+        case "context-switch":
+            krnContextSwitch();
+            break;
+        case "kill":
+            krnKillProgram(params[1]);
+            break;
+    }
+}
+
+function krnHostISR(params)
+{
+    switch(params[0]) {
+        case 'load':
+            krnLoadProgram(params[1]);
+            break;
+    }
+}
+
+function krnLoadProgram(priority)
 {
     var programContents = trim(programLoadContents());
     
@@ -219,7 +228,7 @@ function krnLoadProgram()
         
         if(programContents == instructions.join(' '))
         {
-            var PID = _Memory.loadProgram(instructions);
+            var PID = _Memory.loadProgram(instructions, priority);
             
             // Print Acknowledgement 
             _StdOut.putLine("Your specimen has been processed and now we are ready");

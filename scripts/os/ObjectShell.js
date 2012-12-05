@@ -137,7 +137,7 @@ var Shell = (function()
         //buffer = buffer.toLowerCase();
         
         // 3. Separate on spaces so we can determine the command and command-line args, if any.
-        var tempList = buffer.match(/\w+|"[\w\s]*"/g);
+        var tempList = buffer.match(/[\w\.\-]+|"[\w\.\-\s]*"/g);
         
         // 4. Take the first (zeroth) element and use that as the command.
         var cmd = tempList.shift().toLowerCase();;  // Yes, you can do that to an array in Javascript.  See the Queue class.
@@ -156,7 +156,6 @@ var Shell = (function()
             }
         }
         
-        console.log(retVal);
         return retVal;
     }
     
@@ -267,7 +266,7 @@ var Shell = (function()
         // euthanize
         sc = new ShellCommand();
         sc.command = "euthanize";
-        sc.description = " - Warms up the neurotoxin emitters";
+        sc.description = "- Warms up the neurotoxin emitters";
         sc.function = shellEuthanize;
         this.commandList[sc.command] = sc;
         
@@ -288,7 +287,7 @@ var Shell = (function()
         // load-program
         sc = new ShellCommand();
         sc.command = "load-program";
-        sc.description = " - Loads a program from the User Program Entry field";
+        sc.description = "- Loads a program from the User Program Entry field";
         sc.function = loadProgram;
         this.commandList[sc.command] = sc;
         
@@ -302,7 +301,7 @@ var Shell = (function()
         // history
         sc = new ShellCommand();
         sc.command = "history";
-        sc.description = " - Displays command history";
+        sc.description = "- Displays command history";
         sc.function = shellHistory;
         this.commandList[sc.command] = sc;
         
@@ -311,71 +310,78 @@ var Shell = (function()
         // kill <id> - kills the specified process id.
         sc = new ShellCommand();
         sc.command = "kill";
-        sc.description = " <id> - kills the specified process id";
+        sc.description = "<id> - kills the specified process id";
         sc.function = shellKill;
         this.commandList[sc.command] = sc;
         
         // quantum <num> - sets quantum clock ticks
         sc = new ShellCommand();
         sc.command = "quantum";
-        sc.description = " - returns current quantum | <num> - sets quantum clock ticks";
+        sc.description = "- returns current quantum | <num> - sets quantum clock ticks";
         sc.function = shellQuantum;
         this.commandList[sc.command] = sc;
         
         // processes - displays all process information
         sc = new ShellCommand();
         sc.command = "processes";
-        sc.description = " - displays all process information";
+        sc.description = "- displays all process information";
         sc.function = shellProcesses;
         this.commandList[sc.command] = sc;
         
         // running - displays pid's of active processes
         sc = new ShellCommand();
         sc.command = "running";
-        sc.description = " - displays pid's of active processes";
+        sc.description = "- displays pid's of active processes";
         sc.function = shellRunning;
         this.commandList[sc.command] = sc;
         
         // create <filename> - creates a file on the HDD of the given name
         sc = new ShellCommand();
         sc.command = "create";
-        sc.description = " <filename> - creates a file on the HDD of the given name";
+        sc.description = "<filename> - creates a file on the HDD of the given name";
         sc.function = shellFileCreate;
         this.commandList[sc.command] = sc;
         
         // write <filename> <data> - writes <data> to given <filename>
         sc = new ShellCommand();
         sc.command = "write";
-        sc.description = " <filename> <data> - writes <data> to given <filename>";
+        sc.description = "<filename> <data> - writes <data> to given <filename>";
         sc.function = shellFileWrite;
         this.commandList[sc.command] = sc;
         
         // read <filename> - gets contents of <filename>
         sc = new ShellCommand();
         sc.command = "read";
-        sc.description = " <filename> - gets contents of <filename>";
+        sc.description = "<filename> - gets contents of <filename>";
         sc.function = shellFileRead;
         this.commandList[sc.command] = sc;
         
         // delete <filename> - deletes given file <filename>
         sc = new ShellCommand();
         sc.command = "delete";
-        sc.description = " <filename> - deletes given file <filename>";
+        sc.description = "<filename> - deletes given file <filename>";
         sc.function = shellFileDelete;
         this.commandList[sc.command] = sc;
         
         // format - formats the harddrive
         sc = new ShellCommand();
         sc.command = "format";
-        sc.description = " - formats the harddrive";
+        sc.description = "my ENTIRE drive - formats the harddrive";
         sc.function = shellDriveFormat;
         this.commandList[sc.command] = sc;
         
         // ls - list files
         sc = new ShellCommand();
         sc.command = "ls";
-        sc.description = " - lists files";
+        sc.description = "- lists files";
         sc.function = shellListFiles;
+        this.commandList[sc.command] = sc;
+        
+        // cpu-scheduler
+        sc = new ShellCommand();
+        sc.command = "cpu-scheduler";
+        sc.description = "<[rr|fcfs|priority]> - gets or sets cpu scheduling algorithm";
+        sc.function = shellCpuScheduling;
         this.commandList[sc.command] = sc;
         
         // Display the initial prompt.
@@ -503,7 +509,8 @@ var Shell = (function()
         for (i in _OsShell.commandList)
         {
             _StdIn.advanceLine();
-            _StdIn.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+            _StdIn.putText("  " + _OsShell.commandList[i].command, "#FFFFFF");
+            _StdIn.putText(" " + _OsShell.commandList[i].description);
         }    
     }
     
@@ -674,9 +681,9 @@ var Shell = (function()
         _StdOut.putText("Status set to " + status);
     }
     
-    function loadProgram()
+    function loadProgram(args)
     {
-        _KernelInterruptQueue.enqueue(new Interrput(HOST_IRQ, "load"));
+        _KernelInterruptQueue.enqueue(new Interrput(HOST_IRQ, new Array("load", args[0])));
         return { defer : true };
     }
     
@@ -810,20 +817,42 @@ var Shell = (function()
         return { defer : true }
     }
     
-    function shellDriveFormat()
+    function shellDriveFormat(args)
     {
-        _StdOut.putLine("Formatting Drive");
+        if(args[0] == "my" && args[1] == "ENTIRE" && args[2] == "drive") {
+            _StdOut.putLine("Formatting Drive");
+            
+            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("format")));
+            
+            return { defer : true }
+        }
+        else
+        {
+            _StdOut.putText("Say the magic words...");
+        }
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("format")));
-        
-        return { defer : true }
+        return null;
     }
     
     function shellListFiles()
     {
-        _StdOut.putLine("Files:");
         _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("list")));
         return { defer : true }
+    }
+    
+    function shellCpuScheduling(args) {
+        
+        var message = "";
+        if(args.length == 0) {
+            message = "Current Algorithm: " + _Scheduler.algo;
+        } else if(args[0] == 'rr' || args[0] == 'fcfs' || args[0] == 'priority') {
+            _Scheduler.algo = args[0];
+            message = "Algorithm Set To: " + _Scheduler.algo;
+        } else {
+            message = "Invalid Input.  Command syntax: cpu-scheduler <[rr|fcfs|priority]>";
+        }
+        
+        _StdOut.putText(message);
     }
     
     return Shell;

@@ -425,16 +425,19 @@ var DeviceDriverFileSystem = function() {
                 
                 // get an empty record for the data
                 var blockHandle = null;
-                if(lastHandle.chainTSB == nil + nil + nil)
+                if(lastHandle.chainTSB == nil + nil + nil) {
                     blockHandle = getNextEmptyRecord(BaseType.DATA.baseTSB, BaseType.DATA.growth);
-                else
+                    blockHandle = allocateRecord(blockHandle, block, BaseType.DATA);
+                } else {
                     blockHandle = nextHandle(lastHandle);
+                    blockHandle.write();
+                }
                 
                 // chain the last handle to this new one
                 lastHandle.chainTSB = blockHandle.tsb;
                 lastHandle.write();
                 
-                lastHandle = allocateRecord(blockHandle, block, BaseType.DATA);
+                lastHandle = blockHandle;
             }
             
             // clean up if we had a longer file than we are writing

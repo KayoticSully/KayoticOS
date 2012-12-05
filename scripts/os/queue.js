@@ -11,8 +11,7 @@
  |   Updated: 9/6/2012
  */
    
-function Queue()
-{
+function Queue() {
     // Properties
     this.q = new Array();
 
@@ -30,6 +29,22 @@ function Queue()
     this.enqueue  = function(element)
     {
         this.q.push(element);
+    }
+    
+    this.priorityEnqueue = function(element) // element MUST have a priority property
+    {
+        var inserted = false;
+        for(var qElement in this.q) {
+            if(element.priority < this.q[qElement].priority) {
+                this.q.splice(qElement, 0, element);
+                inserted = true;
+                break;
+            }
+        }
+        
+        if(!inserted) {
+            this.enqueue(element);
+        }
     }
     
     this.dequeue  = function()

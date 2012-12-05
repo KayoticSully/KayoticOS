@@ -27,7 +27,7 @@ var MemoryManager = (function(){
         //------------------------------------
         // Memory Manager Instance Functions
         //------------------------------------
-        this.loadProgram = function(instructionArray)
+        this.loadProgram = function(instructionArray, priority)
         {
             //
             // Once we are dealing with more than one process
@@ -37,7 +37,7 @@ var MemoryManager = (function(){
             
             var PID = _ResidentQ.length;
             
-            var newPCB = new PCB(PID, slot * PROGRAM_SIZE);
+            var newPCB = new PCB(PID, slot * PROGRAM_SIZE, priority);
             
             _ResidentQ.push(newPCB);
             

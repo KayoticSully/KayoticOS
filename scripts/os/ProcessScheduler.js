@@ -14,8 +14,9 @@
 var ProcessScheduler = (function(){
     
     var processTicks    = 0;
-    var processQ = new Queue();
+    var processQ        = new Queue();
     var sys_quantum     = 6; // not of solace
+    var scheduling_algo = 'rr';
     
     function ProcessScheduler()
     {
@@ -48,6 +49,17 @@ var ProcessScheduler = (function(){
             }
         });
         
+        Object.defineProperty(this, "algo", {
+            writeable   :   true,
+            enumerable  :   false,
+            get         :   function() {
+                return scheduling_algo;
+            },
+            set         :   function(value) {
+                scheduling_algo = value;
+            }
+        });
+        
         this.tick = function()
         {
             // there may be something strange going on with this.
@@ -57,7 +69,7 @@ var ProcessScheduler = (function(){
             
             processTicks++;
             // only schedule if more than one process
-            if(processTicks % sys_quantum == 0 && processQ.q.length > 0)
+            if(this.algo == "rr" && processTicks % sys_quantum == 0 && processQ.q.length > 0)
             {
                 _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch")));
             }
@@ -67,7 +79,11 @@ var ProcessScheduler = (function(){
         {
             // put into process q
             krnTrace("Scheduling Process " + process.PID);
-            processQ.enqueue(process);
+            if(this.algo == "priority") {
+                processQ.priorityEnqueue(process);
+            } else {
+                processQ.enqueue(process);
+            }
         }
         
         this.getProcess = function()
