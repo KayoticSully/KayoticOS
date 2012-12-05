@@ -7,7 +7,7 @@
  |---------------------------------------------------------------------
  | Author(s): Ryan Sullivan
  |   Created: 12/2/2012
- |   Updated: 12/4/2012
+ |   Updated: 12/5/2012
  |---------------------------------------------------------------------
  */
 
@@ -69,50 +69,96 @@ var DeviceDriverFileSystem = function() {
     }
     
     this.isr = function(params) {
+        
+        var options = { printLine : false };
+        
         switch (params[0]) {
+            // Write to data to file
             case "write":
-                var options = {};
-                if(params.length > 3) {
-                    options = params[3];
+                options.mode = 'file';
+                if(params.length > 3)
+                    options = extend(params[3], options);
+                    
+                var message = "File " + params[1] + " successfully written.";
+                try {
+                    console.log(writeFile(params[1], params[2], options));
+                } catch (error) {
+                    message = error.message;
                 }
                 
-                console.log(writeFile(params[1], params[2]));
-                
-                if(options.hasOwnProperty('printLine'))
-                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "File " + params[1] + " successfully written.", true)));
+                if(options.printLine)
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", message, true)));
             break;
             
+            // read data from file
             case "read":
-                var file = readFile(params[1]);
-                params[2](file.name, file.data); // find a way to turn this into an interrupt
-            break;
-            
-            case "create":
-                // not super clean but it works
-                var options = {};
+                options.rollIn = false;
+                options.mode = 'file';
                 if(params.length > 2)
-                    options = params[2];
-                
-                var mode = 'file';
-                if(options.hasOwnProperty('mode'))
-                    mode = options.mode;
-                
-                console.log(createFile(params[1], mode));
-                
-                if(options.hasOwnProperty('printLine'))
-                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "File " + params[1] + " successfully written.", true)));
+                    options = extend(params[2], options);
+                    
+                var message = null;
+                var file = null;
+                try {
+                    file = readFile(params[1], options);
+                } catch (error) {
+                    message = error.message;
+                }
+                console.log(file);
+                if(options.rollIn)
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("rollIn", file.name, file.data)));
+                else if(message != null)
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", message, true)));
+                else
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printHexLine", file.data, true)));
             break;
             
+            // crate new file
+            case "create":
+                options.mode = 'file';
+                if(params.length > 2)
+                    options = extend(params[2], options);
+                
+                var message = "File " + params[1] + " successfully created.";
+                try {
+                    console.log(createFile(params[1], options.mode));
+                } catch(error) {
+                    message = error.message;
+                }
+                
+                if(options.printLine)
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", message, true)));
+            break;
+            
+            // delete existing file
             case "delete":
-                console.log(deleteFile(params[1]));
-                _StdOut.putLine("File " + params[1] + " successfully deleted.", true);
+                if(params.length > 3)
+                    options = extend(params[3], options);
+                
+                var message = "File " + params[1] + " successfully deleted.";
+                try {
+                    console.log(deleteFile(params[1]));
+                } catch (error) {
+                    message = error.message;
+                }
+                
+                if(options.printLine)
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", message, true)));
             break;
             
+            // format the entire drive
             case "format":
+                if(params.length > 1)
+                    options = extend(params[1], options);
+                
                 format();
-                _StdOut.putLine("Format Complete!", true);
+                
+                // I cant think of any errors here, so when we want output it will always be Formay Complete!
+                if(options.printLine)
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "Format Complete!", true)));
             break;
             
+            // list files from the drive
             case "list":
                 var fileList = getFiles(params[1]);
                 
@@ -127,12 +173,28 @@ var DeviceDriverFileSystem = function() {
     //========================================
     // Drive Operations
     //========================================
-    function writeFile(fileName, data) {
+    function writeFile(fileName, data, options) {
+        // get the correct file type
+        var type = null;
+        switch(options.mode) {
+            case 'file' :
+                type = Type.FILE;
+            break;
+            
+            case 'system_file':
+                type = Type.SYSTEM_FILE;
+            break;
+        }
+        
         var handle = getHandle(fileName);
         
         // if we didn't find the file
-        if(handle.kind != Type.FILE.kind)
-            return null;
+        if(handle.kind != type.kind) {
+            if(handle.kind == BaseType.STRUCTURE.mark)
+                throw { message : "File does not exist." }
+            else
+                throw { message : "Can't write to that file." }
+        }
         else {
             var fileObject = new File(handle);
             fileObject.data = data;
@@ -141,11 +203,30 @@ var DeviceDriverFileSystem = function() {
         }
     }
     
-    function readFile(fileName) {
+    function readFile(fileName, options) {
+        console.log("read file " + fileName + " " + options);
+        // get the correct file type
+        var type = null;
+        switch(options.mode) {
+            case 'file' :
+                type = Type.FILE;
+            break;
+            
+            case 'system_file':
+                type = Type.SYSTEM_FILE;
+            break;
+        }
+        
+        console.log(type);
+        
         var handle = getHandle(fileName);
-
-        if(handle.kind != Type.FILE.kind)
-            return null;
+        console.log(handle);
+        if(handle.kind != type.kind) {
+            if(handle.kind == BaseType.STRUCTURE.mark)
+                throw { message : "File does not exist." }
+            else
+                throw { message : "Can't read that file." }
+        }
         else
             return new File(handle);
     }
@@ -166,7 +247,7 @@ var DeviceDriverFileSystem = function() {
             if(handle.kind == Type.FILE.kind)
                 files.push(handle.data);
             else if(opts.allFiles && handle.kind == Type.SYSTEM_FILE.kind)
-                files.push(handle.data);
+                files.push('~' + handle.data);
             
             tsb = nextTSB(tsb, BaseType.STRUCTURE.growth);
         }
@@ -176,6 +257,7 @@ var DeviceDriverFileSystem = function() {
     
     function createFile(fileName, mode) {
         
+        // get the correct file type
         var type = null;
         switch(mode) {
             case 'file' :
@@ -194,7 +276,11 @@ var DeviceDriverFileSystem = function() {
         var handle = getHandle(fileName);
         
         if(handle.kind != BaseType.STRUCTURE.mark) {
-            return null;// error file name already exists
+            if(handle.kind == Type.SYSTEM_FILE) {
+                throw { message : "Can't overwrite system file." }
+            } else {
+                throw { message : "File already exists." }
+            }
         } else {
             // we have an empty file marker
             // lets try to allocate some space
@@ -206,20 +292,26 @@ var DeviceDriverFileSystem = function() {
         var handle = getHandle(fileName);
         
         if(handle.kind != Type.FILE.kind)
-            return null;
+            if(handle.kind == BaseType.STRUCTURE.mark)
+                throw { message : "File does not exist." }
+            else if(handle.kind == Type.SYSTEM_FILE)
+                throw { message : "Can't delete a system file." }
+            else
+                throw { message : "Can't delete that file." }
         else
             return deleteChain(handle);
     }
     
+    // wishfull thinking
     function createDir(dirName) {
         
     }
     
+    // wishfull thinking
     function deleteDir(dirName) {
         
     }
     
-    // TODO make private
     function format() {
         // set MBR
         drive.write("000", "MBR");        

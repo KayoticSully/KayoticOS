@@ -826,7 +826,7 @@ var Shell = (function()
         if(args[0] == "my" && args[1] == "ENTIRE" && args[2] == "drive") {
             _StdOut.putLine("Formatting Drive");
             
-            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("format")));
+            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("format", { printLine : true })));
             
             return { defer : true }
         }
@@ -841,7 +841,7 @@ var Shell = (function()
     function shellListFiles(args)
     {
         var all = false;
-        if(args[0] == '-a') {
+        if(args[0] == 'all') {
             all = true;
         }
         

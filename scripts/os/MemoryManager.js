@@ -164,7 +164,7 @@ var MemoryManager = (function(){
             
             // make sure file handle is created
             _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", fileName, { mode : 'system_file'})));
-            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", fileName, swapData)));
+            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", fileName, swapData, { mode : 'system_file'})));
             PCB.Base = -1;
             PCB.Limit = -1;
         }

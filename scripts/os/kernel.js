@@ -229,7 +229,10 @@ function krnISR(params)
             _StdOut.putLine(params[1], params[2]);
             break;
         case 'printHexLine':
-            _StdOut.putLine(decodeFromHex(params[1]), true);
+            _StdOut.putLine(decodeFromHex(params[1]), params[2]);
+            break;
+        case 'rollIn':
+            _Memory.rollIn(params[1], params[2]);
             break;
     }
 }
@@ -345,7 +348,7 @@ function krnContextSwitch()
         if(process !== undefined) { // make sure PCB is something
             if(process.Base == -1) {
                 var fileName = 'p' + process.PID;
-                _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array('read', fileName, _Memory.rollIn)));
+                _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array('read', fileName, { rollIn : true, mode : 'system_file' })));
             }
             else
                 krnLoadState(process, "running");
