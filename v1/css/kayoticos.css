@@ -1,0 +1,196 @@
+/*
+ |---------------------------------------------------------------------
+ | KayoticOS.css 
+ |---------------------------------------------------------------------
+ | Styles needed to make the host look all pretty
+ |---------------------------------------------------------------------
+ | Author(s): Ryan Sullivan
+ |   Created: 9/6/2012
+ |   Updated: 9/12/2012
+ |---------------------------------------------------------------------
+ | The Bootstrap Library is also used in conjunction with this file
+ */
+
+/*----------------------*
+ * General Styles
+ *----------------------*/
+body
+{
+	background-color: #414141;
+	background-repeat: repeat-x;
+	margin-top: 40px;
+}
+
+footer 
+{
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8pt;
+    text-align: center;
+    margin: 5px 0px 0px 0px;
+}
+
+#app_wrapper
+{
+	width: 1255px;
+	margin: 0px auto;
+	padding-top:20px;
+}
+
+.kosclearfix {
+	clear: both;
+}
+
+audio, embed {
+	display: none;
+}
+
+.label {
+	padding:5px;
+	color:#3F0;
+}
+
+.left
+{
+	margin:0px 5px 0px -2px;
+}
+/*----------------------*
+ * Console Styles
+ *----------------------*/
+#display
+{
+	background-color: #000000;
+	border: 2px solid #FFFFFF; 
+	cursor: default;
+	float: left;
+}
+
+#display.error
+{
+	background-color: #FFFFFF;
+	border: 2px solid red;
+}
+
+/*-----------------------*
+ * Host Interface Styles
+ *-----------------------*/
+.panes_wrapper
+{
+	float: left;
+	overflow: hidden;
+	margin:0px 10px 0px 10px;
+}
+
+/* Logs */
+.panes_wrapper > #taLog
+{
+	height:410px;
+	width:250px;
+	background-color:#FFFFFF;
+	overflow: auto;
+}
+
+/* PCB */
+#PCBDisplay
+{
+	width: 649px;
+	padding:2px 0px 3px 0px;
+	background-color: white;
+	margin: 0px 0px 10px 333px;
+}
+
+#PCBDisplay > .PCBField
+{
+	display: inline-block;
+	width:50px;
+	margin-left:5px;
+}
+
+#stepControls
+{
+	color: #FFFFFF;
+	margin:-36px 0px 0px 995px;
+}
+
+#stepControls > input[type=button]
+{
+	padding:2px 5px;
+	margin-left: 10px;
+}
+
+/* Memory */
+.panes_wrapper > #memory
+{
+	font-family: "Consolas", sans-serif;
+	font-size: 15px;
+	line-height: 16px;
+	width: 300px;
+	padding:5px 5px;
+	background-color:#FFFFFF;
+	height:542px;
+	overflow: auto;
+	margin-top:6px;
+}
+
+.panes_wrapper > #memory > .memCol
+{
+	width:75px;
+	float:left;
+}
+
+#memoryControls
+{
+	padding:2px 0px 3px 0px;
+	text-align: center;
+}
+
+#memoryControls > #title
+{
+	padding:0px 5px;
+}
+
+#memoryControls > label, #stepControls > label
+{
+	color:#3F0;
+	font-size: 15px;
+	display: inline-block;
+	padding:0px 5px 0px 0px;
+}
+
+#memoryControls > input[type=radio], #stepControls > input[type=radio]
+{
+	margin:-2px 3px 0px 0px;
+}
+
+.log_msg
+{
+	margin: 8px 0px 8px 0px;
+	padding:0px 5px 0px 5px;
+	font-size: 13px;
+}
+
+/* Program Entry */
+.panes_wrapper > #program_entry
+{
+	height:100px;
+	width: 236px;
+}
+
+/*-------------------------*
+ * Bootstrap Modifications
+ *-------------------------*/
+.collapse {
+	overflow: visible;
+}
+
+.dropdown-menu > li {
+	margin:3px 8px 3px 8px;
+}
+
+.reference {
+	width:400px;
+}
+
+.alert {
+	display: none;
+}

@@ -1,0 +1,261 @@
+/*
+ |---------------------------------------------------------------------
+ | KayoticOS.css 
+ |---------------------------------------------------------------------
+ | Styles needed to make the host look all pretty
+ |---------------------------------------------------------------------
+ | Author(s): Ryan Sullivan
+ |   Created: 9/6/2012
+ |   Updated: 9/12/2012
+ |---------------------------------------------------------------------
+ | The Bootstrap Library is also used in conjunction with this file
+ */
+
+/*----------------------*
+ * General Styles
+ *----------------------*/
+body
+{
+	background-color: #414141;
+	background-repeat: repeat-x;
+	margin-top: 40px;
+}
+
+footer 
+{
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8pt;
+    text-align: center;
+    margin: 5px 0px 0px 0px;
+}
+
+#app_wrapper
+{
+	width: 1510px;
+	padding-top:20px;
+}
+
+.kosclearfix {
+	clear: both;
+}
+
+audio, embed {
+	display: none;
+}
+
+.label {
+	padding:5px;
+	color:#3F0;
+}
+
+.left
+{
+	margin:0px 5px 0px -2px;
+}
+/*----------------------*
+ * Console Styles
+ *----------------------*/
+#display
+{
+	background-color: #000000;
+	border: 2px solid #FFFFFF; 
+	cursor: default;
+	float: left;
+	margin:0px 7px;
+}
+
+#display.error
+{
+	background-color: #FFFFFF;
+	border: 2px solid red;
+}
+
+/*-----------------------*
+ * Host Interface Styles
+ *-----------------------*/
+.panes_wrapper
+{
+	float: left;
+	overflow: hidden;
+	margin:0px 4px 0px 7px;
+}
+
+/* Logs */
+.panes_wrapper > #taLog
+{
+	height:410px;
+	width:250px;
+	background-color:#FFFFFF;
+	overflow: auto;
+}
+
+/* PCB */
+#CPUDisplay
+{
+	width: 649px;
+	padding:2px 0px 3px 0px;
+	background-color: white;
+	margin: 0px 0px 10px 587px;
+}
+
+#CPUDisplay .PCBField
+{
+	display: inline-block;
+	width:30px;
+	margin:0px 5px;
+}
+
+#stepControls
+{
+	color: #FFFFFF;
+	margin:-36px 0px 0px 1256px;
+}
+
+#stepControls > input[type=button]
+{
+	padding:2px 5px;
+	margin-left: 10px;
+}
+
+/* Memory */
+.panes_wrapper > #memory
+{
+	font-family: "Consolas", sans-serif;
+	font-size: 15px;
+	line-height: 16px;
+	width: 335px;
+	padding:4px 5px;
+	background-color:#FFFFFF;
+	height:515px;
+	overflow: auto;
+}
+
+.panes_wrapper > #memory > .memCol
+{
+	width:71px;
+	float:left;
+}
+
+.panes_wrapper > #memory > .memRow
+{
+	
+}
+
+.panes_wrapper > #memory > .memRow > .memCell
+{
+	display: inline;
+	padding: 0 10px;
+}
+
+#memoryControls
+{
+	margin:0px;
+	font-weight: bold !important;
+	font-size: 12px;
+}
+
+#memoryControls > label {
+	margin:-4px -3px -4px 0px;
+}
+
+#memoryControls > label, #stepControls > label
+{
+	color:#3F0;
+	display: inline-block;
+	padding:0px 8px 0px 0px;
+}
+
+#memoryControls > input[type=radio] {
+	font-size: 12px;
+}
+
+#memoryControls > input[type=radio], #stepControls > input[type=radio]
+{
+	margin:-2px 3px 0px 0px;
+}
+
+/* PCB */
+.panes_wrapper > #PCB
+{
+	width: 210px;
+	background-color:#FFFFFF;
+	height:523px;
+	overflow: auto;
+}
+
+.panes_wrapper > #PCB > .pcbObject {
+	background-color: #F0F0F0;
+	border-bottom: 1px solid #000000;
+	padding:10px 5px;
+	text-align: center;
+}
+
+.panes_wrapper > #PCB > .pcbObject > .PID {
+	font-size: 18px;
+	padding:3px 0px;
+}
+
+.log_msg
+{
+	background-color: #F0F0F0;
+	border-bottom: 1px solid #000000;
+	padding:8px 5px 8px 5px;
+	font-size: 13px;
+}
+
+.devlog {
+	color:#008800;
+}
+
+.log_Host {
+	background-color: #A0A0A0;
+}
+
+.log_Kernel {
+	background-color: #D5D5D5;
+}
+
+.log_DevLog {
+	background-color: #000000;
+	border-bottom: 1px solid #FFFFFF;
+	color: #FFFFFF;
+}
+
+.log_Error {
+	background-color: #FFFFFF;
+	color: #FF0000;
+}
+
+/* Program Entry */
+.panes_wrapper > #program_entry
+{
+	height:100px;
+	width: 236px;
+}
+
+.somethingClever {
+	color: #FFFFFF;
+	margin:7px 0px;
+	padding:7px;
+	background-color: #000000;
+}
+
+/*-------------------------*
+ * Bootstrap Modifications
+ *-------------------------*/
+.collapse {
+	overflow: visible;
+}
+
+.dropdown-menu > li {
+	margin:3px 8px 3px 8px;
+}
+
+.reference {
+	width:400px;
+}
+
+.alert {
+	display: none;
+}

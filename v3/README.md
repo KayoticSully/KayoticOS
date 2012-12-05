@@ -12,24 +12,6 @@ Topics (Table of Contents): Not updated at all since last time :(
 
 Notes
 -------
-**[FinalProject]**
-*   I have had no issued while running 4 programs.  However I can't understand why I do run into issues (only sometimes)
-    while running more than 4 programs.  Theoretically I should be able to swap out multiple programs and it does work, just
-    not in all cases.
-*   My swapped out processes are stored in *system files* and are not readable or writeable by the user commands.  They are
-    also normally hidden when listing files, but the option "all" will force system files to be shown. (Ex: ls all)
-*   I added a view of the Resident Queue to my Interface, so you can see all loaded programs and their PCB's at once.
-*   My file system works a little differently than we discussed in class.  My "directory structure" grows down from the top
-    and my file data grows up from the bottom.  I also don't have a hard set "partition" for structure data, I set a floating partition
-    marker that moves down as the filesystem needs more space for structure data.  Free space within this partition will be re-used before
-    growing the partition.
-*   My entire filesystem API is interrupt based.  I was toying with the idea of splitting out a seperate I/O Interrupt queue, but
-    never had the time to try and implement that.
-*   Speaking of things I did not have time to implement...  I figured out how I would write a full directory system (thus why I set
-    my HDD records up the way I did) but am very sad to say I did not have time to actually implement it.  I also had a bunch of
-    ideas for other record types such as trashed files so data can be recovered.
-*   I also added some links to the instruction set and test programs on your site.
-
 **[iProject3]**
 *   Three programs can be loaded into memory... the only problem is more than 3 can be loaded.
     I did not go through the trouble of preventing a 4th program loading, since I would just

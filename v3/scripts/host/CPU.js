@@ -1,0 +1,88 @@
+/*
+ |---------------------------------------------------------------------
+ | CPU
+ |---------------------------------------------------------------------
+ | Requires global.js
+ |---------------------------------------------------------------------
+ | Routines for the host CPU simulation, NOT for the OS itself.  
+ | In this manner, it's A LITTLE BIT like a hypervisor,
+ | in that the Document envorinment inside a browser is the "bare metal" (so to speak) for which we write code
+ | that hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using
+ | JavaScript in both the host and client environments.
+ |---------------------------------------------------------------------
+ | Author(s): Alan G. Labouseur, Ryan Sullivan
+ |   Created: 8/?/2012
+ |   Updated: 11/4/2012
+ |---------------------------------------------------------------------
+ | This code references page numbers in the text book: 
+ | Operating System Concepts 8th editiion by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
+ */
+
+var CPU = (function()
+{
+    
+    function CPU()
+    {
+        var OPs = new OPCodes();
+        
+        this.PC    = 0;     // Program Counter
+        this.Acc   = 0;     // Accumulator
+        this.Xreg  = 0;     // X register
+        this.Yreg  = 0;     // Y register
+        this.Zflag = 0;     // Z-ero flag (Think of it as "isZero".)
+        this.isExecuting = false;
+    
+        this.init = function() 
+        {
+            this.PC    = 0
+            this.Acc   = 0;
+            this.Xreg  = 0;
+            this.Yreg  = 0;
+            this.Zflag = 0;      
+            this.isExecuting = false;  
+        }
+        
+        this.pulse = function()
+        {
+            // Increment the hardware (host) clock.
+            _OSclock++;
+            
+            // Update System Time
+            _SystemClock.update();
+            
+            // Call the kernel clock pulse event handler.
+            krnOnCPUClockPulse();
+            
+            controlUpdateDisplay();
+            
+            if(STEP_TOGGLE)
+                _CPU.isExecuting = false;
+        }
+        
+        this.cycle = function()
+        {   
+            // Fetch
+            var instruction = this.fetch();
+            
+            // decode
+            if(instruction in OPs)
+            {
+                // execute
+                OPs[instruction]();
+            }
+            else
+            {
+                // throw interrupt
+                var interrupt = new Interrput(BADOP_IRQ, "Bad Operation " + instruction + " at location " + (parseInt(this.PC) - 1));
+                _KernelInterruptQueue.enqueue(interrupt);
+            }
+        }
+        
+        this.fetch = function()
+        {
+            return _Memory.get(this.PC++);
+        }
+    }
+    
+    return CPU;
+})();

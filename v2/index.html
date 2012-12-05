@@ -19,22 +19,12 @@
                   <ul class="nav">
                      <li>
                         <a href="#"
-                           id="btnStartOS"Z
+                           id="btnStartOS"
                            name="brnStartOS"
                            class="normal_button"
                            onclick="simBtnStartOS_click(this)">
                            <i class="icon-off icon-white"></i>
                            Power On
-                        </a>
-                     </li>
-                     <li>
-                        <a href="#"
-                           id = "brnReboot"
-                           name="brnReboot"
-                           class="normal_button"
-                           onclick="simBtnReboot_click(this)">
-                           <i class="icon-refresh icon-white"></i>
-                           Reboot
                         </a>
                      </li>
                      <li>
@@ -53,7 +43,7 @@
                            name="brnReset"
                            class="normal_button"
                            onclick="simBtnReset_click(this)">
-                           <i class="icon-repeat icon-white"></i>
+                           <i class="icon-off icon-white"></i>
                            Reset
                         </a>
                      </li>
@@ -73,16 +63,16 @@
                         </ul>
                      </li>
                      <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b> Past Incarnations</a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b> Other Incarnations</a>
                         <ul class="dropdown-menu reference" role="menu" aria-labelledby="dLabel">
                            <li>
                               <a href="/v1"><i class="icon-minus"></i> iProject 1</a>
                            </li>
                            <li>
-                              <a href="/v2"><i class="icon-minus"></i> iProject 2</a>
+                              <a href="/v3"><i class="icon-minus"></i> iProject 3</a>
                            </li>
                            <li>
-                              <a href="/v3"><i class="icon-minus"></i> iProject 3</a>
+                              <a href="/"><i class="icon-minus"></i> Final Project</a>
                            </li>
                         </ul>
                      </li>
@@ -132,7 +122,7 @@
       <!-- Host Interface -->
       <div id="app_wrapper">
          <div class="panes_wrapper">
-            <div id="memoryControls" class="label">
+            <div id="memoryControls">
                <label for="memoryPage0" id="title">Main Memory Page:</label>
                <label for="memoryPage0">0</label><input type="radio" name="memoryPage" id="memoryPage0" value="0" checked />
                <label for="memoryPage1">1</label><input type="radio" name="memoryPage" id="memoryPage1" value="1" />
@@ -141,37 +131,9 @@
             <div name="memory" id = "memory">
                &nbsp;
             </div>
-            <div class="somethingClever">
-               This space is reserved for something clever.
-            </div>
          </div>
-         <div class="panes_wrapper">
-            <div class="label">
-               Resident Queue
-            </div>
-            <div name="PCB" id="PCB_RQ">
-               &nbsp;
-            </div>
-            <div class="somethingClever">
-               So is this.
-            </div>
-         </div>
-         <div class="panes_wrapper">
-            <div class="label">
-               Ready Queue
-            </div>
-            <div name="PCB" id="PCB">
-               &nbsp;
-            </div>
-            <div class="somethingClever">
-               So is this.
-            </div>
-         </div>
-         <div id="CPUDisplay">
-            <span class="label left">
-               System
-            </span>
-            <span id="CPU"></span>
+         <div id="PCBDisplay">
+            <span class="label left">PCB</span>
          </div>
          <canvas id="display"
                  width="650px"
@@ -222,23 +184,20 @@
    <script type="text/javascript" src="scripts/host/OPCodes.js"></script>
    <script type="text/javascript" src="scripts/host/CPU.js"></script>
    <script type="text/javascript" src="scripts/host/RAM.js"></script>
-   <script type="text/javascript" src="scripts/host/HDD.js"></script>
    
    <!-- Virtual OS Objects  -->
-   <script type="text/javascript" src="scripts/os/interrupt.js"></script>
-   <script type="text/javascript" src="scripts/os/deviceDriver.js"></script>
-   <script type="text/javascript" src="scripts/os/queue.js"></script>
    <script type="text/javascript" src="scripts/os/SymbolCodes.js"></script>
    <script type="text/javascript" src="scripts/os/SimpleStack.js"></script>
    <script type="text/javascript" src="scripts/os/MemoryManager.js"></script>
-   <script type="text/javascript" src="scripts/os/ProcessScheduler.js"></script>
    <script type="text/javascript" src="scripts/os/PCB.js"></script>
    
    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
+   <script type="text/javascript" src="scripts/os/interrupt.js"></script>
    <script type="text/javascript" src="scripts/os/canvastext.js"></script>	
    <script type="text/javascript" src="scripts/os/console.js"></script>	
+   <script type="text/javascript" src="scripts/os/deviceDriver.js"></script>
    <script type="text/javascript" src="scripts/os/deviceDriverKeyboard.js"></script>
-   <script type="text/javascript" src="scripts/os/deviceDriverFileSystem.js"></script>
+   <script type="text/javascript" src="scripts/os/queue.js"></script>
    <script type="text/javascript" src="scripts/os/ObjectShell.js"></script>
    <script type="text/javascript" src="scripts/os/kernel.js"></script>
    
