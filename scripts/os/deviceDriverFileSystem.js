@@ -158,7 +158,7 @@ var DeviceDriverFileSystem = function() {
                 
                 format();
                 
-                // I cant think of any errors here, so when we want output it will always be Formay Complete!
+                // I cant think of any errors here, so when we want output it will always be Format Complete!
                 if(options.printLine)
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "Format Complete!", true)));
             break;

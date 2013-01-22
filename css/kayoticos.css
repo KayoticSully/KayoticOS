@@ -273,3 +273,11 @@ audio, embed {
 .alert {
 	display: none;
 }
+
+/*-------------------------*
+ * Hard drive Display
+ *-------------------------*/
+#HDDisplay {
+	background-color: #FFFFFF;
+	margin: 7px;
+}
