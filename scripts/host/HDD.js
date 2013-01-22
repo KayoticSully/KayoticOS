@@ -67,7 +67,6 @@ var HDD = (function(){
         this.write = function(tsb, value) {
             var storageId = this.driveId + tsb;
             localStorage[storageId] = value;
-            displayHDD();
         }
         
         this.read = function(tsb) {
@@ -75,7 +74,7 @@ var HDD = (function(){
             return localStorage[storageId];
         }
         
-        displayHDD();
+        setInterval(displayHDD(), 1000);
     }
     
     return HDD;
