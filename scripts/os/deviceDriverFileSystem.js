@@ -84,10 +84,11 @@ var DeviceDriverFileSystem = function() {
                 if(params.length > 3)
                     options = extend(params[3], options);
                     
-                var message = "File " + params[1] + " successfully written.";
+                var message = "File " + decodeFromHex(params[1]) + " successfully written.";
                 try {
                     console.log(writeFile(params[1], params[2], options));
                 } catch (error) {
+                    console.log(error);
                     message = error.message;
                 }
                 
@@ -124,7 +125,7 @@ var DeviceDriverFileSystem = function() {
                 if(params.length > 2)
                     options = extend(params[2], options);
                 
-                var message = "File " + params[1] + " successfully created.";
+                var message = "File " + decodeFromHex(params[1]) + " successfully created.";
                 try {
                     console.log(createFile(params[1], options.mode));
                 } catch(error) {
@@ -140,7 +141,7 @@ var DeviceDriverFileSystem = function() {
                 if(params.length > 3)
                     options = extend(params[3], options);
                 
-                var message = "File " + params[1] + " successfully deleted.";
+                var message = "File " + decodeFromHex(params[1]) + " successfully deleted.";
                 try {
                     console.log(deleteFile(params[1]));
                 } catch (error) {
@@ -168,7 +169,7 @@ var DeviceDriverFileSystem = function() {
                 var fileList = getFiles(params[1]);
                 
                 for(file in fileList)
-                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "  " + fileList[file], false)));
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "  " + decodeFromHex(fileList[file]), false)));
                 
                 _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "", true)));
             break;
@@ -386,6 +387,9 @@ var DeviceDriverFileSystem = function() {
         // insert new data
         handle.kind = type.kind;
         handle.data = data;
+        
+        console.log("allocate " + handle.data);
+        
         handle.chainTSB = nil + nil + nil;
         handle.write();
         return handle;
@@ -563,8 +567,11 @@ var DeviceDriverFileSystem = function() {
             while(toWrite.length > 0) {
                 // grab the next block
                 var block = toWrite.substr(0, BaseType.DATA.blockSize);
+                console.log('block ' + block);
+                
                 // store the leftovers
                 toWrite = toWrite.substr(BaseType.DATA.blockSize);
+                console.log('left ' + toWrite);
                 
                 // get an empty record for the data
                 var blockHandle = null;
@@ -573,6 +580,7 @@ var DeviceDriverFileSystem = function() {
                     blockHandle = allocateRecord(blockHandle, block, BaseType.DATA);
                 } else {
                     blockHandle = nextHandle(lastHandle);
+                    blockHandle.data = block;
                     blockHandle.write();
                 }
                 

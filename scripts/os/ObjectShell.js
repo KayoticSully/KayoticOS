@@ -443,8 +443,8 @@ var Shell = (function()
     }
     
     function shellPrintFile(fileName, data) {
-        _StdOut.putLine("File " + fileName);
-        _StdOut.putLine(decodeFromHex(data), true);
+        _StdOut.putLine("File " + decodeFromHex(fileName));
+        _StdOut.putLine(data, true);
     }
     
     //=========================
@@ -784,7 +784,7 @@ var Shell = (function()
         
         _StdOut.putLine("Creating File " + fileName);
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", fileName, { printLine : true })));
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", encodeToHex(fileName), { printLine : true })));
         
         return { defer : true }
     }
@@ -795,7 +795,7 @@ var Shell = (function()
         
         _StdOut.putLine("Deleting File " + fileName);
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("delete", fileName)));
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("delete", encodeToHex(fileName))));
         
         return { defer : true }
     }
@@ -807,7 +807,7 @@ var Shell = (function()
         
         _StdOut.putLine("Writing To File " + fileName);
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", fileName, encodeToHex(fileData), { printLine : true })));
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", encodeToHex(fileName), encodeToHex(fileData), { printLine : true })));
         
         return { defer : true }
     }
@@ -816,7 +816,7 @@ var Shell = (function()
     {
         var fileName = args[0];
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", fileName, shellPrintFile)));
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), shellPrintFile)));
         
         return { defer : true }
     }
