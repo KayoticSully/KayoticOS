@@ -17,6 +17,7 @@ var DeviceDriverFileSystem = function() {
     // Private Variables
     //=======================================
     var drive = null;
+    var directoryPath = new SimpleStack();
     var nil = "`";
     
     // Base Data Types
@@ -36,7 +37,7 @@ var DeviceDriverFileSystem = function() {
         },
         
         STRUCTURE : {
-            mark        : 5,
+            mark        : 6,
             baseTSB     : "001",
             growth      : 1,
         },
@@ -54,9 +55,14 @@ var DeviceDriverFileSystem = function() {
             kind    : 2,
         }),
         
-        DIRECTORY : extend( BaseType.STRUCTURE,
+        DIRECTORY : extend(BaseType.STRUCTURE,
         {
-            kind    : 4,
+            kind    : 4
+        }),
+        
+        DIRECTORY_DATA : extend( BaseType.STRUCTURE,
+        {
+            kind    : 5
         })
     }
     
@@ -71,6 +77,16 @@ var DeviceDriverFileSystem = function() {
         if(MBR != 'MBR') {
             format();
         }
+        
+        // setup default (root) directory
+        var handle = new Handle();
+        handle.tsb = Type.DIRECTORY.baseTSB;
+        handle.parse(drive.read(handle.tsb));
+        
+        console.log(handle);
+        
+        var dir = new Directory(handle);
+        directoryPath.push(dir);
     }
     
     this.isr = function(params) {
@@ -126,6 +142,7 @@ var DeviceDriverFileSystem = function() {
                     options = extend(params[2], options);
                 
                 var message = "File " + decodeFromHex(params[1]) + " successfully created.";
+                
                 try {
                     console.log(createFile(params[1], options.mode));
                 } catch(error) {
@@ -166,10 +183,14 @@ var DeviceDriverFileSystem = function() {
             
             // list files from the drive
             case "list":
-                var fileList = getFiles(params[1]);
+                var dir = directoryPath.peek();
                 
-                for(file in fileList)
-                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "  " + decodeFromHex(fileList[file]), false)));
+                var fileList = dir.getFiles(params[1]);
+                
+                for(index in fileList) {
+                    var file = fileList[index];
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "  " + decodeFromHex(file.data), false)));
+                }
                 
                 _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "", true)));
             break;
@@ -275,23 +296,31 @@ var DeviceDriverFileSystem = function() {
             break;
         }
         
-        // get free file handle
+        var dir = directoryPath.peek();
+        
+        // get free structure file handle
         var firstEmpty = getHandle();
         
         // make sure file does not already exist
-        var handle = getHandle(fileName);
+        if(dir.hasFile(fileName)) {
+            throw { message : "File already exists." }
+        } else {
+            // we have an empty file marker
+            // lets try to allocate some space
+            var handle = allocateRecord(firstEmpty, fileName, type);
+            dir.addFile(handle);
+            return handle;
+        }
         
-        if(handle.kind != BaseType.STRUCTURE.mark) {
+        // old code
+        //var handle = getHandle(fileName);
+        /*if(handle.kind != BaseType.STRUCTURE.mark) {
             if(handle.kind == Type.SYSTEM_FILE) {
                 throw { message : "Can't overwrite system file." }
             } else {
                 throw { message : "File already exists." }
             }
-        } else {
-            // we have an empty file marker
-            // lets try to allocate some space
-            return allocateRecord(firstEmpty, fileName, type);
-        }
+        } */
     }
     
     function deleteFile(fileName) {
@@ -322,11 +351,15 @@ var DeviceDriverFileSystem = function() {
         // set MBR
         drive.write("000", "MBR");        
         
+        // create root directory
+        var rootDir = Type.DIRECTORY_DATA.kind + BaseType.EMPTY.tsb + nil;
+        drive.write(Type.DIRECTORY.baseTSB, rootDir);
+        
         // set structure marker
         var defaultStructureMarker = BaseType.STRUCTURE.mark + BaseType.EMPTY.tsb + nil;
-        drive.write(BaseType.STRUCTURE.baseTSB, defaultStructureMarker);
+        drive.write("002", defaultStructureMarker);
         
-        var tsb = "002";
+        var tsb = "003";
         while(tsb != undefined) {
             drive.write(tsb, BaseType.EMPTY.format);
             tsb = nextTSB(tsb, 1);
@@ -382,7 +415,6 @@ var DeviceDriverFileSystem = function() {
             next.parse(handle.rawRecord);
             next.write();
         }
-        
         
         // insert new data
         handle.kind = type.kind;
@@ -599,17 +631,94 @@ var DeviceDriverFileSystem = function() {
             lastHandle.chainTSB = nil + nil + nil;
             lastHandle.write();
         }
+    }
+    
+    var Directory = function(handle){
+        var _metaDataHandle = null;
+        var _metaData = '';
+        var _name     = '/';
         
-        // auto chain ftw!
-        function chase(handle) {
-            
-            var chainHandle = nextHandle(handle);
-            
-            if(chainHandle.chainTSB == nil + nil + nil)
-                return chainHandle.data;
-            else
-                return chainHandle.data + chase(chainHandle);
+        // figure out where to put the initial
+        // handle data
+        if(handle.kind == Type.DIRECTORY_DATA.kind) {
+            _metaDataHandle = handle;
+        } else if(handle.kind == Type.DIRECTORY.kind) {
+            _name = handle.data;
+            _metaDataHandle = nextHandle(handle);
         }
+        
+        // get all meta data split out across different
+        // records
+        _metaData = _metaDataHandle.data;
+        
+        // get all blocks if there is more than one
+        if(_metaDataHandle.chainTSB != nil + nil + nil) {
+            _metaData += chase(handle);
+        }
+        
+        Object.defineProperty(this, 'name', {
+            writeable       : false,
+            enumerable      : false,
+            get             : function() {
+                return _name;
+            }
+        });
+        
+        this.save = function() {
+            // write out dir name
+            if(handle.kind == Type.DIRECTORY.kind) {
+                handle.data = _name;
+                handle.write();
+            }
+            
+            // write out dir contents
+            _metaDataHandle.data = _metaData;
+            _metaDataHandle.write();
+        }
+        
+        this.getFiles = function(options) {
+            // an array of file/directory handles within
+            // this directory
+            var files = new Array();
+            for(var i = 0; i <= _metaData.length - 3; i = i + 3) {
+                var handle = new Handle();
+                var tsb = _metaData.substr(i, 3);
+                
+                handle.tsb = tsb;
+                handle.parse(drive.read(tsb));
+                files.push(handle);
+            }
+            
+            return files;
+        }
+        
+        this.addFile = function(handle) {
+            _metaData += handle.tsb;
+            this.save();
+        }
+        
+        this.hasFile = function(fileName) {
+            var files = this.getFiles();
+            
+            for(file in files) {
+                if(files[file].data == fileName)
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+    }
+    
+    // auto chain ftw!
+    function chase(handle) {
+        var chainHandle = nextHandle(handle);
+        
+        if(chainHandle.chainTSB == nil + nil + nil)
+            return chainHandle.data;
+        else
+            return chainHandle.data + chase(chainHandle);
     }
 }
 

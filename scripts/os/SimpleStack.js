@@ -55,6 +55,11 @@ var SimpleStack = (function()
             return old;
         }
         
+        this.peek = function()
+        {
+            return stack[stack.length - 1];
+        }
+        
         this.peekAll = function()
         {
             return stack.join('');
