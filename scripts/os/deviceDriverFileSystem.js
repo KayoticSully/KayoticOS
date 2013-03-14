@@ -126,7 +126,9 @@ var DeviceDriverFileSystem = function() {
                 } catch (error) {
                     message = error.message;
                 }
+                
                 console.log(file);
+                
                 if(options.rollIn)
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("rollIn", file.name, file.data)));
                 else if(message != null)
@@ -155,8 +157,8 @@ var DeviceDriverFileSystem = function() {
             
             // delete existing file
             case "delete":
-                if(params.length > 3)
-                    options = extend(params[3], options);
+                if(params.length > 2)
+                    options = extend(params[2], options);
                 
                 var message = "File " + decodeFromHex(params[1]) + " successfully deleted.";
                 try {
@@ -238,6 +240,7 @@ var DeviceDriverFileSystem = function() {
     
     function readFile(fileName, options) {
         console.log("read file " + fileName + " " + options);
+        
         // get the correct file type
         var type = null;
         switch(options.mode) {
@@ -252,16 +255,26 @@ var DeviceDriverFileSystem = function() {
         
         console.log(type);
         
-        var handle = getHandle(fileName);
-        console.log(handle);
+        
+        var dir = directoryPath.peek();
+        var handle = dir.getFile(fileName);
+        
+        if(!handle) {
+            throw { message : "File does not exist." }
+        } else {
+            return new File(handle); 
+        }
+        
+        // old code
+        //var handle = getHandle(fileName);
+        /*
         if(handle.kind != type.kind) {
             if(handle.kind == BaseType.STRUCTURE.mark)
                 throw { message : "File does not exist." }
             else
                 throw { message : "Can't read that file." }
-        }
-        else
-            return new File(handle);
+        }*/
+        
     }
     
     function getFiles(options) {
@@ -330,9 +343,19 @@ var DeviceDriverFileSystem = function() {
     }
     
     function deleteFile(fileName) {
-        var handle = getHandle(fileName);
         
-        if(handle.kind != Type.FILE.kind)
+        var dir = directoryPath.peek();
+        var success = dir.deleteFile(fileName);
+        
+        if(!success) {
+            throw { message : "File does not exist." }
+        }
+        
+        return true;
+        
+        // old code
+        //var handle = getHandle(fileName);
+        /*if(handle.kind != Type.FILE.kind)
             if(handle.kind == BaseType.STRUCTURE.mark)
                 throw { message : "File does not exist." }
             else if(handle.kind == Type.SYSTEM_FILE)
@@ -340,7 +363,7 @@ var DeviceDriverFileSystem = function() {
             else
                 throw { message : "Can't delete that file." }
         else
-            return deleteChain(handle);
+            return deleteChain(handle);*/
     }
     
     // wishfull thinking
@@ -715,6 +738,30 @@ var DeviceDriverFileSystem = function() {
             }
             
             return false;
+        }
+        
+        this.deleteFile = function(fileName) {
+            var files = this.getFiles();
+            var deleted = false;
+            
+            _metaData = '';
+            for(index in files) {
+                var file = files[index];
+                
+                if(file.data == fileName)
+                {
+                    // delete file and DO NOT add it's tsb
+                    // to metaData
+                    deleteChain(file);
+                    deleted = true;
+                } else {
+                    // add any other file to metaData to keep it
+                    _metaData += file.tsb;
+                }
+            }
+            
+            this.save();
+            return deleted;
         }
         
         this.hasFile = function(fileName) {

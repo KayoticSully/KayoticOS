@@ -795,7 +795,7 @@ var Shell = (function()
         
         _StdOut.putLine("Deleting File " + fileName);
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("delete", encodeToHex(fileName))));
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("delete", encodeToHex(fileName), { printLine : true })));
         
         return { defer : true }
     }
