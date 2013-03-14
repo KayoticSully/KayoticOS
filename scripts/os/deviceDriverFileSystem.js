@@ -139,14 +139,25 @@ var DeviceDriverFileSystem = function() {
             
             // crate new file
             case "create":
-                options.mode = 'file';
+                options.mode = 'file'; // type default
+                
                 if(params.length > 2)
                     options = extend(params[2], options);
                 
-                var message = "File " + decodeFromHex(params[1]) + " successfully created.";
+                var message = '';
                 
                 try {
-                    console.log(createFile(params[1], options.mode));
+                    var result = null;
+                    
+                    if(options.mode == 'file' || options.mode == 'system_file') {
+                        result = createFile(params[1], options.mode)
+                        message = "File " + decodeFromHex(params[1]) + " successfully created.";
+                    } else if(options.mode == 'directory') {
+                        result = createDir(params[1]);
+                        message = "Directory " + decodeFromHex(params[1]) + " successfully created.";
+                    }
+                    
+                    console.log(result);
                 } catch(error) {
                     message = error.message;
                 }
@@ -368,7 +379,26 @@ var DeviceDriverFileSystem = function() {
     
     // wishfull thinking
     function createDir(dirName) {
+        var workingDir = directoryPath.peek();
         
+        var firstEmpty = getHandle();
+        
+        // make sure directory name is okay and not taken
+        if(workingDir.hasFile(dirName)) {
+            throw { message : "File already exists." }
+        } else {
+            // allocate folder name record
+            var handle = allocateRecord(firstEmpty, dirName, Type.DIRECTORY);
+            
+            var metaDataHandle = getHandle();
+            metaDataHandle = allocateRecord(metaDataHandle, '', Type.DIRECTORY_DATA);
+            
+            handle.chainTSB = metaDataHandle.tsb;
+            handle.write();
+            
+            workingDir.addFile(handle);
+            return handle;
+        }
     }
     
     // wishfull thinking

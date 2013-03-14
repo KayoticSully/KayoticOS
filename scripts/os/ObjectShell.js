@@ -364,6 +364,13 @@ var Shell = (function()
         sc.function = shellFileDelete;
         this.commandList[sc.command] = sc;
         
+        // mkdir <dirname> - creates a directory with name <dirname>
+        sc = new ShellCommand();
+        sc.command = "mkdir";
+        sc.description = "<dirname> - creates a directory with name <dirname>";
+        sc.function = shellDirectoryCreate;
+        this.commandList[sc.command] = sc;
+        
         // format - formats the harddrive
         sc = new ShellCommand();
         sc.command = "format";
@@ -817,6 +824,17 @@ var Shell = (function()
         var fileName = args[0];
         
         _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), shellPrintFile)));
+        
+        return { defer : true }
+    }
+    
+    function shellDirectoryCreate(args)
+    {
+        var dirName = args[0];
+        
+        _StdOut.putLine("Creating Directory " + dirName);
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", encodeToHex(dirName), { printLine : true, mode : 'directory' })));
         
         return { defer : true }
     }
