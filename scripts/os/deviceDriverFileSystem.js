@@ -340,6 +340,9 @@ var DeviceDriverFileSystem = function() {
         var handle = new Handle();
         var tsb = BaseType.STRUCTURE.baseTSB;
         
+        // Traverse the file structure looking for either the file
+        // requested, or the first empty/free record depending on
+        // if a filename was provided
         while(handle.kind != BaseType.STRUCTURE.mark) {
             handle.parse(drive.read(tsb));
             

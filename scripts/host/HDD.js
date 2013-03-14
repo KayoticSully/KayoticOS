@@ -47,7 +47,9 @@ var HDD = (function(){
         }
         
         table += '</tbody></table>';
-        $('#HDDisplay').html(table);
+        $('#hdd').html(table);
+        
+        setTimeout(displayHDD, 1000);
     }
     
     function HDD()
@@ -74,7 +76,7 @@ var HDD = (function(){
             return localStorage[storageId];
         }
         
-        setInterval(displayHDD(), 1000);
+        setTimeout(displayHDD, 1000);
     }
     
     return HDD;

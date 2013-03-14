@@ -20,6 +20,9 @@
  | Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
  */
 
+// globals only used in this file
+var hddDisplay = false;
+
 //
 // Control Services
 //
@@ -227,4 +230,25 @@ function updateCPU()
 		  '<strong>Base:</strong>' + '<span class="PCBField">' + _Memory.Base + '</span>&nbsp;&nbsp;' +
 		  '<strong>Limit:</strong>' + '<span class="PCBField">' + _Memory.Limit + '</span>&nbsp;&nbsp;';
 	$('#CPU').html(str);
+}
+
+/**
+ * Switches between Hard Drive Info display and Memory
+ * Info display
+ */
+function toggleMemoryAndHDD() {
+	var current = '';
+	var next = '';
+	
+	if(hddDisplay) {
+		current = '.hdd';
+		next = '.memory';
+	} else {
+		current = '.memory';
+		next = '.hdd';
+	}
+	
+	hddDisplay = !hddDisplay;
+	$(current).hide();
+	$(next).show();
 }

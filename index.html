@@ -131,21 +131,34 @@
       </div>
       <!-- Host Interface -->
       <div id="app_wrapper">
-         <div class="panes_wrapper">
+         <div class="panes_wrapper hdd">
+            <div id="hddControls" class="label">
+               <label>Hard Drive Display</label>
+            </div>
+            <div name="hdd" id="HDDisplay">
+               <div id="hdd">
+                  
+               </div>
+            </div>
+            <div class="somethingClever">
+               <a id="hdd-memory-switch" onclick="toggleMemoryAndHDD();">Memory Display</a>
+            </div>
+         </div>
+         <div class="panes_wrapper memory">
             <div id="memoryControls" class="label">
                <label for="memoryPage0" id="title">Main Memory Page:</label>
                <label for="memoryPage0">0</label><input type="radio" name="memoryPage" id="memoryPage0" value="0" checked />
                <label for="memoryPage1">1</label><input type="radio" name="memoryPage" id="memoryPage1" value="1" />
                <label for="memoryPage2">2</label><input type="radio" name="memoryPage" id="memoryPage2" value="2" />
             </div>
-            <div name="memory" id = "memory">
+            <div name="memory" id="memory">
                &nbsp;
             </div>
             <div class="somethingClever">
-               This space is reserved for something clever.
+               <a id="hdd-memory-switch" onclick="toggleMemoryAndHDD();">HDD Display</a>
             </div>
          </div>
-         <div class="panes_wrapper">
+         <div class="panes_wrapper memory">
             <div class="label">
                Resident Queue
             </div>
@@ -156,7 +169,7 @@
                So is this.
             </div>
          </div>
-         <div class="panes_wrapper">
+         <div class="panes_wrapper memory">
             <div class="label">
                Ready Queue
             </div>
@@ -194,11 +207,6 @@
             </div>
          </div>
          <div class="kosclearfix"></div>
-         <div id="HDDisplay">
-            <div id="memoryControls" class="label">
-               <label>Hard Drive Display</label>
-            </div>
-         </div>
       </div>
       <footer>
          Copyright &copy; 2008 - 2012 No Rights Reserved. - 
