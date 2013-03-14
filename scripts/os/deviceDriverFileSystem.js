@@ -213,21 +213,27 @@ var DeviceDriverFileSystem = function() {
             break;
         }
         
-        var handle = getHandle(fileName);
+        var dir = directoryPath.peek();
+        var handle = dir.getFile(fileName);
         
-        // if we didn't find the file
-        if(handle.kind != type.kind) {
-            if(handle.kind == BaseType.STRUCTURE.mark)
-                throw { message : "File does not exist." }
-            else
-                throw { message : "Can't write to that file." }
-        }
-        else {
+        if(!handle) {
+            // if we didn't find the file
+            throw { message : "File does not exist." }
+        } else {
             var fileObject = new File(handle);
             fileObject.data = data;
             fileObject.save();
             return fileObject;
         }
+        
+        // old code
+        //var handle = getHandle(fileName);
+        /*if(handle.kind != type.kind) {
+            if(handle.kind == BaseType.STRUCTURE.mark)
+                throw { message : "File does not exist." }
+            else
+                throw { message : "Can't write to that file." }
+        }*/
     }
     
     function readFile(fileName, options) {
@@ -695,6 +701,20 @@ var DeviceDriverFileSystem = function() {
         this.addFile = function(handle) {
             _metaData += handle.tsb;
             this.save();
+        }
+        
+        this.getFile = function(fileName) {
+            var files = this.getFiles();
+            
+            for(index in files) {
+                var file = files[index];
+                if(file.data == fileName)
+                {
+                    return file;
+                }
+            }
+            
+            return false;
         }
         
         this.hasFile = function(fileName) {
