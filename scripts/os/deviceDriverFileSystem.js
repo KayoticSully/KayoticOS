@@ -445,7 +445,7 @@ var DeviceDriverFileSystem = function() {
     
     // wishfull thinking
     function deleteDir(dirName) {
-        
+        // forgot about this...  oops.
     }
     
     function format() {
