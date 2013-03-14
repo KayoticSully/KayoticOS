@@ -60,9 +60,15 @@ var SimpleStack = (function()
             return stack[stack.length - 1];
         }
         
-        this.peekAll = function()
+        this.peekAll = function(delem)
         {
-            return stack.join('');
+            if(delem == undefined) delem = '';
+            
+            return stack.join(delem);
+        }
+        
+        this.toArray = function() {
+            return stack;
         }
     }
     

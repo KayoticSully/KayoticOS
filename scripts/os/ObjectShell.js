@@ -72,7 +72,8 @@ var Shell = (function()
     //=========================
     function shellPutPrompt()
     {
-        _StdIn.putText(this.promptStr);
+        // slightly cheaty, but I will make this into an interrupt
+        _StdIn.putText(krnFileSystemDriver.currentPath() + this.promptStr);
     }
     
     function shellHandleInput(buffer)
@@ -370,6 +371,20 @@ var Shell = (function()
         sc.description = "<dirname> - creates a directory with name <dirname>";
         sc.function = shellDirectoryCreate;
         this.commandList[sc.command] = sc;
+        
+        // open <dirname> - enters directory <dirname>
+        sc = new ShellCommand();
+        sc.command = "open";
+        sc.description = "<dirname> - enters directory <dirname>";
+        sc.function = shellOpenDirectory;
+        this.commandList[sc.command] = sc;
+        
+        // close - closes current directory
+        sc = new ShellCommand();
+        sc.command = "close";
+        sc.description = " - closes current directory";
+        sc.function = shellCloseDirectory;
+        this.commandList[sc.command] = sc;        
         
         // format - formats the harddrive
         sc = new ShellCommand();
@@ -836,6 +851,19 @@ var Shell = (function()
         
         _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", encodeToHex(dirName), { printLine : true, mode : 'directory' })));
         
+        return { defer : true }
+    }
+    
+    function shellOpenDirectory(args) {
+        var dirName = args[0];
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("open", encodeToHex(dirName), { printLine : true })));
+        
+        return { defer : true }
+    }
+    
+    function shellCloseDirectory(args) {
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("close", '', { printLine : true })));
         return { defer : true }
     }
     

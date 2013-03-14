@@ -202,12 +202,52 @@ var DeviceDriverFileSystem = function() {
                 
                 for(index in fileList) {
                     var file = fileList[index];
-                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "  " + decodeFromHex(file.data), false)));
+                    var fileName = decodeFromHex(file.data);
+                    
+                    if(file.kind == Type.DIRECTORY.kind) {
+                        fileName = '/' + fileName;
+                    }
+                    
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "  " + fileName, false)));
+                }
+                
+                _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "", true)));
+            break;
+            
+            case 'open':
+                var dir = directoryPath.peek();
+                var toOpen = params[1];
+                var handle = dir.getFile(toOpen)
+                
+                if(handle) {
+                    var nextDir = new Directory(handle);
+                    directoryPath.push(nextDir);
+                } else {
+                    throw { message : "Can't open directory" }
+                }
+                
+                _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "", true)));
+            break;
+            
+            case 'close':
+                if(directoryPath.size > 1) {
+                    directoryPath.pop();
                 }
                 
                 _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "", true)));
             break;
         }
+    }
+    
+    this.currentPath = function() {
+        var pathStr = '';
+        var path = directoryPath.toArray();
+        
+        for(var index = 1; index < path.length; index++) {
+            pathStr = pathStr + '/' + decodeFromHex(path[index].name);
+        }
+        
+        return pathStr;
     }
     
     //========================================
@@ -228,15 +268,17 @@ var DeviceDriverFileSystem = function() {
         
         var dir = directoryPath.peek();
         var handle = dir.getFile(fileName);
-        
+        console.log(handle);
         if(!handle) {
             // if we didn't find the file
             throw { message : "File does not exist." }
-        } else {
+        } else if(handle.kind == Type.FILE.kind) {
             var fileObject = new File(handle);
             fileObject.data = data;
             fileObject.save();
             return fileObject;
+        } else {
+            throw { message : "Can not write to that." }
         }
         
         // old code
@@ -695,7 +737,7 @@ var DeviceDriverFileSystem = function() {
     var Directory = function(handle){
         var _metaDataHandle = null;
         var _metaData = '';
-        var _name     = '/';
+        var _name     = '';
         
         // figure out where to put the initial
         // handle data
@@ -806,6 +848,10 @@ var DeviceDriverFileSystem = function() {
             
             return false;
         }
+    }
+    
+    Directory.prototype.toString = function() {
+        return this.name;
     }
     
     // auto chain ftw!
