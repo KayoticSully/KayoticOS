@@ -372,19 +372,12 @@ var Shell = (function()
         sc.function = shellDirectoryCreate;
         this.commandList[sc.command] = sc;
         
-        // open <dirname> - enters directory <dirname>
+        // cd <dirname> - enters directory <dirname>
         sc = new ShellCommand();
-        sc.command = "open";
+        sc.command = "cd";
         sc.description = "<dirname> - enters directory <dirname>";
-        sc.function = shellOpenDirectory;
+        sc.function = shellChangeDirectory;
         this.commandList[sc.command] = sc;
-        
-        // close - closes current directory
-        sc = new ShellCommand();
-        sc.command = "close";
-        sc.description = " - closes current directory";
-        sc.function = shellCloseDirectory;
-        this.commandList[sc.command] = sc;        
         
         // format - formats the harddrive
         sc = new ShellCommand();
@@ -854,17 +847,29 @@ var Shell = (function()
         return { defer : true }
     }
     
-    function shellOpenDirectory(args) {
+    function shellChangeDirectory(args) {
         var dirName = args[0];
+        var interrupt = null;
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("open", encodeToHex(dirName), { printLine : true })));
+        switch (dirName) {
+            case '..':
+                interrupt = new Interrput(FS_IRQ, new Array("close", '', { printLine : true }));
+            break;
+            
+            case '.':
+                // nothing
+            break;
+            
+            default:
+                interrupt = new Interrput(FS_IRQ, new Array("open", encodeToHex(dirName), { printLine : true }));
+        }
         
-        return { defer : true }
-    }
-    
-    function shellCloseDirectory(args) {
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("close", '', { printLine : true })));
-        return { defer : true }
+        if (interrupt !== null) {
+            _KernelInterruptQueue.enqueue(interrupt);
+            return { defer : true };
+        }
+        
+        return {};
     }
     
     function shellDriveFormat(args)
