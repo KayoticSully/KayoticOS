@@ -55,9 +55,11 @@ var SimpleStack = (function()
             return old;
         }
         
-        this.peek = function()
+        this.peek = function(amount)
         {
-            return stack[stack.length - 1];
+            if (amount === undefined) amount = 1;
+            
+            return stack[stack.length - amount];
         }
         
         this.peekAll = function(delem)

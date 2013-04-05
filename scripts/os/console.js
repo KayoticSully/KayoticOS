@@ -121,9 +121,7 @@ function consolePutText(txt, textColor)
     // between the two.  So rather than be like PHP and write two (or more) functions that
     // do the same thing, thereby encouraging confusion and decreasing readability, I 
     // decided to write one function and use the term "text" to connote string or char.
-    //
-    // Actually following good coding practices, PHP can result in the same one function.
-    // Just Saying.
+    
     if (txt != "")
     {
 	if(textColor == undefined)
@@ -137,6 +135,12 @@ function consolePutText(txt, textColor)
     	// Move the current X position.
         var offset = DRAWING_CONTEXT.measureText(this.CurrentFont, this.CurrentFontSize, txt);
         this.CurrentXPosition = this.CurrentXPosition + offset;
+	
+	// Check if we need to wrap the line
+	// CONSOLE_LEFT_MARGIN is used here for the width of the RIGHT margin since they should be the same
+	if (this.CurrentXPosition >= (CANVAS.width - CONSOLE_RIGHT_MARGIN)) {
+	    this.advanceLine();
+	}
     }
 }
 
@@ -146,6 +150,14 @@ function consoleDelText()
     if(this.buffer.size > 0)
     {
 	var character = this.buffer.pop();
+	
+	if (typeof character == typeof {}) {
+	    console.log(character);
+	    this.CurrentXPosition = character.x;
+	    this.CurrentYPosition = character.y;
+	    character = this.buffer.pop();
+	}
+	
 	// Move the current X position.
 	var offset = DRAWING_CONTEXT.measureText(this.CurrentFont, this.CurrentFontSize, character);
 	this.CurrentXPosition = this.CurrentXPosition - offset;
@@ -156,6 +168,11 @@ function consoleDelText()
 
 function consoleAdvanceLine()
 {
+    // save state
+    var state = {x : this.CurrentXPosition, y : this.CurrentYPosition};
+    console.log(state);
+    this.buffer.push(state);
+    
     this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
     
     if(this.CurrentYPosition >= CANVAS.height - (DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN) - TASKBAR_HEIGHT)
