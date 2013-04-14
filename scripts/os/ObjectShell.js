@@ -73,7 +73,9 @@ var Shell = (function()
     function shellPutPrompt()
     {
         // slightly cheaty, but I will make this into an interrupt
-        _StdIn.putText(krnFileSystemDriver.currentPath() + this.promptStr);
+        // create a new line object here since this is only called at the start of a line
+        var prompt = krnFileSystemDriver.currentPath() + this.promptStr
+        _Console.addLine('', prompt);
     }
     
     function shellHandleInput(buffer)
@@ -164,7 +166,7 @@ var Shell = (function()
     function shellExecute(fn, args)
     {
         // we just got a command, so advance the line... 
-        _StdIn.advanceLine();
+        _StdIn.addLine();
         
         // .. call the command function passing in the args...
         var options = fn(args);
@@ -180,10 +182,10 @@ var Shell = (function()
         if(! options.defer)
         {
             // Check to see if we need to advance the line again
-            if (_StdIn.CurrentXPosition > 0)
-            {
-                _StdIn.advanceLine();
-            }
+            //if (_StdIn.CurrentXPosition > 0)
+            //{
+                //_StdIn.addLine();
+            //}
             
             // ... and finally write the prompt again.
             this.putPrompt();
@@ -401,8 +403,7 @@ var Shell = (function()
         this.commandList[sc.command] = sc;
         
         // Display the initial prompt.
-        _Console.putLine("Oh... it's YOU.");
-        
+        _Console.addLine("Oh... it's YOU.");
         this.putPrompt();
     }
     
@@ -410,15 +411,49 @@ var Shell = (function()
     {
         switch(keyCode)
         {
-            case 9:
+            case 9: // tab
                 shellTabComplete();
             break;
-            case 38:
+            case 38: // up arrow
                 _Console.history.previous();
             break;
             
-            case 40:
+            case 40: // down arrow
                 _Console.history.next();
+            break;
+            
+            case 37: // left arrow
+                _Console.CursorXPosition--;
+                _Console.refresh();
+            break;
+            
+            case 39: // right arrow
+                _Console.CursorXPosition++;
+                _Console.refresh();
+            break;
+            
+            case 33: // page up
+                var newOffset = _Console.screenOffset + 1;
+                var maxOffset = _Console.buffer.length - SCREEN_LINE_LENGTH;
+                
+                // check bounds for maxOffset
+                if (maxOffset < 0) maxOffset = 0;
+                
+                if (newOffset > maxOffset) newOffset = maxOffset;
+                
+                _Console.screenOffset = newOffset;
+                _Console.refresh();
+            break;
+            
+            case 34: // page down
+                var newOffset = _Console.screenOffset - 1;
+                
+                if (newOffset < 0) {
+                    newOffset = 0;
+                }
+                
+                _Console.screenOffset = newOffset;
+                _Console.refresh();
             break;
         }
     }
@@ -453,13 +488,13 @@ var Shell = (function()
                 _Console.buffer.push(command[ch]);
             }
             
-            _Console.putText(command);
+            _Console.addText(command);
         }
     }
     
     function shellPrintFile(fileName, data) {
-        _StdOut.putLine("File " + decodeFromHex(fileName));
-        _StdOut.putLine(data, true);
+        _StdOut.addLine("File " + decodeFromHex(fileName));
+        _StdOut.addLine(data, true);
     }
     
     //=========================
@@ -493,51 +528,51 @@ var Shell = (function()
     //
     function shellInvalidCommand()
     {
-        _StdIn.putText("Invalid Command. ");
+        _StdIn.addText("Invalid Command. ");
         if (_SarcasticMode)
         {
-            _StdIn.putText("Duh. Go back to your Speak & Spell.");
+            _StdIn.addText("Duh. Go back to your Speak & Spell.");
         }
         else
         {
-            _StdIn.putText("Type 'help' for, well... help.");
+            _StdIn.addText("Type 'help' for, well... help.");
         }
     }
     
     function shellCurse()
     {
-        _StdIn.putText("Oh, so that's how it's going to be, eh? Fine.");
-        _StdIn.advanceLine();
-        _StdIn.putText("Bitch.");
+        _StdIn.addText("Oh, so that's how it's going to be, eh? Fine.");
+        _StdIn.addLine();
+        _StdIn.addText("Bitch.");
         _SarcasticMode = true;
     }
     
     function shellApology()
     {
-        _StdIn.putText("Okay. I forgive you. This time.");
+        _StdIn.addText("Okay. I forgive you. This time.");
         _SarcasticMode = false;
     }
     
     function shellVer(args)
     {
-        _StdIn.putText(APP_NAME + " Core Version " + APP_VERSION);    
+        _StdIn.addText(APP_NAME + " Core Version " + APP_VERSION);    
     }
     
     function shellHelp(args)
     {
-        _StdIn.putText("Commands:");
+        _StdIn.addText("Commands:");
         
         for (i in _OsShell.commandList)
         {
-            _StdIn.advanceLine();
-            _StdIn.putText("  " + _OsShell.commandList[i].command, "#FFFFFF");
-            _StdIn.putText(" " + _OsShell.commandList[i].description);
+            _StdIn.addLine();
+            _StdIn.addText("  " + _OsShell.commandList[i].command, "#FFFFFF");
+            _StdIn.addText(" " + _OsShell.commandList[i].description);
         }    
     }
     
     function shellShutdown(args)
     {   
-        _StdIn.putText("Shutting down...");
+        _StdIn.addText("Shutting down...");
         // Call Kernal shutdown routine.
         krnShutdown();
         simHostShutdown();
@@ -565,15 +600,15 @@ var Shell = (function()
             switch (topic)
             {
                 case "help": 
-                    _StdIn.putText("Help displays a list of (hopefully) valid commands.");
+                    _StdIn.addText("Help displays a list of (hopefully) valid commands.");
                     break;
                 default:
-                    _StdIn.putText("No manual entry for " + args[0] + ".");
+                    _StdIn.addText("No manual entry for " + args[0] + ".");
             }        
         }
         else
         {
-            _StdIn.putText("Usage: man <topic>  Please supply a topic.");
+            _StdIn.addText("Usage: man <topic>  Please supply a topic.");
         }
     }
     
@@ -587,26 +622,26 @@ var Shell = (function()
                 case "on": 
                     if (_Trace && _SarcasticMode)
                     {
-                        _StdIn.putText("Trace is already on, dumbass.");
+                        _StdIn.addText("Trace is already on, dumbass.");
                     }
                     else
                     {
                         _Trace = true;
-                        _StdIn.putText("Trace ON");
+                        _StdIn.addText("Trace ON");
                     }
                     
                     break;
                 case "off": 
                     _Trace = false;
-                    _StdIn.putText("Trace OFF");                
+                    _StdIn.addText("Trace OFF");                
                     break;                
                 default:
-                    _StdIn.putText("Invalid arguement.  Usage: trace <on | off>.");
+                    _StdIn.addText("Invalid arguement.  Usage: trace <on | off>.");
             }        
         }
         else
         {
-            _StdIn.putText("Usage: trace <on | off>");
+            _StdIn.addText("Usage: trace <on | off>");
         }
     }
     
@@ -614,11 +649,11 @@ var Shell = (function()
     {
         if (args.length > 0)
         {
-            _StdIn.putText(args[0] + " = '" + rot13(args[0]) +"'");     // Requires Utils.js for rot13() function.
+            _StdIn.addText(args[0] + " = '" + rot13(args[0]) +"'");     // Requires Utils.js for rot13() function.
         }
         else
         {
-            _StdIn.putText("Usage: rot13 <string>  Please supply a string.");
+            _StdIn.addText("Usage: rot13 <string>  Please supply a string.");
         }
     }
     
@@ -630,13 +665,13 @@ var Shell = (function()
         }
         else
         {
-            _StdIn.putText("Usage: prompt <string>  Please supply a string.");
+            _StdIn.addText("Usage: prompt <string>  Please supply a string.");
         }
     }
     
     function shellDate(args)
     {
-        _StdIn.putText(_SystemClock.toString());
+        _StdIn.addText(_SystemClock.toString());
     }
     
     function shellWhereAmI(args)
@@ -657,29 +692,29 @@ var Shell = (function()
                     var state = location.address_components[4].long_name;
                     var zip = location.address_components[6].short_name;
                     
-                    _StdOut.putLine("There you are: " + city + ', ' + state + ' ' + zip, true);
+                    _StdOut.addLine("There you are: " + city + ', ' + state + ' ' + zip, true);
                 }
                 else
                 {
-                    _StdOut.putLine("Your location is not worthy of global positioning.", true);
+                    _StdOut.addLine("Your location is not worthy of global positioning.", true);
                 }
             });
         }
         
         if (navigator.geolocation) 
         {
-            _StdOut.putLine("Share your location, you ca-*static* trust me.");
+            _StdOut.addLine("Share your location, you ca-*static* trust me.");
             navigator.geolocation.getCurrentPosition(
                 getLocation
             , function(error){
-                _StdOut.putLine("Your location is not worthy of global positioning.", true);
+                _StdOut.addLine("Your location is not worthy of global positioning.", true);
             });
             
             return { defer : true };
         }
         else
         {
-            _StdOut.putText("Your location is not worthy of global positioning.");
+            _StdOut.addText("Your location is not worthy of global positioning.");
             return null;
         }
     }
@@ -691,7 +726,7 @@ var Shell = (function()
     
     function shellPowerFailure()
     {
-        _StdOut.putText("Why did you push that!");
+        _StdOut.addText("Why did you push that!");
         clearInterval(hardwareClockID);
     }
     
@@ -699,7 +734,7 @@ var Shell = (function()
     {
         var status =  str.join(' ');
         _OsShell.status = status;
-        _StdOut.putText("Status set to " + status);
+        _StdOut.addText("Status set to " + status);
     }
     
     function loadProgram(args)
@@ -734,15 +769,15 @@ var Shell = (function()
     
     function shellHistory()
     {
-        _StdOut.putLine("Command History:");
+        _StdOut.addLine("Command History:");
         
         _Console.history.print(
             // some functional programming because I was bored.
             function(command, index){
                 if(index != _Console.history.length - 1)
-                    _StdOut.putLine('  ' + command);
+                    _StdOut.addLine('  ' + command);
                 else
-                    _StdOut.putText('  ' + command);
+                    _StdOut.addText('  ' + command);
             }
         );
     }
@@ -757,11 +792,11 @@ var Shell = (function()
         if(args != "")
         {
             _Scheduler.quantum = args;
-            _StdOut.putText("Quantum is set to " + _Scheduler.quantum);
+            _StdOut.addText("Quantum is set to " + _Scheduler.quantum);
         }
         else
         {
-            _StdOut.putText("Current quantum is " + _Scheduler.quantum);
+            _StdOut.addText("Current quantum is " + _Scheduler.quantum);
         }
     }
     
@@ -773,7 +808,7 @@ var Shell = (function()
         if(_CPU.isExecuting)
             numOfRunning++;
         
-        _StdOut.putLine(numOfRunning + " running out of " + numOfPrograms + " programs.");
+        _StdOut.addLine(numOfRunning + " running out of " + numOfPrograms + " programs.");
     }
     
     function shellRunning()
@@ -790,14 +825,14 @@ var Shell = (function()
         if(runningProcesses.length == 0)
             runningProcesses = "None";
         
-        _StdOut.putLine(runningProcesses);
+        _StdOut.addLine(runningProcesses);
     }
     
     function shellFileCreate(args)
     {
         var fileName = args[0];
         
-        _StdOut.putLine("Creating File " + fileName);
+        _StdOut.addLine("Creating File " + fileName);
         
         _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", encodeToHex(fileName), { printLine : true })));
         
@@ -808,7 +843,7 @@ var Shell = (function()
     {
         var fileName = args[0];
         
-        _StdOut.putLine("Deleting File " + fileName);
+        _StdOut.addLine("Deleting File " + fileName);
         
         _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("delete", encodeToHex(fileName), { printLine : true })));
         
@@ -820,7 +855,7 @@ var Shell = (function()
         var fileName = args[0];
         var fileData = args[1];
         
-        _StdOut.putLine("Writing To File " + fileName);
+        _StdOut.addLine("Writing To File " + fileName);
         
         _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", encodeToHex(fileName), encodeToHex(fileData), { printLine : true })));
         
@@ -840,7 +875,7 @@ var Shell = (function()
     {
         var dirName = args[0];
         
-        _StdOut.putLine("Creating Directory " + dirName);
+        _StdOut.addLine("Creating Directory " + dirName);
         
         _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", encodeToHex(dirName), { printLine : true, mode : 'directory' })));
         
@@ -875,7 +910,7 @@ var Shell = (function()
     function shellDriveFormat(args)
     {
         if(args[0] == "my" && args[1] == "ENTIRE" && args[2] == "drive") {
-            _StdOut.putLine("Formatting Drive");
+            _StdOut.addLine("Formatting Drive");
             
             _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("format", { printLine : true })));
             
@@ -883,7 +918,7 @@ var Shell = (function()
         }
         else
         {
-            _StdOut.putText("Say the magic words...");
+            _StdOut.addText("Say the magic words...");
         }
         
         return null;
@@ -912,7 +947,7 @@ var Shell = (function()
             message = "Invalid Input.  Command syntax: cpu-scheduler <[rr|fcfs|priority]>";
         }
         
-        _StdOut.putText(message);
+        _StdOut.addText(message);
     }
     
     return Shell;

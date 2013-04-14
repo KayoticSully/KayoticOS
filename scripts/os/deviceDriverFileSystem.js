@@ -83,8 +83,6 @@ var DeviceDriverFileSystem = function() {
         handle.tsb = Type.DIRECTORY.baseTSB;
         handle.parse(drive.read(handle.tsb));
         
-        console.log(handle);
-        
         var dir = new Directory(handle);
         directoryPath.push(dir);
     }

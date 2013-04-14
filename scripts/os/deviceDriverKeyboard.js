@@ -91,7 +91,8 @@ function krnKbdDispatchKeyPress(params)
         _Console.delChar();
     }
     else if(keyCode >= 37 && keyCode <= 40 || // arrows
-            keyCode == 9)                     // tab
+            keyCode == 9 ||                   // tab
+            keyCode == 33 || keyCode == 34)   // pageUp / pageDown
     {
         _OsShell.specialKeys(keyCode);
     }
