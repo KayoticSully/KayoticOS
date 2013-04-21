@@ -88,12 +88,12 @@ function krnKbdDispatchKeyPress(params)
         // that get fed into the OsShell.  Might
         // make more sence for it to officially
         // handle the keypress
-        _Console.delChar();
+        _StdIn.delChar();
     }
     else if(keyCode >= 37 && keyCode <= 40 || // arrows
             keyCode == 9 ||                   // tab
             keyCode == 33 || keyCode == 34)   // pageUp / pageDown
     {
-        _OsShell.specialKeys(keyCode);
+        _StdIn.specialKeys(keyCode);
     }
 }

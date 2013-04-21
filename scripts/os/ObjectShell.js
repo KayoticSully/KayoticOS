@@ -402,8 +402,15 @@ var Shell = (function()
         sc.function = shellCpuScheduling;
         this.commandList[sc.command] = sc;
         
+        // cpu-scheduler
+        sc = new ShellCommand();
+        sc.command = "edit";
+        sc.description = "<filename> - opens the text editor";
+        sc.function = shellEdit;
+        this.commandList[sc.command] = sc;
+        
         // Display the initial prompt.
-        _Console.addLine("Oh... it's YOU.");
+        _Console.addText("Oh... it's YOU.");
         this.putPrompt();
     }
     
@@ -423,13 +430,17 @@ var Shell = (function()
             break;
             
             case 37: // left arrow
-                _Console.CursorXPosition--;
-                _Console.refresh();
+                if (_Console.buffer.CursorXPosition > 0) {
+                    _Console.buffer.CursorXPosition--;
+                }
             break;
             
             case 39: // right arrow
-                _Console.CursorXPosition++;
-                _Console.refresh();
+                // allow the cursor to go to the end of the line, no further
+                var inputLine = _Console.buffer.inputLine;
+                if (_Console.buffer.CursorXPosition < inputLine.line.length) {
+                    _Console.buffer.CursorXPosition++;
+                }
             break;
             
             case 33: // page up
@@ -442,7 +453,6 @@ var Shell = (function()
                 if (newOffset > maxOffset) newOffset = maxOffset;
                 
                 _Console.screenOffset = newOffset;
-                _Console.refresh();
             break;
             
             case 34: // page down
@@ -453,7 +463,6 @@ var Shell = (function()
                 }
                 
                 _Console.screenOffset = newOffset;
-                _Console.refresh();
             break;
         }
     }
@@ -465,7 +474,8 @@ var Shell = (function()
     function shellTabComplete()
     {
         // get current entry
-        var entry = _Console.buffer.peekAll();
+        var input = _Console.buffer.inputLine;
+        var entry = input.line;
         
         var possible = new Array();
         for(var key in _OsShell.commandList)
@@ -479,22 +489,8 @@ var Shell = (function()
         if(possible.length == 1)
         {
             var command = possible[0];
-            _Console.resetLine();
-            
-            _Console.buffer.popAll();
-            
-            for(var ch in command)
-            {
-                _Console.buffer.push(command[ch]);
-            }
-            
-            _Console.addText(command);
+            _Console.buffer.replaceLine(command);
         }
-    }
-    
-    function shellPrintFile(fileName, data) {
-        _StdOut.addLine("File " + decodeFromHex(fileName));
-        _StdOut.addLine(data, true);
     }
     
     //=========================
@@ -866,7 +862,7 @@ var Shell = (function()
     {
         var fileName = args[0];
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), shellPrintFile)));
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName))));
         
         return { defer : true }
     }
@@ -948,6 +944,14 @@ var Shell = (function()
         }
         
         _StdOut.addText(message);
+    }
+    
+    function shellEdit(args) {
+        var fileName = args[0];
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), { editor : true })));
+        
+        return { defer: true };
     }
     
     return Shell;

@@ -15,13 +15,16 @@
 
 var ScreenBuffer = function(){
     this.lines = new Array();
+    this.CursorXPosition = 0;
+    this.CursorLineIndex = 0;
     
     // properties
     Object.defineProperty(this, 'inputLine', {
         writeable       : false,
         enumerable      : false,
         get             : function() {
-            return this.lines[0];
+            //return this.lines[0];
+            return this.lines[this.CursorLineIndex];
         }
     });
     
@@ -43,6 +46,24 @@ ScreenBuffer.prototype.toString = function(){
 
 ScreenBuffer.prototype.addLine = function(line){
     this.lines.unshift(line);
+    this.CursorXPosition = 0;
+}
+
+ScreenBuffer.prototype.addText = function(text, color) {
+    var line = this.inputLine;
+    if (this.CursorXPosition < line.size() - line.prompt.length) {
+        this.inputLine.insert(this.CursorXPosition, text);
+    } else {
+        this.inputLine.append(text, color);
+    }
+    
+    this.CursorXPosition += text.length;
+}
+
+ScreenBuffer.prototype.replaceLine = function(text, color) {
+    this.inputLine.clear();
+    this.CursorXPosition = 0;
+    this.addText(text, color);
 }
 
 ScreenBuffer.prototype.startIndex = function(offset) {

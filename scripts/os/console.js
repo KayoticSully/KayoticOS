@@ -8,7 +8,7 @@
  |---------------------------------------------------------------------
  | Author(s): Alan G. Labouseur, Ryan Sullivan
  |   Created: 8/?/2012
- |   Updated: 4/13/2013
+ |   Updated: 4/20/2013
  |---------------------------------------------------------------------
  | The OS Console - stdIn and stdOut by default.
  | Note: This is not the Shell.  The Shell is the "command line interface"
@@ -22,13 +22,12 @@ function Console()
     this.CurrentFontSize  = DEFAULT_FONT_SIZE;
     this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
     this.CurrentYPosition = DEFAULT_FONT_SIZE + CONSOLE_TOP_MARGIN;
-    this.CursorLineIndex  = 0;
-    this.CursorXPosition  = 0;
     this.taskbarFontColor = "#000000";
     this.taskbarColor     = DEFAULT_TASKBAR_COLOR;
     this.buffer	  	  = new ScreenBuffer();
     this.screenOffset     = 0;
     this.history 	  = new CommandHistory();
+    this.editMode         = false;
 
     // Methods
     this.init        = consoleInit;
@@ -41,6 +40,7 @@ function Console()
     this.addLine     = consoleAddLine;
     this.addText     = consoleAddText;
     this.delChar     = consoleDelText;
+    this.specialKeys = consoleSpecialKeys;
     this.advanceLine = consoleAdvanceLine;
     this.drawTaskBar = consoleDrawTaskBar;
     this.putLine     = consolePutLine;
@@ -71,7 +71,19 @@ function consoleResetLine()
     var lineHeight = this.CurrentFontSize + FONT_HEIGHT_MARGIN;
 
     DRAWING_CONTEXT.clearRect(0, this.CurrentYPosition - this.CurrentFontSize, CANVAS.width, lineHeight);
-    _OsShell.putPrompt();
+    
+    if (! this.editMode) {
+        _OsShell.putPrompt();
+    }
+    
+}
+
+function consoleSpecialKeys(keyCode) {
+    if (this.editMode) {
+        _Editor.specialKeys(keyCode);
+    } else {
+        _OsShell.specialKeys(keyCode);
+    }
 }
 
 function consoleHandleInput()
@@ -85,14 +97,16 @@ function consoleHandleInput()
         {
             // The enter key marks the end of a console command, so ...
             // ... tell the shell ...
-            this.CursorXPosition = 0;
-            _OsShell.handleInput(this.buffer.inputLine.text);
+            if (this.editMode) {
+                _Editor.handleEnter();
+            } else {
+                _OsShell.handleInput(this.buffer.inputLine.line);
+            }
         }
         // TODO: Write a case for Ctrl-C.
         else
         {
             // This is a "normal" character, so add it to our buffer.
-            this.CursorXPosition++;
             this.addText(chr);
         }
     }
@@ -120,19 +134,15 @@ function consolePutLine(txt, prompt, color)
 }
 
 function consoleAddText(text, color) {
-    if(this.CursorXPosition < this.buffer.lines[this.CursorLineIndex].size() - this.buffer.lines[this.CursorLineIndex].prompt.length) {
-        this.buffer.inputLine.insert(this.CursorXPosition, text);
-    } else {
-        this.buffer.inputLine.append(text, color);
-    }
-    
-    //this.refresh();
+    // just a pass through function to preserve compatibility
+    // with other parts of the OS and preserve the correct
+    // scope, no need to break this.
+    this.buffer.addText(text, color);
 }
 
 function consoleAddLine(text, prompt, color) {
     var line = new LineObject(text, prompt, color);
     this.buffer.addLine(line);
-    //this.refresh();
 }
 
 function consolePutText(txt, textColor)
@@ -158,7 +168,6 @@ function consolePutText(txt, textColor)
         this.CurrentXPosition = this.CurrentXPosition + offset;
         
 	// Check if we need to wrap the line
-	// CONSOLE_LEFT_MARGIN is used here for the width of the RIGHT margin since they should be the same
 	if (this.CurrentXPosition >= (CANVAS.width - CONSOLE_RIGHT_MARGIN)) {
 	    this.advanceLine();
 	}
@@ -170,8 +179,9 @@ function consoleDelText()
     if(this.buffer.inputLine.size() > 0)
     {
         var character = this.buffer.inputLine.del(1);
-        this.CursorXPosition--;
-        this.refresh();
+        if (this.buffer.CursorXPosition > 0) {
+            this.buffer.CursorXPosition--;
+        }
     }
 }
 
@@ -188,14 +198,18 @@ function consoleRefresh()
         {            
             this.advanceLine();
             
-            if (index == this.CursorLineIndex) {
+            if (index == this.buffer.CursorLineIndex) {
                 this.drawCursor();
             }
             
             this.putText(line.prompt);
+            
             for (var part in line.subStrings) {
                 var subString = line.subStrings[part];
-                this.putText(subString.text, subString.color);
+                for (var ch in subString.text) {
+                    this.putText(subString.text[ch], subString.color);
+                }
+                //this.putText(subString.text, subString.color);
             }
         }
     }
@@ -205,7 +219,7 @@ function consoleAdvanceLine()
 {
     this.CurrentXPosition = CONSOLE_LEFT_MARGIN;
 
-    if(this.CurrentYPosition >= CANVAS.height - (DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN) - TASKBAR_HEIGHT)
+    if(this.CurrentYPosition >= CANVAS.height - (DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN) - TASKBAR_HEIGHT - CONSOLE_BOTTOM_MARGIN)
     {
 	// calculate line height to move up
 	var lineHeight = DEFAULT_FONT_SIZE + FONT_HEIGHT_MARGIN;
@@ -229,9 +243,9 @@ function consoleAdvanceLine()
 /* HIGHLY EXPERIMENTAL */
 function consolePutImage(image)
 {
-    if(this.CurrentYPosition >= CANVAS.height - image.height - TASKBAR_HEIGHT)
+    if(this.CurrentYPosition >= CANVAS.height - image.height - TASKBAR_HEIGHT - CONSOLE_BOTTOM_MARGIN)
     {
-	var consImg = DRAWING_CONTEXT.getImageData(0, image.height, CANVAS.width, CANVAS.height - image.height - TASKBAR_HEIGHT);
+	var consImg = DRAWING_CONTEXT.getImageData(0, image.height, CANVAS.width, CANVAS.height - image.height - TASKBAR_HEIGHT - CONSOLE_BOTTOM_MARGIN);
 
 	// clear "screen"
 	this.clearScreen();
@@ -269,8 +283,8 @@ function consoleDrawTaskBar()
 
 function consoleDrawCursor()
 {
-    var line = this.buffer.getLine(this.CursorLineIndex);
-    var xPos = line.cursorPositionToDrawData(this.CursorXPosition);
+    var line = this.buffer.getLine(this.buffer.CursorLineIndex);
+    var xPos = line.cursorPositionToDrawData(this.buffer.CursorXPosition);
     
     //var width = data.characterWidth;
     

@@ -42,6 +42,11 @@ function krnBootstrap()      // Page 8.
     krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
     krnTrace(krnKeyboardDriver.status);
     
+    krnTrace("Loading the mouse device driver.");
+    krnMouseDriver = new DeviceDriverMouse();     // Construct it.
+    krnMouseDriver.driverEntry();                 // Call the driverEntry() initialization routine.
+    krnTrace(krnMouseDriver.status);
+    
     // Load the File System
     krnFileSystemDriver = new DeviceDriverFileSystem();
     krnFileSystemDriver.driverEntry();
@@ -140,6 +145,7 @@ function krnEnableInterrupts()
 {
     // Keyboard
     simEnableKeyboardInterrupt();
+    simEnableMouseInterrupt();
     // Put more here.
 }
 
@@ -147,6 +153,7 @@ function krnDisableInterrupts()
 {
     // Keyboard
     simDisableKeyboardInterrupt();
+    simDisableMouseInterrupt();
     // Put more here.
 }
 
@@ -161,7 +168,7 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
     //       Maybe the hardware simulation will grow to support/require that in the future.
     switch (irq)
     {
-        case TIMER_IRQ: 
+        case TIMER_IRQ:
             krnTimerISR();                   // Kernel built-in routine for timers (not the clock).
             break;
         case KEYBOARD_IRQ:
@@ -182,6 +189,9 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
             break;
         case KRN_IRQ:
             krnISR(params);
+            break;
+        case MOUSE_IRQ:
+            krnMouseDriver.isr(params);
             break;
         case BADOP_IRQ:
             simLog("Bad OP - Killing Program", "Error");
@@ -209,7 +219,7 @@ function krnProgramISR(params)
             break;
         case "kill":
             krnKillProgram(params[1]);
-            break;
+            break
     }
 }
 
@@ -233,6 +243,14 @@ function krnISR(params)
             break;
         case 'rollIn':
             _Memory.rollIn(params[1], params[2]);
+            break;
+        case 'editor':
+            // load editor
+            _Editor = new Editor();
+            // load file
+            _Editor.init(params[1], params[2]);
+            // switch to editor
+            _Console.editMode = true;
             break;
     }
 }

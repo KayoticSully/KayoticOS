@@ -33,9 +33,20 @@ function simEnableKeyboardInterrupt()
    document.addEventListener("keydown", simOnKeypress, false);
 }
 
+function simEnableMouseInterrupt()
+{
+   CANVAS.addEventListener('mousewheel', simOnMouseScoll, false);
+   CANVAS.addEventListener('DOMMouseScroll',simOnMouseScoll, false);
+}
+
 function simDisableKeyboardInterrupt()
 {
    document.removeEventListener("keydown", simOnKeypress, false);
+}
+
+function simDisableMouseInterrupt() {
+   CANVAS.removeEventListener('mousewheel', simOnMouseScoll, false);
+   CANVAS.removeEventListener('DOMMouseScroll',simOnMouseScoll, false);
 }
 
 function simOnKeypress(event)
@@ -52,6 +63,18 @@ function simOnKeypress(event)
       // Enqueue this interrupt on the kernal interrupt queue so that it gets to the Interrupt handler.
       _KernelInterruptQueue.enqueue( new Interrput(KEYBOARD_IRQ, params) );
    }
+}
+
+function simOnMouseScoll(event)
+{
+   // multi-browser support
+   var delta = event.wheelDelta;
+   if (!delta) {
+      delta = event.details;
+   }
+   
+   // Enqueue this interrupt on the kernal interrupt queue so that it gets to the Interrupt handler.
+   _KernelInterruptQueue.enqueue( new Interrput(MOUSE_IRQ, delta) );
 }
 
 function hostErrorResponse()

@@ -17,10 +17,10 @@
 // Global Constants
 //------------------
 var APP_NAME = "KayoticOS";  // Because I name everything using Kayotic
-var APP_VERSION = "0.2.0"
+var APP_VERSION = "0.2.0";
 
 var CPU_CLOCK_INTERVAL = 1;   // in ms, or milliseconds, so 1000 = 1 second.
-var CPU_TIMER_RATE = 5; // every X number of intervals
+var CPU_TIMER_RATE = 10; // every X number of intervals
 var CPU_IDLE_MESSAGE_RATE = 100; // every X number of intervals
 
 // IRQs
@@ -32,6 +32,8 @@ var HOST_IRQ = 3;
 var PROGRAM_IRQ = 4;
 var FS_IRQ = 5;
 var KRN_IRQ = 6;
+var MOUSE_IRQ = 7;
+var SPECIAL_KEYS_IRQ = 8;
 var EUTHANIZE_IRQ = 24;
 var BADOP_IRQ = 25;
 
@@ -81,7 +83,8 @@ var TASKBAR_LEFT_MARGIN = 10;
 var DEFAULT_TASKBAR_COLOR = "#ffffff";
 var CONSOLE_LEFT_MARGIN = 1;
 var CONSOLE_RIGHT_MARGIN = 5;
-var CONSOLE_TOP_MARGIN = 3;
+var CONSOLE_TOP_MARGIN = 0;
+var CONSOLE_BOTTOM_MARGIN = 4;
 //var LINE_BUFFER_LENGTH = 50;
 var SCREEN_LINE_LENGTH = 26;
 
@@ -104,6 +107,7 @@ var _StdOut = null;
 //
 var _Console = null;
 var _OsShell = null;
+var _Editor = null;
 
 
 // At least this OS is not trying to kill you. (Yet.)
@@ -115,3 +119,4 @@ var _SarcasticMode = false;
 //
 var krnKeyboardDriver = null;
 var krnFileSystemDriver = null;
+var krnMouseDriver = null;

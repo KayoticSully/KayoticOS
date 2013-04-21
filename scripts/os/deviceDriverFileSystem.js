@@ -114,6 +114,7 @@ var DeviceDriverFileSystem = function() {
             case "read":
                 options.rollIn = false;
                 options.mode = 'file';
+                
                 if(params.length > 2)
                     options = extend(params[2], options);
                     
@@ -131,8 +132,11 @@ var DeviceDriverFileSystem = function() {
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("rollIn", file.name, file.data)));
                 else if(message != null)
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", message, true)));
-                else
+                else if (options.editor) {
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("editor", file.name, file.data)));
+                } else {
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printHexLine", file.data, true)));
+                }
             break;
             
             // crate new file

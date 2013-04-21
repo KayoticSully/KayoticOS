@@ -25,7 +25,16 @@ var LineObject = function(str, prompt, color)
         writeable       : false,
         enumerable      : false,
         get             : function() {
-            var str = this.prompt;
+            return this.prompt + this.line;
+        }
+    });
+    
+    // properties
+    Object.defineProperty(this, 'line', {
+        writeable       : false,
+        enumerable      : false,
+        get             : function() {
+            var str = ''
             for (var index in this.subStrings) {
                 str += this.subStrings[index].text;
             }
@@ -40,6 +49,14 @@ var LineObject = function(str, prompt, color)
 LineObject.prototype.size = function()
 {
     return this.text.length;
+}
+
+LineObject.prototype.clear = function()
+{
+    // clear the array
+    this.subStrings = new Array();
+    // make sure something is in there;
+    this.append('');
 }
 
 LineObject.prototype.append = function(chars, color)
@@ -79,25 +96,35 @@ LineObject.prototype.insert = function(position, characters)
 
 LineObject.prototype.del = function(numOfCharacters)
 {
+    // This function as it is will cause problems if more than 1
+    // character is asked to be deleted. There is no reason for that
+    // to happen in any current possible situation, so... I'll leave
+    // it like this for now.  It works.
+    
     var removed = '';
-
-    while (numOfCharacters > 0) {
-        var index = this.subStrings.length - 1;
-        var subStr = this.subStrings[index];
-        var length = subStr.text.length;
-        
-        if(length < numOfCharacters) {
-            var popped = this.subStrings.pop();
-            removed += popped.text;
-            
-            numOfCharacters = numOfCharacters - length;
+    var current = 0;
+    var target = _StdIn.buffer.CursorXPosition;
+    var subStrIndex = 0;
+    var relativePosition = null;
+    
+    while (relativePosition === null) {
+        // get to the substring with the index needed
+        var subStrLength = this.subStrings[subStrIndex].text.length;
+        if (subStrLength < target - current) {
+            subStrIndex++;
+            current += subStrLength;
         } else {
-            var endIndex = length - numOfCharacters;
-            removed += subStr.text.substring(endIndex);
-            subStr.text = subStr.text.substring(0, endIndex);
-            numOfCharacters = 0;
+            // find the relative position within the substring
+            relativePosition = target - current;
         }
     }
+    
+    // compute the removed text and resulting text
+    var str = this.subStrings[subStrIndex].text;
+    var removeStart = relativePosition - numOfCharacters;
+    
+    removed = str.slice(removeStart, relativePosition);
+    this.subStrings[subStrIndex].text = str.substr(0, removeStart) + str.substr(relativePosition);
     
     return removed;
 }
