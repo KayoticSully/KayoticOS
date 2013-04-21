@@ -97,9 +97,9 @@ var Editor = (function()
                 _StdIn.addText("    ");
             break;
             
-            case 8:
+            //case 8:
                 
-            break;
+            //break;
             
             case 38: // up arrow
                 // line index works backwards.  0 is bottom most.
