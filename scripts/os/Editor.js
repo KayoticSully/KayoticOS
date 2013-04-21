@@ -96,6 +96,11 @@ var Editor = (function()
                 // Only spaces are allowed... tabs are evil
                 _StdIn.addText("    ");
             break;
+            
+            case 8:
+                
+            break;
+            
             case 38: // up arrow
                 // line index works backwards.  0 is bottom most.
                 if (_StdIn.buffer.CursorLineIndex < _StdIn.buffer.length) {

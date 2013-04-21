@@ -87,17 +87,10 @@ function krnKbdDispatchKeyPress(params)
     {
         this.capslock = this.capslock ? false : true;
     }
-    else if (keyCode == 8) // backspace
-    {
-        // May add this to the "Special Characters"
-        // that get fed into the OsShell.  Might
-        // make more sence for it to officially
-        // handle the keypress
-        _StdIn.delChar();
-    }
-    else if(keyCode >= 37 && keyCode <= 40 || // arrows
-            keyCode == 9 ||                   // tab
-            keyCode == 33 || keyCode == 34)   // pageUp / pageDown
+    else if((keyCode >= 37 && keyCode <= 40) || // arrows
+            keyCode == 9 ||                     // tab
+            keyCode == 33 || keyCode == 34 ||   // pageUp / pageDown
+            keyCode == 8)                       // backspace 
     {
         _StdIn.specialKeys(keyCode);
     }

@@ -421,6 +421,11 @@ var Shell = (function()
             case 9: // tab
                 shellTabComplete();
             break;
+            
+            case 8: // backspace
+                _StdIn.delChar();
+                break;
+            
             case 38: // up arrow
                 _Console.history.previous();
             break;
