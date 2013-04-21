@@ -245,12 +245,14 @@ function krnISR(params)
             _Memory.rollIn(params[1], params[2]);
             break;
         case 'editor':
+            var fileName = decodeFromHex(params[1]);
             // load editor
             _Editor = new Editor();
             // load file
-            _Editor.init(params[1], params[2]);
+            _Editor.init(fileName, params[2]);
             // switch to editor
             _Console.editMode = true;
+            _OsShell.status = 'Editing ' + fileName;
             break;
     }
 }

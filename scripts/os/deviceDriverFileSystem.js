@@ -270,7 +270,9 @@ var DeviceDriverFileSystem = function() {
         
         var dir = directoryPath.peek();
         var handle = dir.getFile(fileName);
+        
         console.log(handle);
+        
         if(!handle) {
             // if we didn't find the file
             throw { message : "File does not exist." }

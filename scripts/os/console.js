@@ -25,6 +25,7 @@ function Console()
     this.taskbarFontColor = "#000000";
     this.taskbarColor     = DEFAULT_TASKBAR_COLOR;
     this.buffer	  	  = new ScreenBuffer();
+    this.savedBuffer      = null;
     this.screenOffset     = 0;
     this.history 	  = new CommandHistory();
     this.editMode         = false;
@@ -41,6 +42,7 @@ function Console()
     this.addText     = consoleAddText;
     this.delChar     = consoleDelText;
     this.specialKeys = consoleSpecialKeys;
+    this.controlKeys = consoleControlKeys;
     this.advanceLine = consoleAdvanceLine;
     this.drawTaskBar = consoleDrawTaskBar;
     this.putLine     = consolePutLine;
@@ -83,6 +85,15 @@ function consoleSpecialKeys(keyCode) {
         _Editor.specialKeys(keyCode);
     } else {
         _OsShell.specialKeys(keyCode);
+    }
+}
+
+function consoleControlKeys(keyCode) {
+    if (this.editMode) {
+        _Editor.controlKeys(keyCode);
+    } else {
+        // here if needed
+        //_OsShell.specialKeys(keyCode);
     }
 }
 

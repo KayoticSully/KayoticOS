@@ -40,17 +40,22 @@ function krnKbdDispatchKeyPress(params)
     // Parse the params. 
     var keyCode = params[0];
     var isShifted = params[1];
+    var ctrlKey = params[2];
     
     if(isNaN(keyCode) || typeof isShifted !== "boolean")
     {
         krnTrapError("Bad Keyboard Input");
     }
     
-    krnTrace("Key code:" + keyCode + ' = ' + String.fromCharCode(keyCode) + " shifted:" + isShifted);
+    krnTrace("Key code:" + keyCode + ' = ' + String.fromCharCode(keyCode) + " shifted:" + isShifted + " ctrl:" + ctrlKey);
     var chr = "";
     
+    // check for control keys
+    if (ctrlKey) {
+        _StdIn.controlKeys(keyCode);
+    }
     // Check to see if we even want to deal with the key that was pressed.
-    if ( ((keyCode >= 65) && (keyCode <= 90)) ||   // A..Z
+    else if ( ((keyCode >= 65) && (keyCode <= 90)) ||   // A..Z
          ((keyCode >= 97) && (keyCode <= 123)) )   // a..z
     {
         // Determine the character we want to display.  

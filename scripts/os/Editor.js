@@ -22,7 +22,10 @@ var Editor = (function()
         this.init        = init;
         this.handleEnter = handleEnter;
         this.specialKeys = specialKeys;
+        this.controlKeys = controlKeys;
         this.save        = save;
+        this.quit        = quit;
+        this.savedStatus = _OsShell.status;
     }
     
     function init(fileName, fileData) {
@@ -32,6 +35,7 @@ var Editor = (function()
         var fileLines = fileText.split("\n");
         
         // wipe buffer
+        _Console.savedBuffer = _Console.buffer;
         _Console.buffer = new ScreenBuffer();
         
         for (var lineIndex in fileLines) {
@@ -44,7 +48,34 @@ var Editor = (function()
     }
     
     function save() {
+        var fileText = '';
         
+        // Get all the text seperated by new line characters to save
+        // to file
+        for (var index = _Console.buffer.length - 1; index >= 0; index--) {
+            fileText += _Console.buffer.lines[index].line;
+            
+            if (index < _Console.buffer.length) {
+                fileText += "\n";
+            }
+        }
+        
+        console.log(fileText);
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", encodeToHex(this.fileName), encodeToHex(fileText))));
+        
+        _OsShell.status = 'Saved ' + this.fileName;
+    }
+    
+    function quit() {
+        // reset systme to state previous to editing
+        _Console.buffer = _Console.savedBuffer;
+        _Console.savedBuffer = null;
+        _OsShell.status = this.savedStatus;
+        
+        // turn editor off
+        _Console.editMode = false;
+        _OsShell.putPrompt();
     }
     
     function handleEnter() {
@@ -92,6 +123,17 @@ var Editor = (function()
             
             default:
                 _OsShell.specialKeys(keyCode);
+        }
+    }
+    
+    function controlKeys(keyCode) { 
+        switch (keyCode) {
+            case 83: // ctrl + s
+                this.save();
+                break;
+            case 81: // ctrl + q
+                this.quit();
+                break;
         }
     }
     
