@@ -94,7 +94,22 @@ LineObject.prototype.insert = function(position, characters)
     subStr.text = subStr.text.substr(0, subPosition) + characters + subStr.text.substr(subPosition);
 }
 
-LineObject.prototype.del = function(numOfCharacters)
+LineObject.prototype.splitString = function(position) {
+    // first find the sub-string the position is located in
+    var index = 0;
+    var currentPosition = 0;
+    while (this.subStrings[index].text.length < position - currentPosition) {
+        currentPosition += this.subStrings[index].text.length;
+        index++;
+    }
+    
+    var subStr = this.subStrings[index];
+    var subPosition = position - currentPosition;
+    
+    return new Array(subStr.text.substr(0, subPosition), subStr.text.substr(subPosition));
+}
+
+LineObject.prototype.del = function(numOfCharacters, after)
 {
     // This function as it is will cause problems if more than 1
     // character is asked to be deleted. There is no reason for that
@@ -122,6 +137,11 @@ LineObject.prototype.del = function(numOfCharacters)
     // compute the removed text and resulting text
     var str = this.subStrings[subStrIndex].text;
     var removeStart = relativePosition - numOfCharacters;
+    
+    if (after) {
+        removeStart++;
+        relativePosition++;
+    }
     
     removed = str.slice(removeStart, relativePosition);
     this.subStrings[subStrIndex].text = str.substr(0, removeStart) + str.substr(relativePosition);

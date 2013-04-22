@@ -424,7 +424,15 @@ var Shell = (function()
             
             case 8: // backspace
                 _StdIn.delChar();
-                break;
+            break;
+            
+            case 35: // end
+                _StdIn.buffer.CursorXPosition = _StdIn.buffer.inputLine.size();
+            break;
+            
+            case 36: // home
+                _StdIn.buffer.CursorXPosition = 0;
+            break;
             
             case 38: // up arrow
                 _Console.history.previous();
@@ -468,6 +476,10 @@ var Shell = (function()
                 }
                 
                 _Console.screenOffset = newOffset;
+            break;
+            
+            case 46: // delete
+                _StdIn.delChar(true);
             break;
         }
     }

@@ -49,6 +49,19 @@ ScreenBuffer.prototype.addLine = function(line){
     this.CursorXPosition = 0;
 }
 
+ScreenBuffer.prototype.insertLine = function(line) {
+    this.lines.splice(this.CursorLineIndex, 0, line);
+}
+
+ScreenBuffer.prototype.deleteInputLine = function(){
+    if(this.CursorLineIndex < this.lines.length - 1){
+        var removedLine = this.lines.splice(this.CursorLineIndex, 1);
+        return removedLine[0];
+    }
+    
+    return null;
+}
+
 ScreenBuffer.prototype.addText = function(text, color) {
     var line = this.inputLine;
     if (this.CursorXPosition < line.size() - line.prompt.length) {

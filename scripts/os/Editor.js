@@ -79,11 +79,17 @@ var Editor = (function()
     }
     
     function handleEnter() {
-        if (_Console.buffer.CursorLineIndex > 0) {
-            _Console.buffer.CursorLineIndex--;
-        } else {
-            _Console.buffer.addLine(new LineObject());
-        }
+        
+        var inputLine = _StdIn.buffer.inputLine;
+        var halves = inputLine.splitString(_StdIn.buffer.CursorXPosition);
+        
+        _StdIn.buffer.replaceLine(halves[0]);
+        
+        var newLine = new LineObject(halves[1]);
+        _StdIn.buffer.insertLine(newLine);
+        
+        // fix cursor position
+        _StdIn.buffer.CursorXPosition = 0;
     }
     
     function specialKeys(keyCode) {
@@ -97,9 +103,21 @@ var Editor = (function()
                 _StdIn.addText("    ");
             break;
             
-            //case 8:
-                
-            //break;
+            case 8: // backspace
+                if (_StdIn.buffer.CursorXPosition > 0) {
+                    _StdIn.delChar();
+                } else {
+                    var removedLine = _StdIn.buffer.deleteInputLine();
+                    var oldLength = _StdIn.buffer.inputLine.size();
+                    
+                    // make sure the removed line is added to the end
+                    _StdIn.buffer.CursorXPosition = oldLength;
+                    _StdIn.addText(removedLine.line);
+                    
+                    // make sure cursor is at the end of the old line
+                    _StdIn.buffer.CursorXPosition = oldLength;
+                }
+            break;
             
             case 38: // up arrow
                 // line index works backwards.  0 is bottom most.

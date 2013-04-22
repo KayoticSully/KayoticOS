@@ -89,8 +89,10 @@ function krnKbdDispatchKeyPress(params)
     }
     else if((keyCode >= 37 && keyCode <= 40) || // arrows
             keyCode == 9 ||                     // tab
-            keyCode == 33 || keyCode == 34 ||   // pageUp / pageDown
-            keyCode == 8)                       // backspace 
+            (keyCode >= 33 && keyCode <= 36) || // pageUp / pageDown / home / end
+            keyCode == 8 ||                     // backspace
+            keyCode == 46)                      // delete
+    
     {
         _StdIn.specialKeys(keyCode);
     }

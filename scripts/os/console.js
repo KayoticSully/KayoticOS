@@ -185,12 +185,17 @@ function consolePutText(txt, textColor)
     }
 }
 
-function consoleDelText()
+function consoleDelText(after)
 {
     if(this.buffer.inputLine.size() > 0)
     {
-        var character = this.buffer.inputLine.del(1);
-        if (this.buffer.CursorXPosition > 0) {
+        if (after == undefined) {
+            after = false;
+        }
+        
+        var character = this.buffer.inputLine.del(1, after);
+        
+        if (this.buffer.CursorXPosition > 0 && !after) {
             this.buffer.CursorXPosition--;
         }
     }
