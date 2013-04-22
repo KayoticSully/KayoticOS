@@ -971,5 +971,13 @@ var Shell = (function()
         return { defer: true };
     }
     
+    function shellCompile(args) {
+        var fileName = args[0];
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), { compiler : true })));
+        
+        return { defer: true };
+    }
+    
     return Shell;
 })();

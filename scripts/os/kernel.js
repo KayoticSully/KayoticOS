@@ -254,6 +254,9 @@ function krnISR(params)
             _Console.editMode = true;
             _OsShell.status = 'Editing ' + fileName;
             break;
+        case 'compile':
+            
+            break;
     }
 }
 

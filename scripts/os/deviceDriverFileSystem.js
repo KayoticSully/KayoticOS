@@ -134,6 +134,8 @@ var DeviceDriverFileSystem = function() {
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", message, true)));
                 else if (options.editor) {
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("editor", file.name, file.data)));
+                } else if(options.compile){
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("compile", file.name, file.data)));
                 } else {
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printHexLine", file.data, true)));
                 }
