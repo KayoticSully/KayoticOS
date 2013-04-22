@@ -402,11 +402,25 @@ var Shell = (function()
         sc.function = shellCpuScheduling;
         this.commandList[sc.command] = sc;
         
-        // cpu-scheduler
+        // edit
         sc = new ShellCommand();
         sc.command = "edit";
         sc.description = "<filename> - opens the text editor";
         sc.function = shellEdit;
+        this.commandList[sc.command] = sc;
+        
+        // compile
+        sc = new ShellCommand();
+        sc.command = "compile";
+        sc.description = "<filename> - compiles the file";
+        sc.function = shellCompile;
+        this.commandList[sc.command] = sc;
+        
+        // set refresh rate
+        sc = new ShellCommand();
+        sc.command = "refresh-rate";
+        sc.description = "<number> - clock tick interval for screen refresh";
+        sc.function = shellRefreshRate;
         this.commandList[sc.command] = sc;
         
         // Display the initial prompt.
@@ -974,9 +988,14 @@ var Shell = (function()
     function shellCompile(args) {
         var fileName = args[0];
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), { compiler : true })));
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), { compile : true })));
         
         return { defer: true };
+    }
+    
+    function shellRefreshRate(args) {
+        var interval  = args[0];
+        SCREEN_REFRESH_INTERVAL = interval;
     }
     
     return Shell;

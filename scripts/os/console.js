@@ -390,15 +390,7 @@ var CommandHistory = (function()
 
     function setCommand(command)
     {
-	_Console.resetLine();
-        _Console.buffer.addLine(new LineObject());
-
-	for(var ch in command)
-	{
-            _Console.buffer.inputLine.append(command[ch]);
-	}
-
-	_Console.putText(command);
+        _StdIn.buffer.replaceLine(command);
     }
 
     return ShellHistory;

@@ -110,7 +110,7 @@ function krnOnCPUClockPulse()
        This, on the other hand, is the clock pulse from the hardware (or host) that tells the kernel 
        that it has to look for interrupts and process them if it finds any.                           */
     // DOES THIS BELONG HERE ???????????
-    if(_OSclock % CPU_TIMER_RATE == 0)
+    if(_OSclock % SCREEN_REFRESH_INTERVAL == 0)
     {
         // draw the taskbar part of the gui
         _Console.drawTaskBar();
@@ -236,7 +236,7 @@ function krnISR(params)
 {
     switch(params[0]) {
         case 'printLine':
-            _StdOut.putLine(params[1], params[2]);
+            _StdOut.putLine(params[1], params[2], params[3]);
             break;
         case 'printHexLine':
             _StdOut.putLine(decodeFromHex(params[1]), params[2]);
@@ -255,7 +255,62 @@ function krnISR(params)
             _OsShell.status = 'Editing ' + fileName;
             break;
         case 'compile':
+            var source = trim(decodeFromHex(params[2]));
             
+            console.log(params[2]);
+            
+            //logLevel = 'verbose';
+            var line = "Compiling File " + decodeFromHex(params[1]);
+            log(line, 'normal', false);
+            
+            // Lex Source
+            var lexer       = new Lexer();
+            var tokenStream = lexer.lex(source);
+            var tokenErrors = lexer.getErrors();
+            
+            if (tokenErrors.length > 0) {
+                log('-------');
+                log('Failure', 'error');
+                log('-------');
+                _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "", true)));
+                break;
+            }
+            
+            // Parse Tokens
+            var parser      = new Parser();
+            var parseResults = parser.parse(tokenStream);
+            var parseErrors = parser.getErrors();
+            
+            if (parseErrors.length > 0) {
+                log('-------');
+                log('Failure', 'error');
+                log('-------');
+                _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "", true)));
+                break;
+            }
+            
+            // Analyze!
+            var symbolTable = parser.getSymbolTable();
+            var ast         = parser.getAST();
+            
+            var analysis    = new SemanticAnalysis();
+            analysis.analyze(symbolTable, ast);
+            var analysisErrors = analysis.getErrors();
+            
+            if (analysisErrors.length > 0) {
+                log('-------');
+                log('Failure', 'error');
+                log('-------');
+                _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "", true)));
+                break;
+            }
+            
+            log('-------');
+            log('Success!');
+            log('-------');
+            
+            var line = "No output saved... CodeGen is not finished.";
+            _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", line, true)));
             break;
     }
 }

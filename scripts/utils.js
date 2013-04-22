@@ -11,18 +11,19 @@
  | Just making comments consistent across all files
  */
 
-function trim(str)      // Use a regular expression to remove leading and trailing spaces.
+function trim(str) // Use a regular expression to remove leading and trailing spaces.
 {
-	return str.replace(/^\s+ | \s+$/g, "");
-	/* 
+    // I removed the whitespace on either side of the OR "|" operator.
+    // It was messing up if the only space was a newline character.
+    return str.replace(/^\s+|\s+$/g, "");
+    /* 
 	Huh?  Take a breath.  Here we go:
 	- The "|" separates this into two expressions, as in A or B.
 	- "^\s+" matches a sequence of one or more whitespace characters at the beginning of a string.
-	- "\s+$" is the same thing, but at the end of the string.
-	- "g" makes is global, so we get all the whitespace.
-	- "" is nothing, which is what we replace the whitespace with.
-	*/
-	
+        - "\s+$" is the same thing, but at the end of the string.
+        - "g" makes is global, so we get all the whitespace.
+        - "" is nothing, which is what we replace the whitespace with.
+    */
 }
 
 function rot13(str)     // An easy-to understand implementation of the famous and common Rot13 obfuscator.
@@ -130,4 +131,32 @@ function toHex(data)
 function getRandomInt(min, max)
 {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
+/**
+ * Controls compiler output
+ * 
+ * @param {String} line A line to add to output list
+ * @param {String} type Classes to add to output list item
+ * @param {Boolean} verbose Set to true if log should only be shown when verbose output is on. Default false
+ */
+function log(line, type, verbose) {
+    if(verbose === undefined) verbose = false;
+    if(type === undefined) type = '';
+    
+    if((verbose == false) || (verbose == true && logLevel == 'verbose')) {
+	var color = DEFAULT_FONT_COLOR;
+	
+	if (type == 'error') {
+		color = "#FF4040";
+	} else if (type == "info") {
+		color = "#245A7A";
+	} else if (type == "warning") {
+		color = "#BF7F30";
+	}
+	
+        _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", line, false, color)));
+        console.log(line);
+    }
 }

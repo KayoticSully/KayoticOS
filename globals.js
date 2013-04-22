@@ -17,10 +17,10 @@
 // Global Constants
 //------------------
 var APP_NAME = "KayoticOS";  // Because I name everything using Kayotic
-var APP_VERSION = "0.2.0";
+var APP_VERSION = "0.5.0";
 
 var CPU_CLOCK_INTERVAL = 1;   // in ms, or milliseconds, so 1000 = 1 second.
-var CPU_TIMER_RATE = 10; // every X number of intervals
+var SCREEN_REFRESH_INTERVAL = 1; // every X number of intervals
 var CPU_IDLE_MESSAGE_RATE = 100; // every X number of intervals
 
 // IRQs
@@ -120,3 +120,8 @@ var _SarcasticMode = false;
 var krnKeyboardDriver = null;
 var krnFileSystemDriver = null;
 var krnMouseDriver = null;
+
+//
+// Compiler Settings
+//
+var logLevel = null;

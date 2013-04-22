@@ -71,9 +71,9 @@ function krnKbdDispatchKeyPress(params)
         _KernelInputQueue.enqueue(chr);        
     }    
     else if ( !isShifted && // block when shift is held to allow symbols to handle it
-             (((keyCode >= 48) && (keyCode <= 57)) ||   // digits 
-               (keyCode == 32)                     ||   // space
-               (keyCode == 13) ) )                      // enter
+              ((keyCode >= 48 && keyCode <= 57) ||   // digits
+               (keyCode == 32)                  ||   // space
+               (keyCode == 13) ) )                   // enter
     {
         chr = String.fromCharCode(keyCode);
         _KernelInputQueue.enqueue(chr);
