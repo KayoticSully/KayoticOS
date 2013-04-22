@@ -986,7 +986,23 @@ var Shell = (function()
     }
     
     function shellCompile(args) {
-        var fileName = args[0];
+        var fileName = '';
+        logLevel = null;
+        
+        // handle arguments
+        for (var i in args) {
+            if (args[i] == '-v') {
+                logLevel = 'verbose';
+            } else if(args[i].charAt(0) !== '-') {
+                fileName = args[i];
+            } else {
+                log("Invalid Syntax. compile [flags] <filename>");
+                log("Available flags:");
+                log("    -v : verbose");
+                _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "", true)));
+                return { defer: true };
+            }
+        }
         
         _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), { compile : true })));
         
