@@ -91,20 +91,23 @@ function encodeToHex(str) {
 }
 
 function decodeFromHex(hex) {
-	
-	var hexArr = hex.match(PROGRAM_PATTERN);
-	var result = "";
-	
-	for(hexByte in hexArr) {
-		// decode character
-		var charCode = parseInt(hexArr[hexByte], 16);
-		// convert to string
-		var character = String.fromCharCode(charCode);
+	if (hex != null) {
+		var hexArr = hex.match(PROGRAM_PATTERN);
+		var result = "";
 		
-		result += character;
+		for(hexByte in hexArr) {
+			// decode character
+			var charCode = parseInt(hexArr[hexByte], 16);
+			// convert to string
+			var character = String.fromCharCode(charCode);
+			
+			result += character;
+		}
+		
+		return result;
+	} else {
+		return "";
 	}
-	
-	return result;
 }
 
 //

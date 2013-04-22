@@ -54,7 +54,7 @@ ScreenBuffer.prototype.insertLine = function(line) {
 }
 
 ScreenBuffer.prototype.deleteInputLine = function(){
-    if(this.CursorLineIndex < this.lines.length - 1){
+    if(this.CursorLineIndex < this.lines.length - 1) {
         var removedLine = this.lines.splice(this.CursorLineIndex, 1);
         return removedLine[0];
     }

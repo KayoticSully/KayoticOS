@@ -129,6 +129,11 @@ var Editor = (function()
                     if (_StdOut.buffer.CursorXPosition > inputLength) {
                         _StdOut.buffer.CursorXPosition = inputLength;
                     }
+                    
+                    // see if we need to scroll the window
+                    if (_StdIn.buffer.CursorLineIndex - _StdIn.screenOffset >= SCREEN_LINE_LENGTH) {
+                        _StdIn.screenOffset++;
+                    }
                 }
             break;
             
@@ -140,6 +145,11 @@ var Editor = (function()
                     var inputLength = _StdIn.buffer.inputLine.size();
                     if (_StdOut.buffer.CursorXPosition > inputLength) {
                         _StdOut.buffer.CursorXPosition = inputLength;
+                    }
+                    
+                    // see if we need to scroll the window
+                    if (_StdIn.buffer.CursorLineIndex - _StdIn.screenOffset <= 0) {
+                        _StdIn.screenOffset--;
                     }
                 }
             break;
