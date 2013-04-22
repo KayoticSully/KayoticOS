@@ -412,7 +412,7 @@ var Shell = (function()
         // compile
         sc = new ShellCommand();
         sc.command = "compile";
-        sc.description = "<filename> - compiles the file";
+        sc.description = "[flags] <filename> - compiles the file";
         sc.function = shellCompile;
         this.commandList[sc.command] = sc;
         
