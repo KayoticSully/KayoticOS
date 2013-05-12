@@ -328,21 +328,21 @@ function krnLoadProgram(priority)
             var PID = _Memory.loadProgram(instructions, priority);
             
             // Print Acknowledgement 
-            _StdOut.putLine("Your specimen has been processed and now we are ready");
+            _StdOut.addText("Your specimen has been processed and now we are ready");
             _StdOut.putLine("to begin the test proper. Your unique specimen identification");
-            _StdOut.putText("number is " + PID);
+            _StdOut.putLine("number is " + PID);
         }
         else
         {
             // Print Error
-            _StdIn.putLine("Program does not comply with proper formatting standards specified in");
-            _StdIn.putText("the Testing Procedures Manual, section 42 paragraph 285.");
+            _StdIn.addText("Program does not comply with proper formatting standards specified in");
+            _StdIn.putLine("the Testing Procedures Manual, section 42 paragraph 285.");
         }
     }
     else
     {
         // Print Error
-        _StdIn.putText("You first need something to load.");
+        _StdIn.addText("You first need something to load.");
     }
     
     _StdOut.advanceLine();
@@ -360,7 +360,7 @@ function krnHandleSysCall(params)
         switch(parseInt(params[1]))
         {
             case 1:
-                _StdOut.putText(params[2].toString() + " ");
+                _StdOut.addText(params[2].toString() + " ");
             break;
             
             case 2:
@@ -375,13 +375,13 @@ function krnHandleSysCall(params)
                     // convert to string
                     var character = String.fromCharCode(charCode);
                     // print character
-                    _StdOut.putText(character);
+                    _StdOut.addText(character);
                     
                     // get next
                     characterHex = _Memory.get(location++);
                 }
                 
-                _StdOut.putText(" ");
+                _StdOut.addText(" ");
             break;
         }
     }

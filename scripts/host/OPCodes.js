@@ -63,7 +63,7 @@ function OPCodes()
         
         // convert encoding
         var location = location2 + location1;
-        alert(location);
+        
         // get data at memory location
         var data = _Memory.get(parseInt(location, 16));
         
