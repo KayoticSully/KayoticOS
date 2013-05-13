@@ -128,6 +128,8 @@ var DeviceDriverFileSystem = function() {
                 
                 console.log(file);
                 
+                // there is probably a better way of making this work...
+                // but this does work for our needs
                 if(options.rollIn)
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("rollIn", file.name, file.data)));
                 else if(message != null)
@@ -135,7 +137,9 @@ var DeviceDriverFileSystem = function() {
                 else if (options.editor) {
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("editor", file.name, file.data)));
                 } else if(options.compile){
-                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("compile", file.name, file.data)));
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("compile", file.name, file.data, options.target)));
+                } else if(options.load) {
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("load", file.name, file.data, options.execute)));
                 } else {
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printHexLine", file.data, true)));
                 }
@@ -210,6 +214,8 @@ var DeviceDriverFileSystem = function() {
                     
                     if(file.kind == Type.DIRECTORY.kind) {
                         fileName = '/' + fileName;
+                    } else if(file.kind == Type.SYSTEM_FILE.kind) {
+                        fileName = '~' + fileName;
                     }
                     
                     _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "  " + fileName, false)));
@@ -278,7 +284,7 @@ var DeviceDriverFileSystem = function() {
         if(!handle) {
             // if we didn't find the file
             throw { message : "File does not exist." }
-        } else if(handle.kind == Type.FILE.kind) {
+        } else if(handle.kind == type.kind) {
             var fileObject = new File(handle);
             fileObject.data = data;
             fileObject.save();

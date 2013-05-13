@@ -235,6 +235,9 @@ function krnHostISR(params)
 function krnISR(params)
 {
     switch(params[0]) {
+        case 'printText':
+            _StdOut.addText(params[1], params[2]);
+            break;
         case 'printLine':
             _StdOut.putLine(params[1], params[2], params[3]);
             break;
@@ -256,6 +259,7 @@ function krnISR(params)
             break;
         case 'compile':
             var source = trim(decodeFromHex(params[2]));
+            var target = trim(params[3]);
             
             console.log(params[2]);
             
@@ -305,13 +309,48 @@ function krnISR(params)
                 break;
             }
             
+            // CodeGen!
+            var codegen = new CodeGen();
+            var hexCode = codegen.generate(symbolTable, ast);
+            
+            // make sure file is created
+            console.log('target: ' + target);
+            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", target, { printLine : false })));
+            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", target, encodeToHex(hexCode), { printLine : false })));
+            
             log('-------');
             log('Success!');
             log('-------');
             
-            var line = "No output saved... CodeGen is not finished.";
+            var line = "Compiled code saved in " + decodeFromHex(target);
             _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", line, true)));
             break;
+        
+        case 'load':
+            var source = trim(decodeFromHex(params[2]));
+            //var priority = trim(decodeFromHex(params[3]));
+            var instructions = source.match(PROGRAM_PATTERN);
+            
+            if(instructions !== null && source == instructions.join(' ')) {
+                var PID = _Memory.loadProgram(instructions);
+                
+                // if execute
+                if (params.length > 3 && params[3] === true) {
+                    _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", PID)));
+                } else {
+                    // Print Acknowledgement
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printText", "Your specimen has been processed and now we are ready")));
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "to begin the test proper. Your unique specimen identification", false)));
+                    _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "number is " + PID, true)));
+                }
+            }
+            else
+            {
+                // Print Error
+                _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printText", "Program does not comply with proper formatting standards specified in", "#FF0000")));
+                _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "the Testing Procedures Manual, section 42 paragraph 285.", true, "#FF0000")));
+            }
+        break;
     }
 }
 
@@ -327,16 +366,16 @@ function krnLoadProgram(priority)
         {
             var PID = _Memory.loadProgram(instructions, priority);
             
-            // Print Acknowledgement 
-            _StdOut.addText("Your specimen has been processed and now we are ready");
-            _StdOut.putLine("to begin the test proper. Your unique specimen identification");
-            _StdOut.putLine("number is " + PID);
+            // Print Acknowledgement
+            _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printText", "Your specimen has been processed and now we are ready")));
+            _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "to begin the test proper. Your unique specimen identification", false)));
+            _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "number is " + PID, true)));
         }
         else
         {
             // Print Error
-            _StdIn.addText("Program does not comply with proper formatting standards specified in");
-            _StdIn.putLine("the Testing Procedures Manual, section 42 paragraph 285.");
+            _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printText", "Program does not comply with proper formatting standards specified in", "#FF0000")));
+            _KernelInterruptQueue.enqueue(new Interrput(KRN_IRQ, new Array("printLine", "the Testing Procedures Manual, section 42 paragraph 285.", true, "#FF0000")));
         }
     }
     else
@@ -426,7 +465,7 @@ function krnContextSwitch()
         if(process !== undefined) { // make sure PCB is something
             if(process.Base == -1) {
                 var fileName = 'p' + process.PID;
-                _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array('read', fileName, { rollIn : true, mode : 'system_file' })));
+                _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array('read', encodeToHex(fileName), { rollIn : true, mode : 'system_file' })));
             }
             else
                 krnLoadState(process, "running");
@@ -516,22 +555,6 @@ function krnBreak()
         _OsShell.putPrompt();
     }
 }
-
-//
-// System Calls... that generate software interrupts via tha Application Programming Interface library routines.
-//
-// Some ideas:
-// - ReadConsole
-// - WriteConsole
-// - CreateProcess
-// - ExitProcess
-// - WaitForProcessToExit
-// - CreateFile
-// - OpenFile
-// - ReadFile
-// - WriteFile
-// - CloseFile
-
 
 //
 // OS Utility Routines

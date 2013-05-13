@@ -766,25 +766,30 @@ var Shell = (function()
     
     function loadProgram(args)
     {
-        _KernelInterruptQueue.enqueue(new Interrput(HOST_IRQ, new Array("load", args[0])));
+        if (args.length > 0 && isNaN(args[0])) {
+            var fileName = args[0];
+            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), { load : true })));
+        } else {
+            _KernelInterruptQueue.enqueue(new Interrput(HOST_IRQ, new Array("load", args[0])));
+        }
+        
         return { defer : true };
     }
     
     function shellRun(args)
     {
-        if(args == 'all')
-        {
-            for(var PID in _ResidentQ)
-            {
-                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", _ResidentQ[PID].PID)));
-            }
-        }
-        else
-        {
-            // add programs to ReadyQ
-            for(var PID in args)
-            {
-                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", args[PID])));
+        // handle arguments
+        for (var i in args) {
+            if (args[i] == '-a') {
+                for(var PID in _ResidentQ)
+                {
+                    _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", _ResidentQ[PID].PID)));
+                }   
+            } else if(isNaN(args[i])) {
+                _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(args[i]), { load : true, execute : true })));
+            } else {
+                // add programs to ReadyQ
+                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("ready", args[i])));
             }
         }
         
@@ -987,6 +992,7 @@ var Shell = (function()
     
     function shellCompile(args) {
         var fileName = '';
+        var targetName = '';
         logLevel = null;
         
         // handle arguments
@@ -994,7 +1000,14 @@ var Shell = (function()
             if (args[i] == '-v') {
                 logLevel = 'verbose';
             } else if(args[i].charAt(0) !== '-') {
-                fileName = args[i];
+                // first text arg is source
+                if (fileName === '') {
+                    fileName = args[i];
+                }
+                // second text arg is target
+                else if(targetName === '') {
+                    targetName = args[i];
+                }
             } else {
                 log("Invalid Syntax. compile [flags] <filename>");
                 log("Available flags:");
@@ -1004,7 +1017,12 @@ var Shell = (function()
             }
         }
         
-        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), { compile : true })));
+        // default target
+        if (targetName === '') {
+            targetName = fileName + '.e';
+        }
+        
+        _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("read", encodeToHex(fileName), { compile : true, target: encodeToHex(targetName) })));
         
         return { defer: true };
     }

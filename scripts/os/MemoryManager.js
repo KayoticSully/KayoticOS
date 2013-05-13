@@ -139,7 +139,8 @@ var MemoryManager = (function(){
         }
         
         this.rollIn = function(fileName, fileData) {
-            var pid = parseInt(fileName.replace('p', ''));
+            var file = decodeFromHex(fileName);
+            var pid = parseInt(file.replace('p', ''));
             var pcb = _ResidentQ[pid];
             
             var instructions = fileData.match(PROGRAM_PATTERN);
@@ -159,12 +160,12 @@ var MemoryManager = (function(){
                 // get data at memory location in the context of the program
                 swapData += dat;
             }
-            
+            console.log('SwapData: ' + swapData);
             var fileName = "p" + PCB.PID;
             
             // make sure file handle is created
-            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", fileName, { mode : 'system_file'})));
-            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", fileName, swapData, { mode : 'system_file'})));
+            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", encodeToHex(fileName), { mode : 'system_file'})));
+            _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", encodeToHex(fileName), swapData, { mode : 'system_file'})));
             PCB.Base = -1;
             PCB.Limit = -1;
         }
