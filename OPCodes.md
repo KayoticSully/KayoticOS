@@ -4,17 +4,14 @@ These are the implemented OPCodes for Kayotic OS.  It is based off of the full 6
 
 OP Codes
 --------
-**Listed In-Order as defined in OPCodes.js**
+__Listed In-Order as defined in OPCodes.js__
 
-### BRK
-System call to stop program execution
+__BRK__ - System call to stop program execution  
+__Flags Affected:__ I  
+> __00__ : Implied Addressing  
 
-__00__ : Implied Addressing
+__LDA__ - Load Accumulator with value.  
+__Flags Affected:__ S, Z  
+> __A9 XX__ : Immediate Addressing  
+> __AD XX XX__ : Absolute Addressing
 
-
-### LDA
-Load Accumulator with value
-
-__A9 XX__ : Immediate Addressing
-
-__AD XX XX__ : Absolute Addressing
