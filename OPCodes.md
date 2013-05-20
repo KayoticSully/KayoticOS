@@ -148,7 +148,7 @@ __Flags Affected:__ None
 > __4C XX XX__ : Absolute Addressing  
 
 
-__CMP__ - Compare Accumulator to Value
+__CMP__ - Compare Accumulator to Value  
 __Flags Affected:__ S, Z, C  
 > __C9 XX__ : Immediate Addressing  
 > __CD XX XX__ : Absolute Addressing  
