@@ -8,9 +8,13 @@ OP Codes
 
 ### BRK
 System call to stop program execution
+
 __00__ : Implied Addressing
+
 
 ### LDA
 Load Accumulator with value
+
 __A9 XX__ : Immediate Addressing
+
 __AD XX XX__ : Absolute Addressing
