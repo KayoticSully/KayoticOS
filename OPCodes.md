@@ -6,10 +6,11 @@ OP Codes
 --------
 **Listed In-Order as defined in OPCodes.js**
 
-### BRK - 00
+### BRK
 System call to stop program execution
-*   Implied Addressing
+__00__ : Implied Addressing
 
 ### LDA
-*   __A9__ [XX] : Immediate Addressing
-*   __AD__ [XX XX] : Absolute Addressing
+Load Accumulator with value
+__A9 XX__ : Immediate Addressing
+__AD XX XX__ : Absolute Addressing
