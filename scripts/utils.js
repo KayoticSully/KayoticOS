@@ -133,6 +133,31 @@ function getRandomInt(min, max)
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// Converts a hex integer to decimal using 2's complemnt
+function intFromHex(hexValue) {
+    // convert hex to int assuming no 2's complement
+    var straightInt = parseInt(hexValue, 16);
+    
+    // apply 2's comeplement conversion
+    // 127 is the highest positive integer and -128 is lowest negative integer
+    if (straightInt >= 128) {
+	return straightInt - 256;
+    } else {
+	return straightInt;
+    }
+}
+
+// Converts a hex integer to decimal using 2's complemnt
+function hexFromInt(intValue) {
+    // if negative, apply correction
+    if (intValue < 0) {
+	var corrected = intValue + 256
+	return toHex(corrected);
+    } else {
+	return toHex(intValue);
+    }
+}
+
 
 /**
  * Controls compiler output

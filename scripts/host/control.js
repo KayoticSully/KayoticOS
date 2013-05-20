@@ -222,14 +222,25 @@ function updatePCB(queue, element)
 function updateCPU()
 {
 	var str = '<strong>PC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.PC) + '</span>&nbsp;&nbsp;' +
-		  '<strong>ACC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Acc, 2) + '</span>' +
-		  '<strong>X:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Xreg, 2) + '</span>&nbsp;&nbsp;' +
-		  '<strong>Y:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Yreg, 2) + '</span>&nbsp;&nbsp;' +
-		  '<strong>Z:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.Zflag, 2) + '</span>&nbsp;&nbsp;' +
+		  '<strong>ACC:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPU.Acc), 2) + '</span>' +
+		  '<strong>X:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPU.Xreg), 2) + '</span>&nbsp;&nbsp;' +
+		  '<strong>Y:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPU.Yreg), 2) + '</span>&nbsp;&nbsp;' +
 		  '<strong>PID:</strong>' + '<span class="PCBField">' + _Memory.ActivePID + '</span>&nbsp;' +
 		  '<strong>Base:</strong>' + '<span class="PCBField">' + _Memory.Base + '</span>&nbsp;&nbsp;' +
-		  '<strong>Limit:</strong>' + '<span class="PCBField">' + _Memory.Limit + '</span>&nbsp;&nbsp;';
+		  '<strong>Limit:</strong>' + '<span class="PCBField">' + _Memory.Limit + '</span>&nbsp;&nbsp;' +
+		  '<br>' +
+		  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp' +
+		  '<strong>Status:</strong> { ' + statusString() + ' } &nbsp;&nbsp;';
 	$('#CPU').html(str);
+}
+
+function statusString() {
+	var str = '';
+	for (var flag in _CPU.Status) {
+		str += '<strong>' + flag + ' :</strong> ' + _CPU.Status[flag] + ', ';
+	}
+	
+	return str.substring(0, str.length - 2);
 }
 
 /**

@@ -23,13 +23,46 @@ var CPU = (function()
     
     function CPU()
     {
-        var OPs = new OPCodes();
+        var OPs = new OPCodes(this);
+        
+        var _Acc   = 0;     // Accumulator
+        Object.defineProperty(this, 'Acc', {
+            writeable       : true,
+            enumerable      : false,
+            get             : function() {
+                return _Acc;
+            },
+            set             : function(value) {
+                // correct for 2's complement
+                if (value > 127)
+                {
+                    _Acc = value - 256;
+                }
+                else if(value < -128)
+                {
+                    _Acc = value + 256;
+                }
+                else
+                {
+                    _Acc = value;
+                }
+            }
+        });
         
         this.PC    = 0;     // Program Counter
-        this.Acc   = 0;     // Accumulator
         this.Xreg  = 0;     // X register
-        this.Yreg  = 0;     // Y register
-        this.Zflag = 0;     // Z-ero flag (Think of it as "isZero".)
+        this.Yreg  = 0;     // Y register 
+        this.Status = {      // S-tatus register  (for an indepth explanation: http://nesdev.com/6502.txt)
+            C : 0,          // C-arry flag
+            Z : 0,          // Z-ero flag (Think of it as "isZero".)
+            I : 1,          // I-nterrupt flag (1 = enable interrupts, 0 = disable interrupts)
+            D : 0,          // D-ecimal Mode
+            B : 0,          // B-reak (set when BRK instruction is executed)
+           NU : 1,          // Not used and must be 1 at all times
+            V : 0,          // o-V-erflow flag
+            S : 0,          // S-ign flag set if result of an operation is negative therefore 0 == positive, 1 == negative
+        };
+        
         this.isExecuting = false;
     
         this.init = function() 
@@ -38,7 +71,9 @@ var CPU = (function()
             this.Acc   = 0;
             this.Xreg  = 0;
             this.Yreg  = 0;
-            this.Zflag = 0;      
+            this.Zflag = 0;
+            this.Sflag = { C : 0, Z : 0, I : 1, D : 0, B : 0, NU : 1, V : 0, S : 0 };
+            
             this.isExecuting = false;  
         }
         

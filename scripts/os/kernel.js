@@ -403,8 +403,13 @@ function krnHandleSysCall(params)
             break;
             
             case 2:
+                // since the OS works on 2's complement, the Y register
+                // might be negative.  Since memory locations can't be
+                // negative, we need to reconvert it from hex.
+                var hexLocation = hexFromInt(params[2]);
+                var location = parseInt(params[2], 16);
+                
                 // get first character from starting location
-                var location = parseInt(params[2]);
                 var characterHex = _Memory.get(location++);
                 
                 while(characterHex != "00")
