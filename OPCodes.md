@@ -7,18 +7,18 @@ OP Codes
 __Listed In-Order as defined in OPCodes.js__
 
 __BRK__ - System call to stop program execution.  
-__Flags Affected:__ I  
+__Flags Affected:__ I
 > __00__ : Implied Addressing  
 
 
 __LDA__ - Load Accumulator with value.  
-__Flags Affected:__ S, Z  
+__Flags Affected:__ S, Z
 > __A9 XX__ : Immediate Addressing  
 > __AD XX XX__ : Absolute Addressing  
 
 
 __STA__ - Store Accumulator to Memory.  
-__Flags Affected:__ None  
+__Flags Affected:__ None
 > __8D XX XX__ : Absolute Addressing
 
 
