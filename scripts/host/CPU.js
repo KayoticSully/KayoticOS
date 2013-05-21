@@ -25,30 +25,7 @@ var CPU = (function()
     {
         var OPs = new OPCodes(this);
         
-        var _Acc   = 0;     // Accumulator
-        Object.defineProperty(this, 'Acc', {
-            writeable       : true,
-            enumerable      : false,
-            get             : function() {
-                return _Acc;
-            },
-            set             : function(value) {
-                // correct for 2's complement
-                if (value > 127)
-                {
-                    _Acc = value - 256;
-                }
-                else if(value < -128)
-                {
-                    _Acc = value + 256;
-                }
-                else
-                {
-                    _Acc = value;
-                }
-            }
-        });
-        
+        this.Acc   = 0;     // Accumulator
         this.PC    = 0;     // Program Counter
         this.Xreg  = 0;     // X register
         this.Yreg  = 0;     // Y register 

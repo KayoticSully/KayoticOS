@@ -140,9 +140,16 @@ function intFromHex(hexValue) {
     
     // apply 2's comeplement conversion
     // 127 is the highest positive integer and -128 is lowest negative integer
-    if (straightInt >= 128) {
+    if (straightInt > 127)
+    {
 	return straightInt - 256;
-    } else {
+    }
+    else if(straightInt < -128)
+    {
+	return straightInt + 256;
+    }
+    else
+    {
 	return straightInt;
     }
 }
