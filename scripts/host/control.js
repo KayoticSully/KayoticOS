@@ -23,6 +23,14 @@
 // globals only used in this file
 var hddDisplay = false;
 
+
+// this event needs to be setup before os starts
+$(document).ready(function(){
+	$('input[name=cpunum]').on('change', function(){
+		_CPU_COUNT = $(this).val();
+	});
+});
+
 //
 // Control Services
 //
@@ -76,7 +84,9 @@ function simLog(msg, source)
 function simBtnStartOS_click(btn)
 {
 	if(!_POWER)
-	{	
+	{
+		$('input[name=cpu]').attr('disabled', 'disabled');
+		
 		_POWER = true;
 		// .. set focus on the OS console display ... 
 		document.getElementById("display").focus();
@@ -135,6 +145,7 @@ function simHostShutdown()
 	_OSclock = 0;
 	
 	// HARDWARE IS OFF!
+	$('input[name=cpu]').removeAttr("disabled"); 
 }
 
 function simPulse()

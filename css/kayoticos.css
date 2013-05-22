@@ -166,13 +166,17 @@ audio, embed {
 	padding:0px 8px 0px 0px;
 }
 
-#memoryControls > input[type=radio] {
+#memoryControls > input[type=radio], #CPUNum > input[type=radio]{
 	font-size: 12px;
 }
 
-#memoryControls > input[type=radio], #stepControls > input[type=radio]
+#CPUNum > input[type=radio], #CPUNum > label {
+	display: inline;
+}
+
+#memoryControls > input[type=radio], #stepControls > input[type=radio], #CPUNum > input[type=radio]
 {
-	margin:-2px 3px 0px 0px;
+	margin:-2px 3px 0px 1px;
 }
 
 /* PCB */
