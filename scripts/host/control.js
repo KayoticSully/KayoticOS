@@ -82,8 +82,17 @@ function simBtnStartOS_click(btn)
 		document.getElementById("display").focus();
 		
 		// ... Create and initialize the CPU ...
-		_CPU = new CPU();
-		_CPU.init();
+		_CPUS = new Array();
+		
+		// create number of allocated CPU's
+		for (var i = 0; i < _CPU_COUNT; i ++)
+		{
+			var cpu = new CPU();
+			cpu.init();
+			_CPUS.push(cpu);
+		}
+		
+		_CPU = _CPUS[0];
 		
 		_RAM = new RAM();
 		
@@ -97,7 +106,9 @@ function simBtnStartOS_click(btn)
 		// I decided to "pulse" the CPU directly so the interval
 		// is more like the pulse and it runs "through" the CPU
 		//
-		hardwareClockID = setInterval(_CPU.pulse, CPU_CLOCK_INTERVAL);
+		
+		// TODO
+		hardwareClockID = setInterval(simPulse, CPU_CLOCK_INTERVAL);
 		
 		simLog("POST", "Host");
 		
@@ -119,10 +130,33 @@ function simHostShutdown()
 	_SystemClock = null;
 	_RAM = null;
 	_CPU = null;
+	_CPUS = null;
 	_POWER = false;
 	_OSclock = 0;
 	
 	// HARDWARE IS OFF!
+}
+
+function simPulse()
+{
+	// Increment the hardware (host) clock.
+        _OSclock++;
+	
+	// Update System Time
+        _SystemClock.update();
+	
+	// Call the kernel clock pulse event handler.
+        krnOnCPUClockPulse();
+	
+	controlUpdateDisplay();
+	
+	if(STEP_TOGGLE)
+	{
+		for (var i in _CPUS)
+		{
+			_CPUS[i].isExecuting = false;
+		}
+	}
 }
 
 function setupHostEvents()
@@ -145,7 +179,9 @@ function setupHostEvents()
 	$('#stepBtn').on('click', function(){
 		if(STEP_TOGGLE)
 		{
-			_CPU.isExecuting = true;
+			for (var i in _CPUS) {
+				_CPUS[i].isExecuting = true;
+			}
 		}
 	});
 }
@@ -221,16 +257,20 @@ function updatePCB(queue, element)
 
 function updateCPU()
 {
-	var str = '<strong>PC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPU.PC) + '</span>&nbsp;&nbsp;' +
-		  '<strong>ACC:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPU.Acc), 2) + '</span>' +
-		  '<strong>X:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPU.Xreg), 2) + '</span>&nbsp;&nbsp;' +
-		  '<strong>Y:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPU.Yreg), 2) + '</span>&nbsp;&nbsp;' +
-		  '<strong>PID:</strong>' + '<span class="PCBField">' + _Memory.ActivePID + '</span>&nbsp;' +
-		  '<strong>Base:</strong>' + '<span class="PCBField">' + _Memory.Base + '</span>&nbsp;&nbsp;' +
-		  '<strong>Limit:</strong>' + '<span class="PCBField">' + _Memory.Limit + '</span>&nbsp;&nbsp;' +
+	var str = '';
+	for (var i in _CPUS)
+	{
+		str += '<strong>PC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPUS[i].PC) + '</span>&nbsp;&nbsp;' +
+		  '<strong>ACC:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPUS[i].Acc), 2) + '</span>' +
+		  '<strong>X:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPUS[i].Xreg), 2) + '</span>&nbsp;&nbsp;' +
+		  '<strong>Y:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPUS[i].Yreg), 2) + '</span>&nbsp;&nbsp;' +
+		  '<strong>PID:</strong>' + '<span class="PCBField">' + _Memory.ActivePID[i] + '</span>&nbsp;' +
+		  '<strong>Base:</strong>' + '<span class="PCBField">' + _Memory.Base[i] + '</span>&nbsp;&nbsp;' +
+		  '<strong>Limit:</strong>' + '<span class="PCBField">' + _Memory.Limit[i] + '</span>&nbsp;&nbsp;' +
 		  '<br>' +
-		  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp' +
-		  '<strong>Status:</strong> { ' + statusString() + ' } &nbsp;&nbsp;';
+		  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp';
+	}
+	
 	$('#CPU').html(str);
 }
 

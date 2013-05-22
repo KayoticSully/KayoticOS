@@ -15,6 +15,9 @@ var ProcessScheduler = (function(){
     
     var processTicks    = 0;
     var processQ        = new Queue();
+    var lastCPU         = 0;
+    
+    
     var sys_quantum     = 6; // not of solace
     var scheduling_algo = 'rr';
     
@@ -60,18 +63,22 @@ var ProcessScheduler = (function(){
             }
         });
         
-        this.tick = function()
+        this.tick = function(processor)
         {
             // there may be something strange going on with this.
             // sometimes random context switches occur.  I haven't had time
             // to track down the source.  It could be working correctly, I am
             // just not sure.
             
-            processTicks++;
+            // only increment the scheduler clock once per cycle.  not once per cycle per cpu.
+            if (processor == 0) {
+                processTicks++;
+            }
+            
             // only schedule if more than one process
             if(this.algo == "rr" && processTicks % sys_quantum == 0 && processQ.q.length > 0)
             {
-                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch")));
+                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", processor)));
             }
         }
         
@@ -79,22 +86,35 @@ var ProcessScheduler = (function(){
         {
             // put into process q
             krnTrace("Scheduling Process " + process.PID);
+            
             if(this.algo == "priority") {
                 processQ.priorityEnqueue(process);
             } else {
+                // assign CPU
+                //console.log('Assigning process to cpu ' + lastCPU);
+                //process.cpuId = lastCPU;
+                
                 processQ.enqueue(process);
+                
+                //lastCPU = (lastCPU + 1) % _CPU_COUNT;
             }
         }
         
-        this.getProcess = function()
+        this.getProcess = function(cpu)
         {
-            return processQ.dequeue();
+            var process = processQ.dequeue();
+            krnTrace("Scheduling Processor " + cpu);
+            process.cpuId = cpu;
+            return process;
         }
         
         this.kill = function(pid)
         {
             var process = _ResidentQ[pid];
             krnTrace("Killing Process " + process.PID);
+            
+            _CPUS[process.cpuId].PID = null;
+            
             processQ.remove(process);
         }
         

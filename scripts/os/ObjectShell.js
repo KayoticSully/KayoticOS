@@ -793,9 +793,18 @@ var Shell = (function()
             }
         }
         
-        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
-        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("execute", null)));
+        //var started = false;
+        //for (var i in _CPUS)
+        //{
+        //    if (! _CPUS[i].isExecuting && ! started)
+        //    {
+        //        started = false;
+        //        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", i)));
+        //        
+        //    }
+        //}
         
+        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("execute")));
         return { defer : true }
     }
     

@@ -21,14 +21,14 @@ var MemoryManager = (function(){
         for(var slot = 0; slot < PROGRAMS_ALLOWED; slot++)
             slots[slot] = -1;
         
-        this.ActivePID = null;
-        this.Base = null;
-        this.Limit = null;
+        this.ActivePID = [null, null, null];
+        this.Base = [null, null, null];
+        this.Limit = [null, null, null];
         
         //------------------------------------
         // Memory Manager Instance Functions
         //------------------------------------
-        this.loadProgram = function(instructionArray, priority)
+        this.loadProgram = function(instructionArray, priority, cpu)
         {
             var slot = getFreeSlot();
             // auto(bots) rollout if we have no space
@@ -38,7 +38,7 @@ var MemoryManager = (function(){
                 if(_Scheduler.readyQ.length + 1< PROGRAMS_ALLOWED) {
                     for(var slot in slots) {
                         var pid = slots[slot];
-                        if(pid != _Memory.ActivePID && !_Scheduler.programInQ(pid))
+                        if(pid != _Memory.ActivePID[cpu] && !_Scheduler.programInQ(pid))
                         {
                             sacrificialPCB = _ResidentQ[pid];
                             break;
@@ -90,13 +90,23 @@ var MemoryManager = (function(){
         
         this.store = function(location, value, pcb)
         {
-            var memBase = this.Base;
-            var memLimit = this.Limit;
+            var memBase = null; //this.Base;
+            var memLimit = null; //this.Limit;
             
-            if(pcb !== undefined)
+            if(pcb instanceof PCB)
             {
                 memBase = pcb.Base;
                 memLimit = pcb.Limit;
+            }
+            else if (!isNaN(pcb))
+            {
+                memBase = this.Base[pcb];
+                memLimit = this.Limit[pcb];
+            }
+            else
+            {
+                console.log('Error: No Memory Bounds');
+                throw "No Memory Bounds";
             }
             
             var physicalLocation = parseInt(location) + memBase;
@@ -109,23 +119,32 @@ var MemoryManager = (function(){
             else
             {
                 errorTrace("MEM Access Violation on STORE @" + physicalLocation + " from " + location + " B:" + memBase + " L:" + memLimit);
-                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", this.ActivePID)));
+                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", this.ActivePID[pcb])));
             }
         }
         
         this.get = function(location, pcb)
         {
-            var memBase = this.Base;
-            var memLimit = this.Limit;
+            var memBase = null;//this.Base;
+            var memLimit = null;//this.Limit;
             
-            if(pcb !== undefined)
+            if(pcb instanceof PCB)
             {
                 memBase = pcb.Base;
                 memLimit = pcb.Limit;
             }
+            else if (!isNaN(pcb))
+            {
+                memBase = this.Base[pcb];
+                memLimit = this.Limit[pcb];
+            }
+            else
+            {
+                console.log('Error: No Memory Bounds');
+                throw "No Memory Bounds";
+            }
             
             var physicalLocation = parseInt(location) + memBase;
-            
             if(physicalLocation >= memBase && physicalLocation <= memLimit)
             {
                 return _RAM.get(physicalLocation);
@@ -133,7 +152,7 @@ var MemoryManager = (function(){
             else
             {
                 errorTrace("MEM Access Violation on GET @" + physicalLocation + " from " + location  + " B:" + memBase + " L:" + memLimit);
-                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", this.ActivePID)));
+                _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", this.ActivePID[pcb])));
                 return null;
             }
         }
@@ -147,25 +166,31 @@ var MemoryManager = (function(){
             
             _Memory.loadProgram(instructions, pcb);
             
-            _CPU.isExecuting = true;
+            _CPUS[pcb.cpuId].isExecuting = true;
         }
         
         function rollOut(PCB) {
             
-            _CPU.isExecuting = false;
+            var cpu = PCB.cpuId;
+            if (cpu != null) {
+                _CPUS[cpu].isExecuting = false;
+            }
             
             var swapData = "";
-            for(var location = 0; location < PROGRAM_SIZE; location++) {
+            for(var location = 0; location < PROGRAM_SIZE; location++)
+            {
                 var dat = _Memory.get(location, PCB);
                 // get data at memory location in the context of the program
                 swapData += dat;
             }
+            
             console.log('SwapData: ' + swapData);
             var fileName = "p" + PCB.PID;
             
             // make sure file handle is created
             _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("create", encodeToHex(fileName), { mode : 'system_file'})));
             _KernelInterruptQueue.enqueue(new Interrput(FS_IRQ, new Array("write", encodeToHex(fileName), swapData, { mode : 'system_file'})));
+            
             PCB.Base = -1;
             PCB.Limit = -1;
         }

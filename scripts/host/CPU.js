@@ -20,10 +20,15 @@
 
 var CPU = (function()
 {
+    var cpuCount = 0;
     
     function CPU()
     {
         var OPs = new OPCodes(this);
+        
+        // assign CPU unique id
+        this.cpuId = cpuCount;
+        cpuCount++;
         
         this.Acc   = 0;     // Accumulator
         this.PC    = 0;     // Program Counter
@@ -54,23 +59,6 @@ var CPU = (function()
             this.isExecuting = false;  
         }
         
-        this.pulse = function()
-        {
-            // Increment the hardware (host) clock.
-            _OSclock++;
-            
-            // Update System Time
-            _SystemClock.update();
-            
-            // Call the kernel clock pulse event handler.
-            krnOnCPUClockPulse();
-            
-            controlUpdateDisplay();
-            
-            if(STEP_TOGGLE)
-                _CPU.isExecuting = false;
-        }
-        
         this.cycle = function()
         {   
             // Fetch
@@ -92,7 +80,7 @@ var CPU = (function()
         
         this.fetch = function()
         {
-            return _Memory.get(this.PC++);
+            return _Memory.get(this.PC++, this.cpuId);
         }
     }
     

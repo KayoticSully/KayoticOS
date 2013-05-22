@@ -20,6 +20,7 @@ var PCB = (function(){
         this.Base   = Base;
         this.Limit  = Base + PROGRAM_SIZE - 1;
         this.priority = priority | 1; // default to 1
+        this.cpuId    = null;
         
         this.PC     = 0;     // Program Counter
         this.Acc    = 0;     // Accumulator

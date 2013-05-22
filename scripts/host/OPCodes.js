@@ -71,7 +71,7 @@ function OPCodes(processor)
         processor.Status.I = 1;
         
         // make interrupt
-        var interrupt = new Interrput(SYSTEMCALL_IRQ, ["00"]);
+        var interrupt = new Interrput(SYSTEMCALL_IRQ, ["00", processor.cpuId]);
         // throw interrupt
         _KernelInterruptQueue.enqueue(interrupt);
     }
@@ -114,7 +114,7 @@ function OPCodes(processor)
         var location = location2 + location1;
         
         // get data at memory location
-        var data = _Memory.get(parseInt(location, 16));
+        var data = _Memory.get(parseInt(location, 16), processor.cpuId);
         
         // Load Acc after converting from hex to int
         processor.Acc = intFromHex(data);
@@ -144,7 +144,7 @@ function OPCodes(processor)
         var data = processor.Acc;
         
         // store data at memory location
-        _Memory.store(parseInt(location, 16), hexFromInt(data));
+        _Memory.store(parseInt(location, 16), hexFromInt(data), processor.cpuId);
     }
     
     //================================================|
@@ -165,7 +165,7 @@ function OPCodes(processor)
         var location = location2 + location1;
         
         // get data value
-        var data = _Memory.get(parseInt(location, 16));
+        var data = _Memory.get(parseInt(location, 16), processor.cpuId);
         var dataValue = intFromHex(data);
         
         // get carry bit
@@ -239,7 +239,7 @@ function OPCodes(processor)
         // convert encoding
         var location = location2 + location1;
         // get Acc
-        var data = _Memory.get(parseInt(location, 16));
+        var data = _Memory.get(parseInt(location, 16), processor.cpuId);
         
         // perform operation
         var result = processor.Acc - intFromHex(data);
@@ -295,7 +295,7 @@ function OPCodes(processor)
         // convert encoding
         var location = location2 + location1;
         // get data from memory location
-        var data = _Memory.get(parseInt(location, 16));
+        var data = _Memory.get(parseInt(location, 16), processor.cpuId);
         
         // store data in X register
         processor.Xreg = intFromHex(data);
@@ -343,7 +343,7 @@ function OPCodes(processor)
         var data = processor.Xreg;
         
         // store data at memory location
-        _Memory.store(parseInt(location, 16), hexFromInt(data));
+        _Memory.store(parseInt(location, 16), hexFromInt(data), processor.cpuId);
     }
     
     //================================================|
@@ -431,7 +431,7 @@ function OPCodes(processor)
         // convert encoding
         var location = location2 + location1;
         // get data from memory location
-        var data = _Memory.get(parseInt(location, 16));
+        var data = _Memory.get(parseInt(location, 16), processor.cpuId);
         
         // store data in Y register
         processor.Yreg = intFromHex(data);
@@ -479,7 +479,7 @@ function OPCodes(processor)
         var data = processor.Yreg;
         
         // store data at memory location
-        _Memory.store(parseInt(location, 16), hexFromInt(data));
+        _Memory.store(parseInt(location, 16), hexFromInt(data), processor.cpuId);
     }
     
     //================================================|
@@ -579,7 +579,7 @@ function OPCodes(processor)
         // convert encoding
         var location = location2 + location1;
         // get data from memory location
-        var data = _Memory.get(parseInt(location, 16));
+        var data = _Memory.get(parseInt(location, 16), processor.cpuId);
         
         // check equality by subtraction
         var result = processor.Xreg - intFromHex(data);
@@ -629,7 +629,7 @@ function OPCodes(processor)
         // convert encoding
         var location = location2 + location1;
         // get data from memory location
-        var data = _Memory.get(parseInt(location, 16));
+        var data = _Memory.get(parseInt(location, 16), processor.cpuId);
         
         // check equality by subtraction
         var result = processor.Yreg - intFromHex(data);
@@ -678,14 +678,14 @@ function OPCodes(processor)
         // convert encoding
         var location = location2 + location1;
         // get data from memory
-        var data = _Memory.get(parseInt(location, 16));
+        var data = _Memory.get(parseInt(location, 16), processor.cpuId);
         
         // increment
         var result = intFromHex(data) + 1;
         
         checkSignAndZero(result);
         
-        _Memory.store(parseInt(location, 16), hexFromInt(result));
+        _Memory.store(parseInt(location, 16), hexFromInt(result), processor.cpuId);
     }
     
     //================================================|
@@ -705,14 +705,14 @@ function OPCodes(processor)
         // convert encoding
         var location = location2 + location1;
         // get data from memory
-        var data = _Memory.get(parseInt(location, 16));
+        var data = _Memory.get(parseInt(location, 16), processor.cpuId);
         
         // increment
         var result = intFromHex(data) - 1;
         
         checkSignAndZero(result);
         
-        _Memory.store(parseInt(location, 16), hexFromInt(result));
+        _Memory.store(parseInt(location, 16), hexFromInt(result), processor.cpuId);
     }
     
     //================================================|
@@ -908,7 +908,7 @@ function OPCodes(processor)
         // convert encoding
         var location = location2 + location1;
         // get Acc
-        var data = _Memory.get(parseInt(location, 16));
+        var data = _Memory.get(parseInt(location, 16), processor.cpuId);
         
         // check equality by subtraction
         var result = processor.Acc - intFromHex(data);
@@ -950,6 +950,6 @@ function OPCodes(processor)
         // LOG
         devLog("System Call [FF]");
         // send system call
-        _KernelInterruptQueue.enqueue(new Interrput(SYSTEMCALL_IRQ, ["FF", processor.Xreg, processor.Yreg]));
+        _KernelInterruptQueue.enqueue(new Interrput(SYSTEMCALL_IRQ, ["FF", processor.Xreg, processor.Yreg, processor.cpuId]));
     }
 }

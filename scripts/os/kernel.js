@@ -81,7 +81,6 @@ function krnShutdown()
     krnTrace("Disabling the interrupts.");
     krnDisableInterrupts();
     
-    
     // 
     // Unload the Device Drivers?
     // More?
@@ -90,6 +89,7 @@ function krnShutdown()
     _Scheduler = null;
     _Memory = null;
     _ResidentQ = null;
+    _CPU = null;
     krnKeyboardDriver = null;
     krnFileSystemDriver = null;
     _StdOut = null;
@@ -98,7 +98,6 @@ function krnShutdown()
     _KernelInputQueue = null;
     _KernelBuffers = null;
     _KernelInterruptQueue = null;
-    
     
     krnTrace("End Shutdown OS");
 }
@@ -118,23 +117,35 @@ function krnOnCPUClockPulse()
     }
     
     // Check for an interrupt, are any. Page 560
-    if (_KernelInterruptQueue.getSize() > 0)    
+    if (_KernelInterruptQueue.getSize() > 0)
     {
         // Process the first interrupt on the interrupt queue.
         // TODO: Implement a priority queye based on the IRQ number/id to enforce interrupt priority.
         var interrput = _KernelInterruptQueue.dequeue();
-        krnInterruptHandler(interrput.irq, interrput.params);        
+        krnInterruptHandler(interrput.irq, interrput.params);
     }
-    else if (_CPU.isExecuting) // If there are no interrupts then run a CPU cycle if there is anything being processed.
+    else
     {
-        // PS Tick
-        _Scheduler.tick();
-        // cycle
-        _CPU.cycle();
-    }    
-    else                       // If there are no interrupts and there is nothing being executed then just be idle.
-    {
-       krnTrace("Idle");
+        var somethingExecuted = false;
+        
+        // cycle all cpu's
+        for (var i in _CPUS)
+        {
+            var CPU = _CPUS[i];
+            
+            if (CPU.isExecuting)// If there are no interrupts then run a CPU cycle if there is anything being processed.
+            {
+                somethingExecuted = true;
+                CPU.cycle();
+                _Scheduler.tick();
+            }
+        }
+        
+        if (!somethingExecuted)
+        {
+            // If there are no interrupts and there is nothing being executed then just be idle.
+            krnTrace("Idle");
+        }
     }
 }
 
@@ -215,7 +226,7 @@ function krnProgramISR(params)
             krnExecute();
             break;
         case "context-switch":
-            krnContextSwitch();
+            krnContextSwitch(params[1]);
             break;
         case "kill":
             krnKillProgram(params[1]);
@@ -392,7 +403,7 @@ function krnHandleSysCall(params)
 {
     if(params[0] === "00")
     {
-        krnBreak();
+        krnBreak(params[1]);
     }
     else if(params[0] == "FF")
     {
@@ -407,10 +418,12 @@ function krnHandleSysCall(params)
                 // might be negative.  Since memory locations can't be
                 // negative, we need to reconvert it from hex.
                 var hexLocation = hexFromInt(params[2]);
-                var location = parseInt(params[2], 16);
+                var location = parseInt(hexLocation, 16);
                 
                 // get first character from starting location
-                var characterHex = _Memory.get(location++);
+                var characterHex = _Memory.get(location++, params[3]);
+                
+                console.log('ID:' + location);
                 
                 while(characterHex != "00")
                 {
@@ -422,7 +435,7 @@ function krnHandleSysCall(params)
                     _StdOut.addText(character);
                     
                     // get next
-                    characterHex = _Memory.get(location++);
+                    characterHex = _Memory.get(location++, params[3]);
                 }
                 
                 _StdOut.addText(" ");
@@ -438,19 +451,42 @@ function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Rout
 }
 
 function krnExecute()
-{   
-    // start executing
-    _CPU.isExecuting = true;
+{
+    var progsStarting = _Scheduler.readyQ.length;
+    if (progsStarting >= _CPU_COUNT)
+    {
+        for (var i = 0; i < _CPU_COUNT; i++)
+        {
+            _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", i)));
+            _CPUS[i].isExecuting = true;
+        }   
+    }
+    else if (progsStarting < _CPU_COUNT)
+    {
+        for (var i = 0; i < progsStarting; i++)
+        {
+            _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", i)));
+            _CPUS[i].isExecuting = true;
+        }   
+    }
 }
 
-function krnContextSwitch()
+function krnContextSwitch(processor)
 {
+    // assume processor 0 
+    if (processor === undefined)
+    {
+        processor = 0;
+    }
+    
     console.log("CONTEXT SWITCH LIKE A BOSS");
     krnTrace("Context Switch");
-    if(_Memory.ActivePID != null)
+    
+    // TODO
+    if(_Memory.ActivePID[processor] != null)
     {
         // pack up running process
-        var process = _ResidentQ[_Memory.ActivePID];
+        var process = _ResidentQ[_Memory.ActivePID[processor]];
         
         krnSaveState(process, "ready");
         
@@ -459,13 +495,14 @@ function krnContextSwitch()
         _Mode = 0;
     }
     
-    console.log("RUnning: " + _Scheduler.totalRunning);
+    console.log("Running: " + _Scheduler.totalRunning);
     console.log(_Scheduler.readyQ[0]);
     
     // get PCB
     if(_Scheduler.totalRunning > 0)
     {
-        var process = _Scheduler.getProcess();
+        var process = _Scheduler.getProcess(processor);
+        
         console.log(process);
         if(process !== undefined) { // make sure PCB is something
             if(process.Base == -1) {
@@ -484,26 +521,28 @@ function krnContextSwitch()
 
 function krnSaveState(process, status)
 {
-    process.PC      = _CPU.PC;
-    process.Acc     = _CPU.Acc;
-    process.Xreg    = _CPU.Xreg;
-    process.Yreg    = _CPU.Yreg;
-    process.Zflag   = _CPU.Zflag;
+    var cpu = process.cpuId;
+    process.PC      = _CPUS[cpu].PC;
+    process.Acc     = _CPUS[cpu].Acc;
+    process.Xreg    = _CPUS[cpu].Xreg;
+    process.Yreg    = _CPUS[cpu].Yreg;
+    process.Zflag   = _CPUS[cpu].Zflag;
     process.state  = status;
 }
 
 function krnLoadState(process, status)
 {
+    var cpu = process.cpuId;
     // unpack PCB into CPU
-    _CPU.PC     = process.PC;
-    _CPU.Acc    = process.Acc;
-    _CPU.Xreg   = process.Xreg;
-    _CPU.Yreg   = process.Yreg;
-    _CPU.Zflag  = process.Zflag;
+    _CPUS[cpu].PC     = process.PC;
+    _CPUS[cpu].Acc    = process.Acc;
+    _CPUS[cpu].Xreg   = process.Xreg;
+    _CPUS[cpu].Yreg   = process.Yreg;
+    _CPUS[cpu].Zflag  = process.Zflag;
     // unpack PCB into Memory
-    _Memory.Base        = process.Base;
-    _Memory.Limit       = process.Limit;
-    _Memory.ActivePID   = process.PID;
+    _Memory.Base[cpu]        = process.Base;
+    _Memory.Limit[cpu]       = process.Limit;
+    _Memory.ActivePID[cpu]   = process.PID;
     // set state
     process.state       = status;
 }
@@ -531,31 +570,34 @@ function krnReadyProgram(PID)
 function krnKillProgram(PID)
 {
     // ensure the process you are killing
-    // is not running.
-    if(_Memory.ActivePID == PID)
+    // is not running.WEQ
+    for (var p in _Memory.ActivePID)
     {
-        //> I am happily surprised that this works.
-        //> I also like that I managed to use a recursively calling interrupt
-        // WHAT THE HELL WERE YOUR THINKING THIS WAS A HORRIBLE IDEA
-        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
-        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", PID)));
+        if(_Memory.ActivePID[p] == PID)
+        {
+            //> I am happily surprised that this works.
+            //> I also like that I managed to use a recursively calling interrupt
+            // WHAT THE HELL WERE YOUR THINKING THIS WAS A HORRIBLE IDEA
+            _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", p)));
+            _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("kill", PID)));
+        }       
     }
     
     _Scheduler.kill(PID);
 }
 
-function krnBreak()
+function krnBreak(cpuId)
 {
-    _ResidentQ[_Memory.ActivePID].state = "terminated";   
+    _ResidentQ[_Memory.ActivePID[cpuId]].state = "terminated";   
     
-    _Memory.ActivePID = null;
+    _Memory.ActivePID[cpuId] = null;
     
     // this will cause a strange quantum bug, remember this
     if(_Scheduler.totalRunning > 0)
-        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", null)));
+        _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", cpuId)));
     else
     {
-        _CPU.isExecuting = false;
+        _CPUS[cpuId].isExecuting = false;
         _StdOut.advanceLine();
         _OsShell.putPrompt();
     }
