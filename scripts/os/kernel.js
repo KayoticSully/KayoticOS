@@ -137,7 +137,7 @@ function krnOnCPUClockPulse()
             {
                 somethingExecuted = true;
                 CPU.cycle();
-                _Scheduler.tick();
+                _Scheduler.tick(i);
             }
         }
         
@@ -539,6 +539,8 @@ function krnLoadState(process, status)
     _CPUS[cpu].Xreg   = process.Xreg;
     _CPUS[cpu].Yreg   = process.Yreg;
     _CPUS[cpu].Zflag  = process.Zflag;
+    // make sure processor is set to execute
+    _CPUS[cpu].isExecuting = true;
     // unpack PCB into Memory
     _Memory.Base[cpu]        = process.Base;
     _Memory.Limit[cpu]       = process.Limit;
@@ -570,7 +572,7 @@ function krnReadyProgram(PID)
 function krnKillProgram(PID)
 {
     // ensure the process you are killing
-    // is not running.WEQ
+    // is not running.
     for (var p in _Memory.ActivePID)
     {
         if(_Memory.ActivePID[p] == PID)
@@ -588,16 +590,19 @@ function krnKillProgram(PID)
 
 function krnBreak(cpuId)
 {
-    _ResidentQ[_Memory.ActivePID[cpuId]].state = "terminated";   
+    // stop execution on this CPU
+    _CPUS[cpuId].isExecuting = false;
     
+    _ResidentQ[_Memory.ActivePID[cpuId]].state = "terminated";   
     _Memory.ActivePID[cpuId] = null;
     
     // this will cause a strange quantum bug, remember this
     if(_Scheduler.totalRunning > 0)
+    {
         _KernelInterruptQueue.enqueue(new Interrput(PROGRAM_IRQ, new Array("context-switch", cpuId)));
+    }
     else
     {
-        _CPUS[cpuId].isExecuting = false;
         _StdOut.advanceLine();
         _OsShell.putPrompt();
     }

@@ -260,15 +260,16 @@ function updateCPU()
 	var str = '';
 	for (var i in _CPUS)
 	{
-		str += '<strong>PC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPUS[i].PC) + '</span>&nbsp;&nbsp;' +
+		str += '<strong>PC:</strong>' + '<span class="PCBField">' + toPettyHex(_CPUS[i].PC) + '</span>&nbsp;' +
 		  '<strong>ACC:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPUS[i].Acc), 2) + '</span>' +
-		  '<strong>X:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPUS[i].Xreg), 2) + '</span>&nbsp;&nbsp;' +
-		  '<strong>Y:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPUS[i].Yreg), 2) + '</span>&nbsp;&nbsp;' +
+		  '<strong>X:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPUS[i].Xreg), 2) + '</span>&nbsp;' +
+		  '<strong>Y:</strong>' + '<span class="PCBField">' + toPettyHex(hexFromInt(_CPUS[i].Yreg), 2) + '</span>&nbsp;' +
 		  '<strong>PID:</strong>' + '<span class="PCBField">' + _Memory.ActivePID[i] + '</span>&nbsp;' +
-		  '<strong>Base:</strong>' + '<span class="PCBField">' + _Memory.Base[i] + '</span>&nbsp;&nbsp;' +
-		  '<strong>Limit:</strong>' + '<span class="PCBField">' + _Memory.Limit[i] + '</span>&nbsp;&nbsp;' +
+		  '<strong>Base:</strong>' + '<span class="PCBField">' + _Memory.Base[i] + '</span>&nbsp;' +
+		  '<strong>Limit:</strong>' + '<span class="PCBField">' + _Memory.Limit[i] + '</span>&nbsp;' +
+		  '<strong>isExe:</strong>' + '<span class="PCBField">' + _CPUS[i].isExecuting + '</span>&nbsp;' +
 		  '<br>' +
-		  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp';
+		  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 	}
 	
 	$('#CPU').html(str);
